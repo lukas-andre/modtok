@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casas Modulares - MODTOK</title>
+  <meta name="description" content="Encuentra las mejores casas modulares en Chile. Compare precios, diseños y características de viviendas prefabricadas.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="/" class="logo">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+          MODTOK
+        </a>
+        
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-link">Inicio</a></li>
+          <li><a href="/houses.html" class="nav-link active">Casas</a></li>
+          <li><a href="/manufacturers.html" class="nav-link">Fabricantes</a></li>
+          <li><a href="/services.html" class="nav-link">Servicios</a></li>
+          <li><a href="/blog.html" class="nav-link">Blog</a></li>
+          <li><a href="/hotspots.html" class="nav-link">HotSpots</a></li>
+        </ul>
+        
+        <div class="navbar-actions" style="display: flex; gap: 1rem; align-items: center;">
+          <div id="authButtons" style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-ghost" onclick="modtok.openModal('loginModal')">Iniciar Sesión</button>
+            <button class="btn btn-primary" onclick="modtok.openModal('registerModal')">Registrarse</button>
+          </div>
+          
+          <div id="userMenu" style="display: none; align-items: center; gap: 1rem;">
+            <a href="/dashboard.html" class="watchlist-icon">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+              <span class="watchlist-count">0</span>
+            </a>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span id="userName" style="font-weight: 500;">Usuario</span>
+              <button class="btn btn-ghost btn-icon" onclick="modtok.logout()">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <section style="background: linear-gradient(135deg, #6B7D8A 0%, #3D4B56 100%); color: white; padding: 3rem 0;">
+    <div class="container">
+      <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">Casas Modulares en Chile</h1>
+      <p style="font-size: 1.125rem; opacity: 0.9;">Explora nuestra selección de viviendas prefabricadas y modulares</p>
+      
+      <!-- Search Bar -->
+      <div style="margin-top: 2rem; max-width: 600px;">
+        <form id="searchForm" class="search-bar">
+          <input type="search" placeholder="Buscar casas por ubicación, precio, características..." aria-label="Buscar casas">
+          <button type="submit" class="btn btn-primary" style="border-radius: 100px;">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Breadcrumb -->
+  <div class="container" style="padding: 1rem 1rem 0;">
+    <nav style="font-size: 0.875rem; color: var(--text-muted);">
+      <a href="/" style="color: var(--text-muted); text-decoration: none;">Inicio</a>
+      <span style="margin: 0 0.5rem;">/</span>
+      <span>Casas Modulares</span>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="content-grid">
+      <!-- Enhanced Filter Sidebar -->
+      <aside class="filter-sidebar">
+        <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;">Filtros</h2>
+        
+        <!-- House Type Filter -->
+        <div class="filter-section">
+          <h3>Tipo de Casa</h3>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" value="tiny">
+              <span>Tiny House (< 40m²)</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="small">
+              <span>Pequeña (40-80m²)</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="medium">
+              <span>Mediana (80-120m²)</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="large">
+              <span>Grande (> 120m²)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Rooms Filter -->
+        <div class="filter-section">
+          <h3>Habitaciones</h3>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" value="1">
+              <span>1 Habitación</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="2">
+              <span>2 Habitaciones</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="3">
+              <span>3 Habitaciones</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="4+">
+              <span>4+ Habitaciones</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Price Range -->
+        <div class="filter-section">
+          <h3>Rango de Precio</h3>
+          <div class="slider-container">
+            <label for="priceMin" class="form-label">Mínimo: <span id="priceMinDisplay">$0</span></label>
+            <input type="range" id="priceMin" class="slider" min="0" max="300000000" value="0" step="1000000">
+          </div>
+          <div class="slider-container">
+            <label for="priceMax" class="form-label">Máximo: <span id="priceMaxDisplay">$300.000.000</span></label>
+            <input type="range" id="priceMax" class="slider" min="0" max="300000000" value="300000000" step="1000000">
+          </div>
+        </div>
+
+        <!-- Materials -->
+        <div class="filter-section">
+          <h3>Material Principal</h3>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" value="sip">
+              <span>Paneles SIP</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="wood">
+              <span>Madera</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="steel">
+              <span>Acero</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="container">
+              <span>Contenedor</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="concrete">
+              <span>Hormigón</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div class="filter-section">
+          <h3>Características</h3>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" value="turnkey">
+              <span>Llave en Mano</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="offgrid">
+              <span>Off-Grid Ready</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="sustainable">
+              <span>Sustentable</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="expandable">
+              <span>Expandible</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="mobile">
+              <span>Móvil/Transportable</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+          <button id="applyFilters" class="btn btn-primary" style="flex: 1;">Aplicar</button>
+          <button id="clearFilters" class="btn btn-secondary" style="flex: 1;">Limpiar</button>
+        </div>
+      </aside>
+
+      <!-- Houses Grid -->
+      <main>
+        <!-- Results Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <div>
+            <h2 style="font-size: 1.5rem; margin-bottom: 0.25rem;">248 Casas Encontradas</h2>
+            <p style="color: var(--text-muted);">Mostrando resultados para toda Chile</p>
+          </div>
+          
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span style="font-size: 0.875rem; color: var(--text-muted);">Ordenar por:</span>
+            <select class="select" style="width: auto;">
+              <option>Más Relevantes</option>
+              <option>Precio: Menor a Mayor</option>
+              <option>Precio: Mayor a Menor</option>
+              <option>Más Recientes</option>
+              <option>Tamaño: Menor a Mayor</option>
+              <option>Tamaño: Mayor a Menor</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Premium Houses -->
+        <section style="margin-bottom: 3rem;">
+          <div class="section-header">
+            <h3 class="section-title">Casas Premium</h3>
+          </div>
+          
+          <div class="grid-3">
+            <!-- Premium House 1 -->
+            <article class="card card-premium listing-card">
+              <img src="https://images.unsplash.com/photo-1567428485548-c499e4931c10?w=400" alt="Casa Lago Premium" class="listing-image">
+              <div class="listing-content">
+                <h3 class="listing-title">Casa Lago Premium</h3>
+                <p class="listing-description">Casa de lujo de 220m² con vista al lago. 4 habitaciones, 3 baños, terraza panorámica.</p>
+                <div class="listing-features">
+                  <span class="badge">220m²</span>
+                  <span class="badge">4 Habitaciones</span>
+                  <span class="badge">Llave en Mano</span>
+                </div>
+                <div class="listing-footer">
+                  <span class="listing-price">$185.000.000</span>
+                  <div class="listing-actions">
+                    <button class="btn btn-ghost btn-icon" data-listing-id="h1" data-listing-title="Casa Lago Premium" data-listing-type="house" data-listing-price="185000000">
+                      <svg class="heart-icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    </button>
+                    <a href="/provider/casa-lago.html" class="btn btn-primary">Ver Detalles</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Premium House 2 -->
+            <article class="card card-premium listing-card">
+              <img src="https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=400" alt="Villa Moderna" class="listing-image">
+              <div class="listing-content">
+                <h3 class="listing-title">Villa Moderna Sustentable</h3>
+                <p class="listing-description">Diseño vanguardista de 180m² con certificación energética A+. Sistema solar incluido.</p>
+                <div class="listing-features">
+                  <span class="badge">180m²</span>
+                  <span class="badge">3 Habitaciones</span>
+                  <span class="badge">Off-Grid</span>
+                </div>
+                <div class="listing-footer">
+                  <span class="listing-price">$165.000.000</span>
+                  <div class="listing-actions">
+                    <button class="btn btn-ghost btn-icon" data-listing-id="h2" data-listing-title="Villa Moderna" data-listing-type="house" data-listing-price="165000000">
+                      <svg class="heart-icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    </button>
+                    <a href="/provider/villa-moderna.html" class="btn btn-primary">Ver Detalles</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Premium House 3 -->
+            <article class="card card-premium listing-card">
+              <img src="https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=400" alt="Casa Montaña" class="listing-image">
+              <div class="listing-content">
+                <h3 class="listing-title">Casa Montaña Deluxe</h3>
+                <p class="listing-description">Refugio de montaña de 150m² con acabados premium. Aislación térmica superior.</p>
+                <div class="listing-features">
+                  <span class="badge">150m²</span>
+                  <span class="badge">3 Habitaciones</span>
+                  <span class="badge">Chimenea</span>
+                </div>
+                <div class="listing-footer">
+                  <span class="listing-price">$145.000.000</span>
+                  <div class="listing-actions">
+                    <button class="btn btn-ghost btn-icon" data-listing-id="h3" data-listing-title="Casa Montaña" data-listing-type="house" data-listing-price="145000000">
+                      <svg class="heart-icon" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    </button>
+                    <a href="/provider/casa-montana.html" class="btn btn-primary">Ver Detalles</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Featured Houses -->
+        <section style="margin-bottom: 3rem;">
+          <div class="section-header">
+            <h3 class="section-title">Casas Destacadas</h3>
+          </div>
+          
+          <div class="grid-3">
+            <!-- Featured House 1 -->
+            <article class="card card-featured">
+              <img src="https://images.unsplash.com/photo-1449844908441-8829872d2607?w=400" alt="Casa Familiar" class="listing-image">
+              <div class="listing-content">
+                <h3 class="listing-title">Casa Familiar Modular</h3>
+                <p class="listing-description">120m², 3 habitaciones, 2 baños. Perfecta para familias.</p>
+                <div class="listing-features">
+                  <span class="badge">120m²</span>
+                  <span class="badge">Paneles SIP</span>
+                </div>
+                <div class="listing-footer">
+                  <span class="listing-price">$85.000.000</span>
+                  <div class="listing-actions">
+                    <button class="btn btn-ghost btn-icon" data-listing-id="h4" data-listing-title="Casa Familiar" data-listing-type="house" data-listing-price="85000000">
+                      <span class="heart-icon">🤍</span>
+                    </button>
+                    <a href="#" class="btn btn-secondary">Ver Más</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Featured House 2 -->
+            <article class="card card-featured">
+              <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400" alt="Tiny House" class="listing-image">
+              <div class="listing-content">
+                <h3 class="listing-title">Tiny House Minimalista</h3>
+                <p class="listing-description">35m² optimizados al máximo. Ideal para parejas o solteros.</p>
+                <div class="listing-features">
+                  <span class="badge">35m²</span>
+                  <span class="badge">Móvil</span>
+                </div>
+                <div class="listing-footer">
+                  <span class="listing-price">$28.000.000</span>
+                  <div class="listing-actions">
+                    <button class="btn btn-ghost btn-icon" data-listing-id="h5" data-listing-title="Tiny House" data-listing-type="house" data-listing-price="28000000">
+                      <span class="heart-icon">🤍</span>
+                    </button>
+                    <a href="#" class="btn btn-secondary">Ver Más</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Featured House 3 -->
+            <article class="card card-featured">
+              <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400" alt="Casa Campo" class="listing-image">
+              <div class="listing-content">
+                <h3 class="listing-title">Casa de Campo</h3>
+                <p class="listing-description">90m², diseño rústico moderno. 2 habitaciones amplias.</p>
+                <div class="listing-features">
+                  <span class="badge">90m²</span>
+                  <span class="badge">Madera</span>
+                </div>
+                <div class="listing-footer">
+                  <span class="listing-price">$65.000.000</span>
+                  <div class="listing-actions">
+                    <button class="btn btn-ghost btn-icon" data-listing-id="h6" data-listing-title="Casa Campo" data-listing-type="house" data-listing-price="65000000">
+                      <span class="heart-icon">🤍</span>
+                    </button>
+                    <a href="#" class="btn btn-secondary">Ver Más</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- More Featured Houses -->
+            <article class="card card-featured">
+              <img src="https://images.unsplash.com/photo-1513584684374-8bab748fbf90?w=400" alt="Loft Modular" class="listing-image">
+              <div class="listing-content">
+                <h3 class="listing-title">Loft Modular Urbano</h3>
+                <p class="listing-description">75m², diseño industrial. Espacios abiertos integrados.</p>
+                <div class="listing-features">
+                  <span class="badge">75m²</span>
+                  <span class="badge">Acero</span>
+                </div>
+                <div class="listing-footer">
+                  <span class="listing-price">$55.000.000</span>
+                  <div class="listing-actions">
+                    <button class="btn btn-ghost btn-icon" data-listing-id="h7" data-listing-title="Loft Modular" data-listing-type="house" data-listing-price="55000000">
+                      <span class="heart-icon">🤍</span>
+                    </button>
+                    <a href="#" class="btn btn-secondary">Ver Más</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card card-featured">
+              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400" alt="Casa Playa" class="listing-image">
+              <div class="listing-content">
+                <h3 class="listing-title">Casa Playa Modular</h3>
+                <p class="listing-description">100m², resistente a la corrosión. Vista al mar.</p>
+                <div class="listing-features">
+                  <span class="badge">100m²</span>
+                  <span class="badge">Anti-corrosión</span>
+                </div>
+                <div class="listing-footer">
+                  <span class="listing-price">$95.000.000</span>
+                  <div class="listing-actions">
+                    <button class="btn btn-ghost btn-icon" data-listing-id="h8" data-listing-title="Casa Playa" data-listing-type="house" data-listing-price="95000000">
+                      <span class="heart-icon">🤍</span>
+                    </button>
+                    <a href="#" class="btn btn-secondary">Ver Más</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="card card-featured">
+              <img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400" alt="Container Home" class="listing-image">
+              <div class="listing-content">
+                <h3 class="listing-title">Container Home Eco</h3>
+                <p class="listing-description">Container reciclado de 40m². Solución económica y sustentable.</p>
+                <div class="listing-features">
+                  <span class="badge">40m²</span>
+                  <span class="badge">Container</span>
+                </div>
+                <div class="listing-footer">
+                  <span class="listing-price">$32.000.000</span>
+                  <div class="listing-actions">
+                    <button class="btn btn-ghost btn-icon" data-listing-id="h9" data-listing-title="Container Home" data-listing-type="house" data-listing-price="32000000">
+                      <span class="heart-icon">🤍</span>
+                    </button>
+                    <a href="#" class="btn btn-secondary">Ver Más</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Standard Listings -->
+        <section>
+          <div class="section-header">
+            <h3 class="section-title">Más Casas Disponibles</h3>
+          </div>
+          
+          <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem;">
+            <div style="display: flex; flex-direction: column; gap: 0;">
+              <div style="padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>Casa Básica 60m²</strong>
+                  <span style="color: var(--text-muted); margin-left: 1rem;">2 hab • 1 baño • Región Metropolitana</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span style="font-weight: 600; color: var(--primary);">$42.000.000</span>
+                  <button class="btn btn-ghost btn-sm" data-listing-id="s1" data-listing-title="Casa Básica" data-listing-type="house">
+                    <span class="heart-icon">♡</span>
+                  </button>
+                </div>
+              </div>
+              
+              <div style="padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>Cabaña Modular 45m²</strong>
+                  <span style="color: var(--text-muted); margin-left: 1rem;">1 hab • 1 baño • Los Lagos</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span style="font-weight: 600; color: var(--primary);">$38.000.000</span>
+                  <button class="btn btn-ghost btn-sm" data-listing-id="s2" data-listing-title="Cabaña Modular" data-listing-type="house">
+                    <span class="heart-icon">🤍</span>
+                  </button>
+                </div>
+              </div>
+              
+              <div style="padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>Casa Expandible 80m²</strong>
+                  <span style="color: var(--text-muted); margin-left: 1rem;">3 hab • 2 baños • Valparaíso</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span style="font-weight: 600; color: var(--primary);">$58.000.000</span>
+                  <button class="btn btn-ghost btn-sm" data-listing-id="s3" data-listing-title="Casa Expandible" data-listing-type="house">
+                    <span class="heart-icon">🤍</span>
+                  </button>
+                </div>
+              </div>
+              
+              <div style="padding: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>Duplex Modular 110m²</strong>
+                  <span style="color: var(--text-muted); margin-left: 1rem;">3 hab • 2 baños • Biobío</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span style="font-weight: 600; color: var(--primary);">$75.000.000</span>
+                  <button class="btn btn-ghost btn-sm" data-listing-id="s4" data-listing-title="Duplex Modular" data-listing-type="house">
+                    <span class="heart-icon">🤍</span>
+                  </button>
+                </div>
+              </div>
+              
+              <div style="padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>Studio Compacto 30m²</strong>
+                  <span style="color: var(--text-muted); margin-left: 1rem;">1 hab • 1 baño • La Araucanía</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                  <span style="font-weight: 600; color: var(--primary);">$25.000.000</span>
+                  <button class="btn btn-ghost btn-sm" data-listing-id="s5" data-listing-title="Studio Compacto" data-listing-type="house">
+                    <span class="heart-icon">🤍</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <button class="pagination-item">←</button>
+          <button class="pagination-item active">1</button>
+          <button class="pagination-item">2</button>
+          <button class="pagination-item">3</button>
+          <button class="pagination-item">4</button>
+          <button class="pagination-item">5</button>
+          <button class="pagination-item">...</button>
+          <button class="pagination-item">25</button>
+          <button class="pagination-item">→</button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>MODTOK</h3>
+          <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">La plataforma líder para encontrar tu hogar modular ideal en Chile.</p>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Categorías</h3>
+          <ul class="footer-links">
+            <li><a href="/houses.html">Casas Modulares</a></li>
+            <li><a href="/manufacturers.html">Fabricantes</a></li>
+            <li><a href="/services.html">Servicios</a></li>
+            <li><a href="/decoration.html">Decoración</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Recursos</h3>
+          <ul class="footer-links">
+            <li><a href="/blog.html">Blog</a></li>
+            <li><a href="/guides.html">Guías</a></li>
+            <li><a href="/hotspots.html">HotSpots</a></li>
+            <li><a href="/faq.html">Preguntas Frecuentes</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Empresa</h3>
+          <ul class="footer-links">
+            <li><a href="/about.html">Acerca de</a></li>
+            <li><a href="/contact.html">Contacto</a></li>
+            <li><a href="/advertise.html">Publicita con Nosotros</a></li>
+            <li><a href="/terms.html">Términos y Condiciones</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2024 MODTOK. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modals (same as index.html) -->
+  <div id="loginModal" class="modal">
+    <!-- Same content as index.html -->
+  </div>
+
+  <div id="registerModal" class="modal">
+    <!-- Same content as index.html -->
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

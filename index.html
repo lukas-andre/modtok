@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MODTOK - Tu Hogar Modular en Chile</title>
+  <meta name="description" content="Descubre fabricantes, casas modulares y servicios para construir tu hogar modular en Chile. La plataforma más completa del mercado.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="/" class="logo">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+          MODTOK
+        </a>
+        
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-link active">Inicio</a></li>
+          <li><a href="/houses.html" class="nav-link">Casas</a></li>
+          <li><a href="/manufacturers.html" class="nav-link">Fabricantes</a></li>
+          <li><a href="/services.html" class="nav-link">Servicios</a></li>
+          <li><a href="/blog.html" class="nav-link">Blog</a></li>
+          <li><a href="/hotspots.html" class="nav-link">HotSpots</a></li>
+        </ul>
+        
+        <div class="navbar-actions" style="display: flex; gap: 1rem; align-items: center;">
+          <div id="authButtons" style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-ghost" onclick="modtok.openModal('loginModal')">Iniciar Sesión</button>
+            <button class="btn btn-primary" onclick="modtok.openModal('registerModal')">Registrarse</button>
+          </div>
+          
+          <div id="userMenu" style="display: none; align-items: center; gap: 1rem;">
+            <a href="/dashboard.html" class="watchlist-icon">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+              <span class="watchlist-count">0</span>
+            </a>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span id="userName" style="font-weight: 500;">Usuario</span>
+              <button class="btn btn-ghost btn-icon" onclick="modtok.logout()">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <h1>Encuentra Tu Hogar Modular Ideal</h1>
+      <p>Conectamos a futuros propietarios con los mejores fabricantes y servicios de Chile</p>
+      
+      <form id="searchForm" class="search-bar">
+        <input type="search" placeholder="Buscar casas, fabricantes, servicios..." aria-label="Buscar">
+        <button type="submit" class="btn btn-primary" style="border-radius: 100px;">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          Buscar
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Category Tabs -->
+  <div class="container">
+    <div class="category-tabs">
+      <button class="category-tab active" data-category="all">Todos</button>
+      <button class="category-tab" data-category="houses">Casas</button>
+      <button class="category-tab" data-category="manufacturers">Fabricantes</button>
+      <button class="category-tab" data-category="services">Servicios</button>
+      <button class="category-tab" data-category="decoration">Decoración</button>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="container">
+    <div class="content-grid">
+      <!-- Filter Sidebar -->
+      <aside class="filter-sidebar">
+        <div class="filter-section" data-filter-type="services">
+          <h3>Servicios Disponibles</h3>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" value="turnkey">
+              <span>Llave en Mano</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="design">
+              <span>Diseño Personalizado</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="financing">
+              <span>Financiamiento</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="transport">
+              <span>Transporte Incluido</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="installation">
+              <span>Instalación</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-section" data-filter-type="technology">
+          <h3>Tecnología de Material</h3>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" value="sip">
+              <span>Paneles SIP</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="steel">
+              <span>Estructura Metálica</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="wood">
+              <span>Madera</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="container">
+              <span>Contenedor</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="3d">
+              <span>Impresión 3D</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <h3>Rango de Precio</h3>
+          <div class="slider-container">
+            <label for="priceMin" class="form-label">Mínimo: <span id="priceMinDisplay">$0</span></label>
+            <input type="range" id="priceMin" class="slider" min="0" max="500000000" value="0" step="1000000">
+          </div>
+          <div class="slider-container">
+            <label for="priceMax" class="form-label">Máximo: <span id="priceMaxDisplay">$500.000.000</span></label>
+            <input type="range" id="priceMax" class="slider" min="0" max="500000000" value="500000000" step="1000000">
+          </div>
+        </div>
+
+        <div class="filter-section" data-filter-type="location">
+          <h3>Ubicación</h3>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" value="rm">
+              <span>Región Metropolitana</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="valparaiso">
+              <span>Valparaíso</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="biobio">
+              <span>Biobío</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="araucania">
+              <span>La Araucanía</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" value="lagos">
+              <span>Los Lagos</span>
+            </label>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+          <button id="applyFilters" class="btn btn-primary" style="flex: 1;">Aplicar Filtros</button>
+          <button id="clearFilters" class="btn btn-secondary" style="flex: 1;">Limpiar</button>
+        </div>
+      </aside>
+
+      <!-- Listings Container -->
+      <main class="listings-container">
+        <!-- Premium Section -->
+        <section>
+          <div class="section-header">
+            <h2 class="section-title">Premium</h2>
+            <a href="/premium.html" class="btn btn-ghost">Ver todos →</a>
+          </div>
+          
+          <div class="grid-3">
+            <!-- Premium Card 1 -->
+            <article class="card card-premium listing-card">
+              <img src="https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=400" alt="Casa Premium" class="listing-image">
+              <div class="listing-content">
+                <h3 class="listing-title">Casa Modular Luxe</h3>
+                <p class="listing-description">Casa premium con diseño vanguardista, 180m², tecnología SIP de última generación. Incluye domótica y eficiencia energética A+.</p>
+                <div class="listing-features">
+                  <span class="badge">Llave en Mano</span>
+                  <span class="badge">Financiamiento</span>
+                  <span class="badge">Smart Home</span>
+                </div>
+                <div class="listing-footer">
+                  <span class="listing-price">$145.000.000</span>
+                  <div class="listing-actions">
+                    <button class="btn btn-ghost" data-listing-id="p1" data-listing-title="Casa Modular Luxe" data-listing-type="house" data-listing-price="145000000" style="border: 1px solid rgba(255,255,255,0.2); color: white;">
+                      Guardar
+                    </button>
+                    <a href="/provider/casa-luxe.html" class="btn btn-primary">Ver Detalles</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Premium Card 2 -->
+            <article class="card card-premium listing-card">
+              <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400" alt="EcoModular Pro" class="listing-image">
+              <div class="listing-content">
+                <h3 class="listing-title">EcoModular Pro</h3>
+                <p class="listing-description">Fabricante líder con 15 años de experiencia. Especialistas en construcción sustentable con certificación LEED.</p>
+                <div class="listing-features">
+                  <span class="badge">Fabricante</span>
+                  <span class="badge">Certificado LEED</span>
+                  <span class="badge">Garantía 10 años</span>
+                </div>
+                <div class="listing-footer">
+                  <span class="listing-price">Desde $65.000.000</span>
+                  <div class="listing-actions">
+                    <button class="btn btn-ghost" data-listing-id="p2" data-listing-title="EcoModular Pro" data-listing-type="manufacturer" data-listing-price="65000000" style="border: 1px solid rgba(255,255,255,0.2); color: white;">
+                      Guardar
+                    </button>
+                    <a href="/provider/ecomodular.html" class="btn btn-primary">Ver Catálogo</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <!-- Premium Card 3 -->
+            <article class="card card-premium listing-card">
+              <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400" alt="Solar Solutions" class="listing-image">
+              <div class="listing-content">
+                <h3 class="listing-title">Solar Solutions Chile</h3>
+                <p class="listing-description">Instalación profesional de paneles solares y sistemas off-grid. Autonomía energética total para tu hogar modular.</p>
+                <div class="listing-features">
+                  <span class="badge">Servicio</span>
+                  <span class="badge">Energía Solar</span>
+                  <span class="badge">Off-Grid</span>
+                </div>
+                <div class="listing-footer">
+                  <span class="listing-price">Desde $8.500.000</span>
+                  <div class="listing-actions">
+                    <button class="btn btn-ghost" data-listing-id="p3" data-listing-title="Solar Solutions" data-listing-type="service" data-listing-price="8500000" style="border: 1px solid rgba(255,255,255,0.2); color: white;">
+                      Guardar
+                    </button>
+                    <a href="/provider/solar-solutions.html" class="btn btn-primary">Cotizar</a>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Featured Section -->
+        <section>
+          <div class="section-header">
+            <h2 class="section-title">Destacados</h2>
+            <a href="/featured.html" class="btn btn-ghost">Ver todos →</a>
+          </div>
+          
+          <div class="grid-4">
+            <!-- Featured Card 1 -->
+            <article class="card card-featured">
+              <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=300" alt="ModulArq" class="listing-image" style="height: 150px;">
+              <div class="listing-content">
+                <h3 class="listing-title" style="font-size: 1.125rem;">ModulArq</h3>
+                <p class="listing-description" style="font-size: 0.8rem;">Diseño y construcción modular personalizada.</p>
+                <div class="listing-footer">
+                  <button class="btn btn-secondary btn-sm" data-listing-id="f1" data-listing-title="ModulArq" data-listing-type="manufacturer" data-listing-price="45000000">
+                    Guardar
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <!-- Featured Card 2 -->
+            <article class="card card-featured">
+              <img src="https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=300" alt="Tiny House Chile" class="listing-image" style="height: 150px;">
+              <div class="listing-content">
+                <h3 class="listing-title" style="font-size: 1.125rem;">Tiny House Chile</h3>
+                <p class="listing-description" style="font-size: 0.8rem;">Especialistas en casas pequeñas y móviles.</p>
+                <div class="listing-footer">
+                  <button class="btn btn-secondary btn-sm" data-listing-id="f2" data-listing-title="Tiny House Chile" data-listing-type="house" data-listing-price="25000000">
+                    Guardar
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <!-- Featured Card 3 -->
+            <article class="card card-featured">
+              <img src="https://images.unsplash.com/photo-1558036117-15d82a90b9b1?w=300" alt="AguaPura" class="listing-image" style="height: 150px;">
+              <div class="listing-content">
+                <h3 class="listing-title" style="font-size: 1.125rem;">AguaPura</h3>
+                <p class="listing-description" style="font-size: 0.8rem;">Perforación de pozos profundos y sistemas de agua.</p>
+                <div class="listing-footer">
+                  <button class="btn btn-secondary btn-sm" data-listing-id="f3" data-listing-title="AguaPura" data-listing-type="service" data-listing-price="12000000">
+                    Guardar
+                  </button>
+                </div>
+              </div>
+            </article>
+
+            <!-- Featured Card 4 -->
+            <article class="card card-featured">
+              <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=300" alt="Container Home" class="listing-image" style="height: 150px;">
+              <div class="listing-content">
+                <h3 class="listing-title" style="font-size: 1.125rem;">Container Home</h3>
+                <p class="listing-description" style="font-size: 0.8rem;">Transformación de contenedores en hogares.</p>
+                <div class="listing-footer">
+                  <button class="btn btn-secondary btn-sm" data-listing-id="f4" data-listing-title="Container Home" data-listing-type="manufacturer" data-listing-price="35000000">
+                    Guardar
+                  </button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- Standard Listings -->
+        <section>
+          <div class="section-header">
+            <h2 class="section-title">Listado Estándar</h2>
+            <a href="/listings.html" class="btn btn-ghost">Ver todos →</a>
+          </div>
+          
+          <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem;">
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <div style="padding: 0.75rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>Construcciones Modulares Santiago</strong>
+                  <span style="color: var(--text-muted); margin-left: 1rem;">Fabricante • Santiago</span>
+                </div>
+                <button class="btn btn-ghost btn-sm" data-listing-id="s1" data-listing-title="Construcciones Modulares Santiago" data-listing-type="manufacturer">
+                  <span class="heart-icon">♡</span>
+                </button>
+              </div>
+              
+              <div style="padding: 0.75rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>Prefabricados del Sur</strong>
+                  <span style="color: var(--text-muted); margin-left: 1rem;">Fabricante • Temuco</span>
+                </div>
+                <button class="btn btn-ghost btn-sm" data-listing-id="s2" data-listing-title="Prefabricados del Sur" data-listing-type="manufacturer">
+                  <span class="heart-icon">🤍</span>
+                </button>
+              </div>
+              
+              <div style="padding: 0.75rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>Instalaciones Eléctricas Modulares</strong>
+                  <span style="color: var(--text-muted); margin-left: 1rem;">Servicio • Valparaíso</span>
+                </div>
+                <button class="btn btn-ghost btn-sm" data-listing-id="s3" data-listing-title="Instalaciones Eléctricas Modulares" data-listing-type="service">
+                  <span class="heart-icon">🤍</span>
+                </button>
+              </div>
+              
+              <div style="padding: 0.75rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>Casas Prefabricadas Norte</strong>
+                  <span style="color: var(--text-muted); margin-left: 1rem;">Fabricante • La Serena</span>
+                </div>
+                <button class="btn btn-ghost btn-sm" data-listing-id="s4" data-listing-title="Casas Prefabricadas Norte" data-listing-type="manufacturer">
+                  <span class="heart-icon">🤍</span>
+                </button>
+              </div>
+              
+              <div style="padding: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <strong>Transporte Especializado Modular</strong>
+                  <span style="color: var(--text-muted); margin-left: 1rem;">Servicio • Nacional</span>
+                </div>
+                <button class="btn btn-ghost btn-sm" data-listing-id="s5" data-listing-title="Transporte Especializado Modular" data-listing-type="service">
+                  <span class="heart-icon">🤍</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- HotSpots Section -->
+        <section>
+          <div class="section-header">
+            <h2 class="section-title">HotSpots</h2>
+            <a href="/hotspots.html" class="btn btn-ghost">Ver todos →</a>
+          </div>
+          
+          <div class="grid-3">
+            <a href="/hotspots/pucon.html" class="card" style="text-decoration: none; color: inherit;">
+              <img src="https://images.unsplash.com/photo-1600298881974-6be191ceeda1?w=400" alt="Pucón" style="width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+              <h3 style="margin-bottom: 0.5rem;">Pucón</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem;">15 fabricantes • 8 servicios</p>
+            </a>
+            
+            <a href="/hotspots/zapallar.html" class="card" style="text-decoration: none; color: inherit;">
+              <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400" alt="Zapallar" style="width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+              <h3 style="margin-bottom: 0.5rem;">Zapallar</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem;">12 fabricantes • 6 servicios</p>
+            </a>
+            
+            <a href="/hotspots/valle-colchagua.html" class="card" style="text-decoration: none; color: inherit;">
+              <img src="https://images.unsplash.com/photo-1474623809196-26c1d33457cc?w=400" alt="Valle de Colchagua" style="width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+              <h3 style="margin-bottom: 0.5rem;">Valle de Colchagua</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem;">8 fabricantes • 5 servicios</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Blog Section -->
+        <section>
+          <div class="section-header">
+            <h2 class="section-title">Blog & Noticias</h2>
+            <a href="/blog.html" class="btn btn-ghost">Ver todos →</a>
+          </div>
+          
+          <div class="grid-3">
+            <article class="card">
+              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400" alt="Tendencias 2024" style="width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+              <span class="badge badge-primary">Tendencias</span>
+              <h3 style="margin: 0.75rem 0;">Tendencias en Construcción Modular 2024</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Descubre las últimas innovaciones en tecnología y diseño que están transformando el mercado de viviendas modulares en Chile.</p>
+              <a href="/blog/tendencias-2024.html" class="btn btn-ghost">Leer más →</a>
+            </article>
+            
+            <article class="card">
+              <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400" alt="Guía Financiamiento" style="width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+              <span class="badge badge-success">Guía</span>
+              <h3 style="margin: 0.75rem 0;">Guía de Financiamiento para Casas Modulares</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Todo lo que necesitas saber sobre opciones de crédito, subsidios y financiamiento para tu proyecto modular.</p>
+              <a href="/blog/guia-financiamiento.html" class="btn btn-ghost">Leer más →</a>
+            </article>
+            
+            <article class="card">
+              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400" alt="Caso de Éxito" style="width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+              <span class="badge">Caso de Éxito</span>
+              <h3 style="margin: 0.75rem 0;">De Santiago a Pucón: Mi Casa Modular</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Historia real de una familia que construyó su casa de descanso modular en el sur de Chile.</p>
+              <a href="/blog/caso-exito-pucon.html" class="btn btn-ghost">Leer más →</a>
+            </article>
+          </div>
+        </section>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <button class="pagination-item">←</button>
+          <button class="pagination-item active">1</button>
+          <button class="pagination-item">2</button>
+          <button class="pagination-item">3</button>
+          <button class="pagination-item">4</button>
+          <button class="pagination-item">5</button>
+          <button class="pagination-item">→</button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>MODTOK</h3>
+          <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">La plataforma líder para encontrar tu hogar modular ideal en Chile.</p>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Categorías</h3>
+          <ul class="footer-links">
+            <li><a href="/houses.html">Casas Modulares</a></li>
+            <li><a href="/manufacturers.html">Fabricantes</a></li>
+            <li><a href="/services.html">Servicios</a></li>
+            <li><a href="/decoration.html">Decoración</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Recursos</h3>
+          <ul class="footer-links">
+            <li><a href="/blog.html">Blog</a></li>
+            <li><a href="/guides.html">Guías</a></li>
+            <li><a href="/hotspots.html">HotSpots</a></li>
+            <li><a href="/faq.html">Preguntas Frecuentes</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Empresa</h3>
+          <ul class="footer-links">
+            <li><a href="/about.html">Acerca de</a></li>
+            <li><a href="/contact.html">Contacto</a></li>
+            <li><a href="/advertise.html">Publicita con Nosotros</a></li>
+            <li><a href="/terms.html">Términos y Condiciones</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2024 MODTOK. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Login Modal -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Iniciar Sesión</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      
+      <div class="social-login">
+        <button class="social-btn">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Continuar con Google
+        </button>
+        
+        <button class="social-btn">
+          <svg class="icon" viewBox="0 0 24 24" fill="#1877F2">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+          Continuar con Facebook
+        </button>
+      </div>
+      
+      <div class="divider">O</div>
+      
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail" class="form-label">Correo Electrónico</label>
+          <input type="email" id="loginEmail" name="email" class="input" required placeholder="tu@email.com">
+        </div>
+        
+        <div class="form-group">
+          <label for="loginPassword" class="form-label">Contraseña</label>
+          <input type="password" id="loginPassword" name="password" class="input" required placeholder="••••••••">
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Iniciar Sesión</button>
+      </form>
+      
+      <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted);">
+        ¿No tienes cuenta? <a href="#" onclick="modtok.closeModal('loginModal'); modtok.openModal('registerModal'); return false;" style="color: var(--primary); text-decoration: none;">Regístrate</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div id="registerModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Crear Cuenta</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      
+      <div class="social-login">
+        <button class="social-btn">
+          <svg class="icon" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Registrarse con Google
+        </button>
+        
+        <button class="social-btn">
+          <svg class="icon" viewBox="0 0 24 24" fill="#1877F2">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+          Registrarse con Facebook
+        </button>
+      </div>
+      
+      <div class="divider">O</div>
+      
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="registerName" class="form-label">Nombre Completo</label>
+          <input type="text" id="registerName" name="name" class="input" required placeholder="Juan Pérez">
+        </div>
+        
+        <div class="form-group">
+          <label for="registerEmail" class="form-label">Correo Electrónico</label>
+          <input type="email" id="registerEmail" name="email" class="input" required placeholder="tu@email.com">
+        </div>
+        
+        <div class="form-group">
+          <label for="registerPassword" class="form-label">Contraseña</label>
+          <input type="password" id="registerPassword" name="password" class="input" required placeholder="••••••••">
+          <p class="form-helper">Mínimo 8 caracteres</p>
+        </div>
+        
+        <div class="form-group">
+          <label class="checkbox-item">
+            <input type="checkbox" required>
+            <span style="font-size: 0.875rem;">Acepto los <a href="/terms.html" style="color: var(--primary);">términos y condiciones</a></span>
+          </label>
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Crear Cuenta</button>
+      </form>
+      
+      <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted);">
+        ¿Ya tienes cuenta? <a href="#" onclick="modtok.closeModal('registerModal'); modtok.openModal('loginModal'); return false;" style="color: var(--primary); text-decoration: none;">Inicia Sesión</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

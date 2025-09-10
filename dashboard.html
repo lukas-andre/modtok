@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Panel - MODTOK</title>
+  <meta name="description" content="Gestiona tu cuenta y lista de favoritos en MODTOK">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .dashboard-sidebar {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      height: fit-content;
+    }
+    
+    .dashboard-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .dashboard-menu-item {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius);
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+    }
+    
+    .dashboard-menu-item:hover {
+      background: var(--surface);
+    }
+    
+    .dashboard-menu-item.active {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    
+    .watchlist-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      transition: all 0.2s;
+    }
+    
+    .watchlist-item:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+    
+    .watchlist-image {
+      width: 120px;
+      height: 90px;
+      object-fit: cover;
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin: 0 auto 1rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="/" class="logo">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+          MODTOK
+        </a>
+        
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-link">Inicio</a></li>
+          <li><a href="/houses.html" class="nav-link">Casas</a></li>
+          <li><a href="/manufacturers.html" class="nav-link">Fabricantes</a></li>
+          <li><a href="/services.html" class="nav-link">Servicios</a></li>
+          <li><a href="/blog.html" class="nav-link">Blog</a></li>
+          <li><a href="/hotspots.html" class="nav-link">HotSpots</a></li>
+        </ul>
+        
+        <div class="navbar-actions" style="display: flex; gap: 1rem; align-items: center;">
+          <div id="userMenu" style="display: flex; align-items: center; gap: 1rem;">
+            <a href="/dashboard.html" class="watchlist-icon">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+              <span class="watchlist-count">8</span>
+            </a>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span id="userName" style="font-weight: 500;">Juan Pérez</span>
+              <button class="btn btn-ghost btn-icon" onclick="modtok.logout()">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <section style="background: var(--surface); padding: 2rem 0;">
+    <div class="container">
+      <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Mi Panel</h1>
+      <p style="color: var(--text-muted);">Gestiona tu cuenta y lista de favoritos</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="dashboard-grid">
+      <!-- Sidebar -->
+      <aside class="dashboard-sidebar">
+        <div class="profile-avatar">JP</div>
+        <h3 style="text-align: center; margin-bottom: 0.5rem;">Juan Pérez</h3>
+        <p style="text-align: center; color: var(--text-muted); font-size: 0.875rem; margin-bottom: 2rem;">juan.perez@email.com</p>
+        
+        <nav>
+          <ul class="dashboard-menu">
+            <li>
+              <a href="#watchlist" class="dashboard-menu-item active">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                Mi Lista
+              </a>
+            </li>
+            <li>
+              <a href="#profile" class="dashboard-menu-item">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+                Mi Perfil
+              </a>
+            </li>
+            <li>
+              <a href="#searches" class="dashboard-menu-item">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.35-4.35"/>
+                </svg>
+                Búsquedas Guardadas
+              </a>
+            </li>
+            <li>
+              <a href="#quotes" class="dashboard-menu-item">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
+                </svg>
+                Cotizaciones
+              </a>
+            </li>
+            <li>
+              <a href="#notifications" class="dashboard-menu-item">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+                Notificaciones
+              </a>
+            </li>
+            <li>
+              <a href="#settings" class="dashboard-menu-item">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 1v6m0 6v6m4.22-13.22l4.24 4.24M1.54 9.96l4.24 4.24M3.96 20.69l4.24-4.24M14.22 14.22l4.24 4.24"/>
+                </svg>
+                Configuración
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main>
+        <!-- Statistics -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div class="stat-card">
+            <span class="stat-value">8</span>
+            <span style="color: var(--text-muted);">Items en tu lista</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">3</span>
+            <span style="color: var(--text-muted);">Cotizaciones solicitadas</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">12</span>
+            <span style="color: var(--text-muted);">Búsquedas realizadas</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">45</span>
+            <span style="color: var(--text-muted);">Días en MODTOK</span>
+          </div>
+        </div>
+
+        <!-- Watchlist Section -->
+        <section id="watchlist">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem;">Mi Lista de Favoritos</h2>
+            <div style="display: flex; gap: 0.5rem;">
+              <select class="select" style="width: auto;">
+                <option>Todos los tipos</option>
+                <option>Casas</option>
+                <option>Fabricantes</option>
+                <option>Servicios</option>
+              </select>
+              <select class="select" style="width: auto;">
+                <option>Más recientes</option>
+                <option>Más antiguos</option>
+                <option>Precio: menor a mayor</option>
+                <option>Precio: mayor a menor</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Watchlist Items -->
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Item 1 -->
+            <div class="watchlist-item">
+              <img src="https://images.unsplash.com/photo-1567428485548-c499e4931c10?w=200" alt="Casa Lago Premium" class="watchlist-image">
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <h3 style="margin-bottom: 0.25rem;">Casa Lago Premium</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">Casa • Premium</p>
+                  </div>
+                  <button class="btn btn-ghost btn-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"/>
+                      <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
+                <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.75rem;">220m² • 4 habitaciones • 3 baños • Llave en Mano</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 1.25rem; font-weight: 600; color: var(--primary);">$185.000.000</span>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <a href="/provider/casa-lago.html" class="btn btn-secondary">Ver Detalles</a>
+                    <button class="btn btn-primary">Solicitar Info</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="watchlist-item">
+              <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=200" alt="EcoModular Pro" class="watchlist-image">
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <h3 style="margin-bottom: 0.25rem;">EcoModular Pro</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">Fabricante • Premium</p>
+                  </div>
+                  <button class="btn btn-ghost btn-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"/>
+                      <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
+                <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.75rem;">15 años experiencia • Certificación LEED • Garantía 10 años</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 1.25rem; font-weight: 600; color: var(--primary);">Desde $65.000.000</span>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <a href="/provider/ecomodular.html" class="btn btn-secondary">Ver Catálogo</a>
+                    <button class="btn btn-primary">Contactar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="watchlist-item">
+              <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=200" alt="Solar Solutions" class="watchlist-image">
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <h3 style="margin-bottom: 0.25rem;">Solar Solutions Chile</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">Servicio • Premium</p>
+                  </div>
+                  <button class="btn btn-ghost btn-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"/>
+                      <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
+                <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.75rem;">Paneles solares • Sistemas off-grid • Instalación profesional</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 1.25rem; font-weight: 600; color: var(--primary);">Desde $8.500.000</span>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <a href="/provider/solar-solutions.html" class="btn btn-secondary">Ver Servicios</a>
+                    <button class="btn btn-primary">Cotizar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="watchlist-item">
+              <img src="https://images.unsplash.com/photo-1449844908441-8829872d2607?w=200" alt="Casa Familiar" class="watchlist-image">
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <h3 style="margin-bottom: 0.25rem;">Casa Familiar Modular</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">Casa • Destacado</p>
+                  </div>
+                  <button class="btn btn-ghost btn-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"/>
+                      <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
+                <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.75rem;">120m² • 3 habitaciones • 2 baños • Paneles SIP</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 1.25rem; font-weight: 600; color: var(--primary);">$85.000.000</span>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <a href="#" class="btn btn-secondary">Ver Detalles</a>
+                    <button class="btn btn-primary">Solicitar Info</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Item 5 -->
+            <div class="watchlist-item">
+              <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=200" alt="Tiny House" class="watchlist-image">
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <h3 style="margin-bottom: 0.25rem;">Tiny House Minimalista</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">Casa • Destacado</p>
+                  </div>
+                  <button class="btn btn-ghost btn-icon">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"/>
+                      <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
+                <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.75rem;">35m² • 1 habitación • Móvil • Optimizada</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-size: 1.25rem; font-weight: 600; color: var(--primary);">$28.000.000</span>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <a href="#" class="btn btn-secondary">Ver Detalles</a>
+                    <button class="btn btn-primary">Solicitar Info</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Load More -->
+          <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn btn-secondary">Ver más (3 items)</button>
+          </div>
+        </section>
+
+        <!-- Recent Activity -->
+        <section style="margin-top: 3rem;">
+          <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Actividad Reciente</h2>
+          
+          <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem;">
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+              <div style="display: flex; align-items: center; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+                <div style="width: 40px; height: 40px; background: #31453A; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                  ✓
+                </div>
+                <div style="flex: 1;">
+                  <p style="font-weight: 500;">Cotización enviada</p>
+                  <p style="color: var(--text-muted); font-size: 0.875rem;">EcoModular Pro - Casa Modelo Eco 120</p>
+                </div>
+                <span style="color: var(--text-muted); font-size: 0.875rem;">Hace 2 días</span>
+              </div>
+              
+              <div style="display: flex; align-items: center; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+                <div style="width: 40px; height: 40px; background: #31453A; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                  <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </div>
+                <div style="flex: 1;">
+                  <p style="font-weight: 500;">Agregado a favoritos</p>
+                  <p style="color: var(--text-muted); font-size: 0.875rem;">Casa Familiar Modular - 120m²</p>
+                </div>
+                <span style="color: var(--text-muted); font-size: 0.875rem;">Hace 5 días</span>
+              </div>
+              
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 40px; height: 40px; background: #B48C36; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                  <svg style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                  </svg>
+                </div>
+                <div style="flex: 1;">
+                  <p style="font-weight: 500;">Nueva búsqueda guardada</p>
+                  <p style="color: var(--text-muted); font-size: 0.875rem;">Casas 100-150m² en Región de Los Lagos</p>
+                </div>
+                <span style="color: var(--text-muted); font-size: 0.875rem;">Hace 1 semana</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>MODTOK</h3>
+          <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">La plataforma líder para encontrar tu hogar modular ideal en Chile.</p>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Categorías</h3>
+          <ul class="footer-links">
+            <li><a href="/houses.html">Casas Modulares</a></li>
+            <li><a href="/manufacturers.html">Fabricantes</a></li>
+            <li><a href="/services.html">Servicios</a></li>
+            <li><a href="/decoration.html">Decoración</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Recursos</h3>
+          <ul class="footer-links">
+            <li><a href="/blog.html">Blog</a></li>
+            <li><a href="/guides.html">Guías</a></li>
+            <li><a href="/hotspots.html">HotSpots</a></li>
+            <li><a href="/faq.html">Preguntas Frecuentes</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Empresa</h3>
+          <ul class="footer-links">
+            <li><a href="/about.html">Acerca de</a></li>
+            <li><a href="/contact.html">Contacto</a></li>
+            <li><a href="/advertise.html">Publicita con Nosotros</a></li>
+            <li><a href="/terms.html">Términos y Condiciones</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2024 MODTOK. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Override to show logged in state
+    state.user = { id: '123', email: 'juan.perez@email.com', name: 'Juan Pérez', tier: 'registered' };
+    state.watchlist = [
+      { id: 'p1', title: 'Casa Lago Premium', type: 'house', price: 185000000 },
+      { id: 'p2', title: 'EcoModular Pro', type: 'manufacturer', price: 65000000 },
+      { id: 'p3', title: 'Solar Solutions', type: 'service', price: 8500000 },
+      { id: 'f1', title: 'Casa Familiar', type: 'house', price: 85000000 },
+      { id: 'f2', title: 'Tiny House', type: 'house', price: 28000000 }
+    ];
+    updateUI();
+  </script>
+</body>
+</html>

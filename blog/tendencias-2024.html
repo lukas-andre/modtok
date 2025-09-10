@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tendencias en Construcción Modular 2024 - MODTOK Blog</title>
+  <meta name="description" content="Descubre las últimas innovaciones en tecnología y diseño que están transformando el mercado de viviendas modulares en Chile.">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .article-hero {
+      position: relative;
+      height: 400px;
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600') center/cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+    }
+    
+    .article-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    
+    .author-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .author-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    
+    .article-content {
+      padding: 3rem 0;
+      font-size: 1.125rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+    
+    .article-content h2 {
+      font-size: 1.875rem;
+      margin: 2.5rem 0 1.5rem;
+      color: var(--text);
+    }
+    
+    .article-content h3 {
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem;
+      color: var(--text);
+    }
+    
+    .article-content p {
+      margin-bottom: 1.5rem;
+    }
+    
+    .article-content img {
+      width: 100%;
+      border-radius: var(--radius);
+      margin: 2rem 0;
+    }
+    
+    .article-content ul,
+    .article-content ol {
+      margin: 1.5rem 0;
+      padding-left: 2rem;
+    }
+    
+    .article-content li {
+      margin-bottom: 0.75rem;
+    }
+    
+    .article-content blockquote {
+      border-left: 4px solid var(--primary);
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      color: var(--text-muted);
+    }
+    
+    .highlight-box {
+      background: var(--surface);
+      border-left: 4px solid var(--primary);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      margin: 2rem 0;
+    }
+    
+    .share-buttons {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      padding: 2rem 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .related-articles {
+      padding: 3rem 0;
+    }
+    
+    .article-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="/" class="logo">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+          MODTOK
+        </a>
+        
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-link">Inicio</a></li>
+          <li><a href="/houses.html" class="nav-link">Casas</a></li>
+          <li><a href="/manufacturers.html" class="nav-link">Fabricantes</a></li>
+          <li><a href="/services.html" class="nav-link">Servicios</a></li>
+          <li><a href="/blog.html" class="nav-link active">Blog</a></li>
+          <li><a href="/hotspots.html" class="nav-link">HotSpots</a></li>
+        </ul>
+        
+        <div class="navbar-actions" style="display: flex; gap: 1rem; align-items: center;">
+          <div id="authButtons" style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-ghost" onclick="modtok.openModal('loginModal')">Iniciar Sesión</button>
+            <button class="btn btn-primary" onclick="modtok.openModal('registerModal')">Registrarse</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Article Hero -->
+  <header class="article-hero">
+    <div class="article-container">
+      <span class="badge badge-primary" style="font-size: 1rem; padding: 0.5rem 1rem; margin-bottom: 1rem;">TENDENCIAS</span>
+      <h1 style="font-size: 3rem; margin-bottom: 1rem;">Tendencias en Construcción Modular 2024</h1>
+      <p style="font-size: 1.25rem; opacity: 0.95;">Las innovaciones que están revolucionando el mercado chileno</p>
+    </div>
+  </header>
+
+  <!-- Breadcrumb -->
+  <div class="article-container" style="padding-top: 1rem;">
+    <nav style="font-size: 0.875rem; color: var(--text-muted);">
+      <a href="/" style="color: var(--text-muted); text-decoration: none;">Inicio</a>
+      <span style="margin: 0 0.5rem;">/</span>
+      <a href="/blog.html" style="color: var(--text-muted); text-decoration: none;">Blog</a>
+      <span style="margin: 0 0.5rem;">/</span>
+      <span>Tendencias 2024</span>
+    </nav>
+  </div>
+
+  <!-- Article Content -->
+  <article class="article-container">
+    <!-- Article Meta -->
+    <div class="article-meta">
+      <div class="author-info">
+        <div class="author-avatar">CP</div>
+        <div>
+          <p style="font-weight: 600;">Carlos Pérez</p>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">Editor en MODTOK</p>
+        </div>
+      </div>
+      <div style="display: flex; gap: 2rem; color: var(--text-muted); font-size: 0.875rem;">
+        <span>📅 15 de Enero, 2024</span>
+        <span>⏱️ 8 min de lectura</span>
+        <span>👁️ 1,245 vistas</span>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="article-content">
+      <p style="font-size: 1.25rem; font-weight: 500; line-height: 1.6;">
+        El mercado de construcción modular en Chile está experimentando una transformación sin precedentes. 
+        Las nuevas tecnologías, combinadas con una creciente conciencia ambiental y cambios en las preferencias 
+        de los consumidores, están redefiniendo lo que significa construir una casa en el siglo XXI.
+      </p>
+
+      <h2>1. Sustentabilidad como Prioridad</h2>
+      
+      <p>
+        La sustentabilidad ha dejado de ser una opción para convertirse en una necesidad. Los fabricantes 
+        chilenos están adoptando materiales eco-amigables y procesos de construcción que minimizan el impacto 
+        ambiental. Desde paneles solares integrados hasta sistemas de recolección de aguas lluvias, las casas 
+        modulares de 2024 están diseñadas para ser autosuficientes.
+      </p>
+
+      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800" alt="Casa sustentable con paneles solares">
+
+      <div class="highlight-box">
+        <h4 style="margin-bottom: 1rem;">Dato Clave:</h4>
+        <p style="margin: 0;">
+          El 73% de los compradores de casas modulares en Chile consideran la eficiencia energética 
+          como el factor más importante en su decisión de compra, según nuestro estudio de mercado 2023.
+        </p>
+      </div>
+
+      <h2>2. Tecnología Smart Home Integrada</h2>
+      
+      <p>
+        La domótica ya no es un lujo exclusivo de las casas tradicionales de alto valor. Los fabricantes 
+        modulares están integrando sistemas inteligentes desde la fase de diseño, permitiendo el control 
+        remoto de iluminación, climatización y seguridad a través de aplicaciones móviles.
+      </p>
+
+      <ul>
+        <li>Control de temperatura inteligente con aprendizaje automático</li>
+        <li>Sistemas de seguridad con reconocimiento facial</li>
+        <li>Iluminación adaptativa según la hora del día</li>
+        <li>Monitoreo de consumo energético en tiempo real</li>
+        <li>Integración con asistentes virtuales (Alexa, Google Home)</li>
+      </ul>
+
+      <h2>3. Diseños Flexibles y Expandibles</h2>
+      
+      <p>
+        Una de las tendencias más emocionantes es el concepto de casas "que crecen contigo". Los nuevos 
+        diseños modulares permiten agregar habitaciones, expandir espacios comunes o incluso crear unidades 
+        independientes para alquiler, todo sin comprometer la integridad estructural de la vivienda original.
+      </p>
+
+      <img src="https://images.unsplash.com/photo-1600607687644-c7171b42498b?w=800" alt="Casa modular expandible">
+
+      <blockquote>
+        "La flexibilidad es el futuro de la vivienda. Las familias cambian, y sus casas deberían poder 
+        adaptarse a esos cambios sin necesidad de mudarse o realizar costosas renovaciones."
+        <br><br>
+        — <strong>María González</strong>, Arquitecta especializada en diseño modular
+      </blockquote>
+
+      <h2>4. Materiales de Nueva Generación</h2>
+      
+      <p>
+        Los avances en ciencia de materiales están revolucionando la construcción modular. Los paneles SIP 
+        (Structural Insulated Panels) de última generación ofrecen mejor aislación térmica y acústica, 
+        mientras que los nuevos compuestos de madera laminada cruzada (CLT) permiten estructuras más 
+        altas y resistentes.
+      </p>
+
+      <h3>Materiales Innovadores en 2024:</h3>
+      
+      <ol>
+        <li><strong>Grafeno en revestimientos:</strong> Mayor resistencia y conductividad térmica</li>
+        <li><strong>Hormigón autorreparable:</strong> Reduce costos de mantenimiento a largo plazo</li>
+        <li><strong>Aerogel en aislación:</strong> El mejor aislante térmico disponible comercialmente</li>
+        <li><strong>Madera transparente:</strong> Alternativa sustentable al vidrio tradicional</li>
+        <li><strong>Paneles fotovoltaicos orgánicos:</strong> Flexibles y más eficientes</li>
+      </ol>
+
+      <h2>5. Construcción Off-Site y BIM</h2>
+      
+      <p>
+        La construcción off-site (fuera del sitio) combinada con Building Information Modeling (BIM) 
+        está reduciendo los tiempos de construcción en un 50% comparado con métodos tradicionales. 
+        Las fábricas chilenas están invirtiendo en tecnología de precisión que permite ensamblar 
+        módulos completos con tolerancias milimétricas.
+      </p>
+
+      <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800" alt="Construcción modular en fábrica">
+
+      <div class="highlight-box">
+        <h4 style="margin-bottom: 1rem;">Ventajas de la Construcción Off-Site:</h4>
+        <ul style="margin: 0; padding-left: 1.5rem;">
+          <li>Reducción del 70% en residuos de construcción</li>
+          <li>Control de calidad superior en ambiente controlado</li>
+          <li>Menor impacto en el terreno y vecindario</li>
+          <li>Construcción simultánea de múltiples módulos</li>
+          <li>Independencia de condiciones climáticas</li>
+        </ul>
+      </div>
+
+      <h2>6. Certificaciones y Normativas</h2>
+      
+      <p>
+        El 2024 marca un hito en la estandarización de la construcción modular en Chile. Las nuevas 
+        normativas NCh para construcción prefabricada garantizan estándares de calidad comparables 
+        o superiores a la construcción tradicional, lo que está aumentando la confianza del consumidor 
+        y facilitando el acceso a financiamiento bancario.
+      </p>
+
+      <h2>7. Economía Circular en la Construcción</h2>
+      
+      <p>
+        La economía circular está ganando tracción en el sector. Los fabricantes están diseñando 
+        casas modulares que pueden ser completamente desmontadas y sus materiales reutilizados 
+        o reciclados al final de su vida útil. Esto no solo reduce el impacto ambiental sino que 
+        también puede generar valor residual para los propietarios.
+      </p>
+
+      <h2>Conclusión</h2>
+      
+      <p>
+        El 2024 se perfila como un año decisivo para la construcción modular en Chile. La convergencia 
+        de tecnología, sustentabilidad y nuevas demandas del mercado está creando oportunidades sin 
+        precedentes tanto para fabricantes como para compradores. Las casas modulares ya no son vistas 
+        como una alternativa económica a la construcción tradicional, sino como la opción inteligente 
+        para el futuro.
+      </p>
+
+      <p>
+        En MODTOK, estamos comprometidos a conectar a los chilenos con los mejores proveedores de 
+        construcción modular del país. Si estás considerando una casa modular, te invitamos a explorar 
+        nuestro catálogo de fabricantes certificados y descubrir cómo estas tendencias pueden 
+        beneficiarte directamente.
+      </p>
+    </div>
+
+    <!-- Article Tags -->
+    <div class="article-tags">
+      <span class="badge">Tendencias</span>
+      <span class="badge">Sustentabilidad</span>
+      <span class="badge">Tecnología</span>
+      <span class="badge">Smart Home</span>
+      <span class="badge">Construcción Modular</span>
+      <span class="badge">Chile 2024</span>
+    </div>
+
+    <!-- Share Buttons -->
+    <div class="share-buttons">
+      <span style="font-weight: 600; margin-right: 1rem;">Compartir:</span>
+      <button class="btn btn-ghost btn-icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="#1877F2">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>
+      </button>
+      <button class="btn btn-ghost btn-icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="#1DA1F2">
+          <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+        </svg>
+      </button>
+      <button class="btn btn-ghost btn-icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="#0077B5">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+        </svg>
+      </button>
+      <button class="btn btn-ghost btn-icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="#25D366">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+        </svg>
+      </button>
+      <button class="btn btn-secondary">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 10v6h8V10"/>
+          <path d="M4 10h16"/>
+          <rect x="8" y="6" width="8" height="4"/>
+        </svg>
+        Copiar enlace
+      </button>
+    </div>
+
+    <!-- Author Bio -->
+    <div class="card" style="margin: 2rem 0; background: var(--surface);">
+      <div style="display: flex; gap: 1.5rem; align-items: start;">
+        <div class="author-avatar" style="width: 80px; height: 80px; font-size: 2rem;">CP</div>
+        <div style="flex: 1;">
+          <h3 style="margin-bottom: 0.5rem;">Carlos Pérez</h3>
+          <p style="color: var(--text-muted); margin-bottom: 1rem;">Editor en MODTOK</p>
+          <p style="line-height: 1.6;">
+            Arquitecto de profesión y apasionado por la construcción sustentable. Con más de 10 años 
+            de experiencia en el sector, Carlos escribe sobre las últimas tendencias y tecnologías en 
+            construcción modular, ayudando a los lectores a tomar decisiones informadas para sus proyectos.
+          </p>
+          <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+            <a href="#" class="btn btn-ghost btn-icon">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+              </svg>
+            </a>
+            <a href="#" class="btn btn-ghost btn-icon">
+              <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Articles -->
+    <section class="related-articles">
+      <h2 style="font-size: 1.875rem; margin-bottom: 2rem;">Artículos Relacionados</h2>
+      
+      <div class="grid-3">
+        <article class="card">
+          <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400" alt="Financiamiento" style="width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+          <span class="badge badge-success">Guía</span>
+          <h3 style="margin: 0.75rem 0;">Guía de Financiamiento para Casas Modulares</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">Todo sobre créditos y subsidios disponibles en 2024.</p>
+          <a href="/blog/guia-financiamiento.html" class="btn btn-ghost">Leer más →</a>
+        </article>
+        
+        <article class="card">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400" alt="Caso de Éxito" style="width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+          <span class="badge">Caso de Éxito</span>
+          <h3 style="margin: 0.75rem 0;">De Santiago a Pucón: Mi Casa Modular</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">Historia real de construcción modular en el sur.</p>
+          <a href="/blog/caso-exito-pucon.html" class="btn btn-ghost">Leer más →</a>
+        </article>
+        
+        <article class="card">
+          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400" alt="Energía Solar" style="width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+          <span class="badge badge-primary">Tecnología</span>
+          <h3 style="margin: 0.75rem 0;">Energía Solar en Casas Modulares</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">Cómo lograr autonomía energética total.</p>
+          <a href="/blog/energia-solar.html" class="btn btn-ghost">Leer más →</a>
+        </article>
+      </div>
+    </section>
+  </article>
+
+  <!-- Newsletter CTA -->
+  <section style="background: var(--surface); padding: 3rem 0;">
+    <div class="container" style="text-align: center;">
+      <h2 style="font-size: 2rem; margin-bottom: 1rem;">Mantente Informado</h2>
+      <p style="color: var(--text-muted); margin-bottom: 2rem;">
+        Recibe las últimas noticias y tendencias del mundo modular directamente en tu correo.
+      </p>
+      <form style="display: flex; gap: 1rem; max-width: 500px; margin: 0 auto;">
+        <input type="email" class="input" placeholder="tu@email.com" style="flex: 1;">
+        <button type="submit" class="btn btn-primary">Suscribirse</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>MODTOK</h3>
+          <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">La plataforma líder para encontrar tu hogar modular ideal en Chile.</p>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Categorías</h3>
+          <ul class="footer-links">
+            <li><a href="/houses.html">Casas Modulares</a></li>
+            <li><a href="/manufacturers.html">Fabricantes</a></li>
+            <li><a href="/services.html">Servicios</a></li>
+            <li><a href="/decoration.html">Decoración</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Recursos</h3>
+          <ul class="footer-links">
+            <li><a href="/blog.html">Blog</a></li>
+            <li><a href="/guides.html">Guías</a></li>
+            <li><a href="/hotspots.html">HotSpots</a></li>
+            <li><a href="/faq.html">Preguntas Frecuentes</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Empresa</h3>
+          <ul class="footer-links">
+            <li><a href="/about.html">Acerca de</a></li>
+            <li><a href="/contact.html">Contacto</a></li>
+            <li><a href="/advertise.html">Publicita con Nosotros</a></li>
+            <li><a href="/terms.html">Términos y Condiciones</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2024 MODTOK. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../app.js"></script>
+</body>
+</html>

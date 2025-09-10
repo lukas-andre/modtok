@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casas Modulares en Pucón - HotSpot MODTOK</title>
+  <meta name="description" content="Descubre fabricantes y servicios de construcción modular en Pucón. Guía completa para construir tu casa modular en la zona lacustre de La Araucanía.">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .hotspot-hero {
+      position: relative;
+      height: 500px;
+      background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1600298881974-6be191ceeda1?w=1600') center/cover;
+      color: white;
+      display: flex;
+      align-items: center;
+    }
+    
+    .info-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+    
+    .info-card h3 {
+      font-size: 1.125rem;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+      background: var(--surface);
+      border-radius: var(--radius);
+    }
+    
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: block;
+    }
+    
+    .weather-widget {
+      background: linear-gradient(135deg, #8A9BA8 0%, #5A6B78 100%);
+      color: white;
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+    }
+    
+    .map-container {
+      height: 400px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      margin: 2rem 0;
+    }
+    
+    .regulation-item {
+      padding: 1rem;
+      border-left: 3px solid var(--primary);
+      background: var(--surface);
+      margin-bottom: 1rem;
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="/" class="logo">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+          MODTOK
+        </a>
+        
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-link">Inicio</a></li>
+          <li><a href="/houses.html" class="nav-link">Casas</a></li>
+          <li><a href="/manufacturers.html" class="nav-link">Fabricantes</a></li>
+          <li><a href="/services.html" class="nav-link">Servicios</a></li>
+          <li><a href="/blog.html" class="nav-link">Blog</a></li>
+          <li><a href="/hotspots.html" class="nav-link active">HotSpots</a></li>
+        </ul>
+        
+        <div class="navbar-actions" style="display: flex; gap: 1rem; align-items: center;">
+          <div id="authButtons" style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-ghost" onclick="modtok.openModal('loginModal')">Iniciar Sesión</button>
+            <button class="btn btn-primary" onclick="modtok.openModal('registerModal')">Registrarse</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hotspot-hero">
+    <div class="container">
+      <div style="max-width: 600px;">
+        <span class="badge" style="background: white; color: #31453A; font-size: 1rem; padding: 0.5rem 1rem; margin-bottom: 1rem;">HOTSPOT</span>
+        <h1 style="font-size: 3rem; margin-bottom: 1rem;">Pucón</h1>
+        <p style="font-size: 1.25rem; margin-bottom: 2rem;">
+          La capital del turismo aventura es también un destino ideal para tu casa modular. 
+          Descubre por qué cada vez más personas eligen Pucón para su segunda vivienda.
+        </p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" style="font-size: 1rem; padding: 0.75rem 2rem;">
+            Ver Proveedores Locales
+          </button>
+          <button class="btn" style="background: white; color: var(--text); font-size: 1rem; padding: 0.75rem 2rem;">
+            Descargar Guía PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Breadcrumb -->
+  <div class="container" style="padding: 1rem 1rem 0;">
+    <nav style="font-size: 0.875rem; color: var(--text-muted);">
+      <a href="/" style="color: var(--text-muted); text-decoration: none;">Inicio</a>
+      <span style="margin: 0 0.5rem;">/</span>
+      <a href="/hotspots.html" style="color: var(--text-muted); text-decoration: none;">HotSpots</a>
+      <span style="margin: 0 0.5rem;">/</span>
+      <span>Pucón</span>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container" style="margin-top: 2rem;">
+    <!-- Statistics -->
+    <div class="stat-grid">
+      <div class="stat-item">
+        <span class="stat-number">15</span>
+        <span style="color: var(--text-muted);">Fabricantes</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">8</span>
+        <span style="color: var(--text-muted);">Servicios</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">127</span>
+        <span style="color: var(--text-muted);">Proyectos Completados</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">$85M</span>
+        <span style="color: var(--text-muted);">Precio Promedio</span>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 350px; gap: 2rem; margin-top: 2rem;">
+      <!-- Left Column -->
+      <main>
+        <!-- About Location -->
+        <section class="card" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.75rem; margin-bottom: 1.5rem;">¿Por qué construir en Pucón?</h2>
+          
+          <p style="line-height: 1.8; margin-bottom: 1.5rem;">
+            Pucón se ha convertido en uno de los destinos más codiciados para segundas viviendas en Chile. 
+            Su combinación única de belleza natural, actividades al aire libre y creciente infraestructura 
+            turística lo convierten en el lugar perfecto para tu casa modular.
+          </p>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+            <div>
+              <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem;">Entorno Natural</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem;">
+                Rodeado por el Volcán Villarrica, el Lago Villarrica y múltiples parques nacionales.
+              </p>
+            </div>
+            <div>
+              <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem;">Actividades Todo el Año</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem;">
+                Ski en invierno, deportes acuáticos en verano, termas y trekking durante todo el año.
+              </p>
+            </div>
+            <div>
+              <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem;">Inversión Rentable</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem;">
+                Alto potencial de arriendo turístico con ocupación promedio del 65% anual.
+              </p>
+            </div>
+            <div>
+              <h3 style="font-size: 1.125rem; margin-bottom: 0.75rem;">Infraestructura</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem;">
+                Servicios básicos disponibles, aeródromo local y buena conectividad vial.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Featured Providers -->
+        <section class="card" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.75rem; margin-bottom: 1.5rem;">Proveedores Destacados en la Zona</h2>
+          
+          <div style="display: grid; gap: 1rem;">
+            <!-- Provider 1 -->
+            <div style="display: flex; gap: 1rem; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius);">
+              <img src="https://images.unsplash.com/photo-1567428485548-c499e4931c10?w=150" alt="Araucanía Modular" style="width: 120px; height: 90px; object-fit: cover; border-radius: var(--radius);">
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <h3 style="margin-bottom: 0.25rem;">Araucanía Modular</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">Fabricante Premium • 12 años experiencia</p>
+                  </div>
+                  <span class="badge badge-primary">PREMIUM</span>
+                </div>
+                <p style="font-size: 0.875rem; margin: 0.5rem 0;">Especialistas en casas para clima de montaña. Aislación térmica superior.</p>
+                <div style="display: flex; gap: 0.5rem;">
+                  <a href="#" class="btn btn-secondary btn-sm">Ver Catálogo</a>
+                  <button class="btn btn-ghost btn-sm">Contactar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Provider 2 -->
+            <div style="display: flex; gap: 1rem; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius);">
+              <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=150" alt="Solar Pucón" style="width: 120px; height: 90px; object-fit: cover; border-radius: var(--radius);">
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <h3 style="margin-bottom: 0.25rem;">Solar Pucón</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">Servicio • Energía Solar</p>
+                  </div>
+                  <span class="badge">DESTACADO</span>
+                </div>
+                <p style="font-size: 0.875rem; margin: 0.5rem 0;">Instalación de paneles solares y sistemas off-grid para zonas rurales.</p>
+                <div style="display: flex; gap: 0.5rem;">
+                  <a href="#" class="btn btn-secondary btn-sm">Ver Servicios</a>
+                  <button class="btn btn-ghost btn-sm">Cotizar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Provider 3 -->
+            <div style="display: flex; gap: 1rem; padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius);">
+              <img src="https://images.unsplash.com/photo-1558036117-15d82a90b9b1?w=150" alt="Pozos del Sur" style="width: 120px; height: 90px; object-fit: cover; border-radius: var(--radius);">
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <h3 style="margin-bottom: 0.25rem;">Pozos del Sur</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem;">Servicio • Agua y Saneamiento</p>
+                  </div>
+                  <span class="badge">DESTACADO</span>
+                </div>
+                <p style="font-size: 0.875rem; margin: 0.5rem 0;">Perforación de pozos profundos y sistemas de tratamiento de aguas.</p>
+                <div style="display: flex; gap: 0.5rem;">
+                  <a href="#" class="btn btn-secondary btn-sm">Ver Servicios</a>
+                  <button class="btn btn-ghost btn-sm">Contactar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">
+            Ver todos los proveedores (15)
+          </button>
+        </section>
+
+        <!-- Recent Projects -->
+        <section class="card" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.75rem; margin-bottom: 1.5rem;">Proyectos Recientes en Pucón</h2>
+          
+          <div class="grid-3">
+            <div>
+              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400" alt="Casa Lago" style="width: 100%; height: 200px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+              <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Casa Lago Villarrica</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem;">120m² • Completada Oct 2023</p>
+              <a href="#" class="btn btn-ghost" style="margin-top: 0.5rem;">Ver proyecto →</a>
+            </div>
+            
+            <div>
+              <img src="https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=400" alt="Refugio Montaña" style="width: 100%; height: 200px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+              <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Refugio de Montaña</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem;">85m² • Completada Sep 2023</p>
+              <a href="#" class="btn btn-ghost" style="margin-top: 0.5rem;">Ver proyecto →</a>
+            </div>
+            
+            <div>
+              <img src="https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=400" alt="Villa Moderna" style="width: 100%; height: 200px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+              <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Villa Moderna</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem;">150m² • Completada Ago 2023</p>
+              <a href="#" class="btn btn-ghost" style="margin-top: 0.5rem;">Ver proyecto →</a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Regulations -->
+        <section class="card" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.75rem; margin-bottom: 1.5rem;">Normativa y Permisos</h2>
+          
+          <div class="regulation-item">
+            <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Plan Regulador Comunal</h3>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">
+              Verifica la zonificación del terreno. Zonas rurales permiten construcciones de hasta 120m² sin permiso de edificación.
+            </p>
+          </div>
+          
+          <div class="regulation-item">
+            <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Restricciones Ambientales</h3>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">
+              Algunas zonas tienen restricciones por cercanía a parques nacionales o cuerpos de agua. Consulta con la CONAF y DGA.
+            </p>
+          </div>
+          
+          <div class="regulation-item">
+            <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Permisos Municipales</h3>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">
+              Tiempo promedio de tramitación: 45-60 días. Costo aproximado: 1-2% del valor de la construcción.
+            </p>
+          </div>
+          
+          <div class="regulation-item">
+            <h3 style="font-size: 1.125rem; margin-bottom: 0.5rem;">Conexión a Servicios</h3>
+            <p style="color: var(--text-muted); font-size: 0.875rem;">
+              Electricidad disponible en zonas urbanas. Zonas rurales requieren generador o paneles solares. Agua mediante pozo profundo.
+            </p>
+          </div>
+        </section>
+
+        <!-- Map -->
+        <section class="card">
+          <h2 style="font-size: 1.75rem; margin-bottom: 1.5rem;">Mapa de Proveedores</h2>
+          <div class="map-container">
+            <div style="text-align: center;">
+              <svg style="width: 100px; height: 100px; color: var(--text-muted); margin-bottom: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+              <p>Mapa interactivo de proveedores y proyectos en Pucón</p>
+              <button class="btn btn-primary" style="margin-top: 1rem;">Ver Mapa Completo</button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Right Sidebar -->
+      <aside>
+        <!-- Weather Widget -->
+        <div class="weather-widget">
+          <h3 style="margin-bottom: 1rem;">Clima en Pucón</h3>
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 60px; height: 60px; background: #B48C36; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+              <svg style="width: 30px; height: 30px;" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="12" r="5"/>
+                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+              </svg>
+            </div>
+            <div>
+              <p style="font-size: 2rem; font-weight: 700; margin: 0;">18°C</p>
+              <p style="opacity: 0.9;">Parcialmente nublado</p>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.875rem;">
+            <div>Máx: 22°C</div>
+            <div>Mín: 8°C</div>
+            <div>Humedad: 65%</div>
+            <div>Viento: 12 km/h</div>
+          </div>
+        </div>
+
+        <!-- Quick Info -->
+        <div class="info-card">
+          <h3>Información Rápida</h3>
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+              <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">Población</p>
+              <p style="font-weight: 600;">28,523 habitantes</p>
+            </div>
+            <div>
+              <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">Altitud</p>
+              <p style="font-weight: 600;">227 msnm</p>
+            </div>
+            <div>
+              <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">Distancia a Santiago</p>
+              <p style="font-weight: 600;">780 km (9 horas)</p>
+            </div>
+            <div>
+              <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.25rem;">Aeropuerto más cercano</p>
+              <p style="font-weight: 600;">Temuco (100 km)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cost Estimates -->
+        <div class="info-card">
+          <h3>Costos Estimados</h3>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="font-size: 0.875rem;">Terreno (5000m²)</span>
+              <strong>$30-60M</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="font-size: 0.875rem;">Casa 100m²</span>
+              <strong>$70-100M</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="font-size: 0.875rem;">Pozo profundo</span>
+              <strong>$8-12M</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="font-size: 0.875rem;">Sistema solar</span>
+              <strong>$10-15M</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="font-size: 0.875rem;">Fosa séptica</span>
+              <strong>$3-5M</strong>
+            </div>
+            <hr style="margin: 1rem 0; border: none; border-top: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; font-weight: 600;">
+              <span>Total estimado</span>
+              <span style="color: var(--primary);">$121-192M</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Local Expert -->
+        <div class="info-card" style="background: var(--primary); color: white;">
+          <h3 style="color: white;">¿Necesitas Ayuda?</h3>
+          <p style="font-size: 0.875rem; margin: 1rem 0;">
+            Nuestro experto local puede ayudarte a encontrar el terreno perfecto y los mejores proveedores.
+          </p>
+          <button class="btn" style="background: white; color: var(--primary); width: 100%;">
+            Contactar Experto
+          </button>
+        </div>
+
+        <!-- Useful Links -->
+        <div class="info-card">
+          <h3>Enlaces Útiles</h3>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem;">
+            <li>
+              <a href="#" style="color: var(--primary); text-decoration: none; font-size: 0.875rem;">
+                → Municipalidad de Pucón
+              </a>
+            </li>
+            <li>
+              <a href="#" style="color: var(--primary); text-decoration: none; font-size: 0.875rem;">
+                → Plan Regulador Comunal
+              </a>
+            </li>
+            <li>
+              <a href="#" style="color: var(--primary); text-decoration: none; font-size: 0.875rem;">
+                → Guía de Permisos PDF
+              </a>
+            </li>
+            <li>
+              <a href="#" style="color: var(--primary); text-decoration: none; font-size: 0.875rem;">
+                → Terrenos Disponibles
+              </a>
+            </li>
+            <li>
+              <a href="#" style="color: var(--primary); text-decoration: none; font-size: 0.875rem;">
+                → Calculadora de Costos
+              </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Related Content -->
+    <section style="margin: 3rem 0;">
+      <h2 style="font-size: 1.875rem; margin-bottom: 2rem;">Contenido Relacionado</h2>
+      
+      <div class="grid-3">
+        <article class="card">
+          <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400" alt="Guía Pucón" style="width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+          <span class="badge badge-success">Guía</span>
+          <h3 style="margin: 0.75rem 0;">Guía Completa: Construir en Pucón</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">Todo lo que necesitas saber para tu proyecto.</p>
+          <a href="#" class="btn btn-ghost">Leer más →</a>
+        </article>
+        
+        <article class="card">
+          <img src="https://images.unsplash.com/photo-1600298881974-6be191ceeda1?w=400" alt="Terrenos" style="width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+          <span class="badge">Terrenos</span>
+          <h3 style="margin: 0.75rem 0;">Los Mejores Sectores para Construir</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">Análisis de zonas y precios en Pucón.</p>
+          <a href="#" class="btn btn-ghost">Leer más →</a>
+        </article>
+        
+        <article class="card">
+          <img src="https://images.unsplash.com/photo-1474623809196-26c1d33457cc?w=400" alt="Inversión" style="width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+          <span class="badge badge-primary">Inversión</span>
+          <h3 style="margin: 0.75rem 0;">Rentabilidad del Arriendo Turístico</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">Análisis del retorno de inversión en Pucón.</p>
+          <a href="#" class="btn btn-ghost">Leer más →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- Other HotSpots -->
+    <section style="margin: 3rem 0;">
+      <h2 style="font-size: 1.875rem; margin-bottom: 2rem;">Otros HotSpots</h2>
+      
+      <div class="grid-4">
+        <a href="/hotspots/zapallar.html" class="card" style="text-decoration: none; color: inherit; text-align: center;">
+          <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300" alt="Zapallar" style="width: 100%; height: 120px; object-fit: cover; border-radius: var(--radius); margin-bottom: 0.75rem;">
+          <h3 style="font-size: 1.125rem;">Zapallar</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">12 proveedores</p>
+        </a>
+        
+        <a href="/hotspots/valle-colchagua.html" class="card" style="text-decoration: none; color: inherit; text-align: center;">
+          <img src="https://images.unsplash.com/photo-1474623809196-26c1d33457cc?w=300" alt="Valle de Colchagua" style="width: 100%; height: 120px; object-fit: cover; border-radius: var(--radius); margin-bottom: 0.75rem;">
+          <h3 style="font-size: 1.125rem;">Valle de Colchagua</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">8 proveedores</p>
+        </a>
+        
+        <a href="/hotspots/frutillar.html" class="card" style="text-decoration: none; color: inherit; text-align: center;">
+          <img src="https://images.unsplash.com/photo-1600298881974-6be191ceeda1?w=300" alt="Frutillar" style="width: 100%; height: 120px; object-fit: cover; border-radius: var(--radius); margin-bottom: 0.75rem;">
+          <h3 style="font-size: 1.125rem;">Frutillar</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">10 proveedores</p>
+        </a>
+        
+        <a href="/hotspots/maitencillo.html" class="card" style="text-decoration: none; color: inherit; text-align: center;">
+          <img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?w=300" alt="Maitencillo" style="width: 100%; height: 120px; object-fit: cover; border-radius: var(--radius); margin-bottom: 0.75rem;">
+          <h3 style="font-size: 1.125rem;">Maitencillo</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">9 proveedores</p>
+        </a>
+      </div>
+    </section>
+  </div>
+
+  <!-- CTA Section -->
+  <section style="background: linear-gradient(135deg, #6B7D8A 0%, #3D4B56 100%); color: white; padding: 4rem 0; text-align: center;">
+    <div class="container">
+      <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">¿Listo para construir en Pucón?</h2>
+      <p style="font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.95;">
+        Conectamos tu proyecto con los mejores proveedores locales
+      </p>
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        <button class="btn" style="background: white; color: var(--primary); font-size: 1rem; padding: 0.75rem 2rem;">
+          Comenzar Proyecto
+        </button>
+        <button class="btn" style="background: transparent; color: white; border: 2px solid white; font-size: 1rem; padding: 0.75rem 2rem;">
+          Hablar con Experto
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>MODTOK</h3>
+          <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">La plataforma líder para encontrar tu hogar modular ideal en Chile.</p>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Categorías</h3>
+          <ul class="footer-links">
+            <li><a href="/houses.html">Casas Modulares</a></li>
+            <li><a href="/manufacturers.html">Fabricantes</a></li>
+            <li><a href="/services.html">Servicios</a></li>
+            <li><a href="/decoration.html">Decoración</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Recursos</h3>
+          <ul class="footer-links">
+            <li><a href="/blog.html">Blog</a></li>
+            <li><a href="/guides.html">Guías</a></li>
+            <li><a href="/hotspots.html">HotSpots</a></li>
+            <li><a href="/faq.html">Preguntas Frecuentes</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Empresa</h3>
+          <ul class="footer-links">
+            <li><a href="/about.html">Acerca de</a></li>
+            <li><a href="/contact.html">Contacto</a></li>
+            <li><a href="/advertise.html">Publicita con Nosotros</a></li>
+            <li><a href="/terms.html">Términos y Condiciones</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2024 MODTOK. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../app.js"></script>
+</body>
+</html>

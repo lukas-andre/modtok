@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoModular Pro - Líder en Construcción Modular Sustentable | MODTOK</title>
+  <meta name="description" content="EcoModular Pro: 15 años de experiencia en construcción modular sustentable. Certificación LEED, garantía 10 años. Casas modulares premium en Chile.">
+  <link rel="stylesheet" href="../styles.css">
+  <style>
+    .hero-provider {
+      position: relative;
+      height: 500px;
+      background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200') center/cover;
+      color: white;
+      display: flex;
+      align-items: center;
+    }
+    
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      height: 250px;
+      cursor: pointer;
+    }
+    
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+    
+    .gallery-item:hover img {
+      transform: scale(1.1);
+    }
+    
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .spec-item {
+      text-align: center;
+    }
+    
+    .spec-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    
+    .contact-float {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    
+    .contact-btn {
+      background: var(--primary);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 100px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .contact-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 25px 30px -10px rgba(0,0,0,0.2);
+    }
+    
+    .whatsapp-btn {
+      background: #25D366;
+    }
+    
+    .testimonial-card {
+      background: var(--surface);
+      padding: 2rem;
+      border-radius: var(--radius);
+      position: relative;
+    }
+    
+    .testimonial-card::before {
+      content: '"';
+      font-size: 4rem;
+      color: var(--primary);
+      opacity: 0.2;
+      position: absolute;
+      top: 0;
+      left: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <a href="/" class="logo">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+          MODTOK
+        </a>
+        
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-link">Inicio</a></li>
+          <li><a href="/houses.html" class="nav-link">Casas</a></li>
+          <li><a href="/manufacturers.html" class="nav-link">Fabricantes</a></li>
+          <li><a href="/services.html" class="nav-link">Servicios</a></li>
+          <li><a href="/blog.html" class="nav-link">Blog</a></li>
+          <li><a href="/hotspots.html" class="nav-link">HotSpots</a></li>
+        </ul>
+        
+        <div class="navbar-actions" style="display: flex; gap: 1rem; align-items: center;">
+          <div id="authButtons" style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-ghost" onclick="modtok.openModal('loginModal')">Iniciar Sesión</button>
+            <button class="btn btn-primary" onclick="modtok.openModal('registerModal')">Registrarse</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-provider">
+    <div class="container">
+      <div style="max-width: 600px;">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+          <span class="badge" style="background: #B48C36; color: white;">PROVEEDOR PREMIUM</span>
+          <span class="badge" style="background: #31453A; color: white;">VERIFICADO</span>
+        </div>
+        <h1 style="font-size: 3rem; margin-bottom: 1rem;">EcoModular Pro</h1>
+        <p style="font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.95;">
+          Líderes en construcción modular sustentable con certificación LEED
+        </p>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" style="font-size: 1rem; padding: 0.75rem 2rem;" onclick="document.getElementById('contactSection').scrollIntoView()">
+            Solicitar Cotización
+          </button>
+          <button class="btn" style="background: white; color: #292929; font-size: 1rem; padding: 0.75rem 2rem;" data-listing-id="premium1" data-listing-title="EcoModular Pro" data-listing-type="manufacturer">
+            Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Breadcrumb -->
+  <div class="container" style="padding: 1rem 1rem 0;">
+    <nav style="font-size: 0.875rem; color: var(--text-muted);">
+      <a href="/" style="color: var(--text-muted); text-decoration: none;">Inicio</a>
+      <span style="margin: 0 0.5rem;">/</span>
+      <a href="/manufacturers.html" style="color: var(--text-muted); text-decoration: none;">Fabricantes</a>
+      <span style="margin: 0 0.5rem;">/</span>
+      <span>EcoModular Pro</span>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container" style="margin-top: 2rem;">
+    <div style="display: grid; grid-template-columns: 1fr 350px; gap: 2rem;">
+      <!-- Left Column -->
+      <main>
+        <!-- About Section -->
+        <section class="card" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.75rem; margin-bottom: 1.5rem;">Acerca de EcoModular Pro</h2>
+          <p style="line-height: 1.8; margin-bottom: 1rem;">
+            Con más de 15 años de experiencia en el mercado chileno, EcoModular Pro se ha consolidado como el líder en construcción modular sustentable. Nuestro compromiso con la excelencia y la innovación nos ha permitido completar más de 500 proyectos en todo Chile.
+          </p>
+          <p style="line-height: 1.8; margin-bottom: 1rem;">
+            Somos pioneros en la implementación de tecnología SIP (Structural Insulated Panels) de última generación, combinada con prácticas de construcción sustentable que nos han valido la certificación LEED. Cada proyecto es una oportunidad para demostrar que es posible vivir en armonía con el medio ambiente sin sacrificar calidad o confort.
+          </p>
+          
+          <div class="specs-grid">
+            <div class="spec-item">
+              <span class="spec-value">500+</span>
+              <span style="color: var(--text-muted);">Proyectos Completados</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-value">15</span>
+              <span style="color: var(--text-muted);">Años de Experiencia</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-value">98%</span>
+              <span style="color: var(--text-muted);">Satisfacción Cliente</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-value">10</span>
+              <span style="color: var(--text-muted);">Años de Garantía</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Services Section -->
+        <section class="card" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.75rem; margin-bottom: 1.5rem;">Nuestros Servicios</h2>
+          
+          <div style="display: grid; gap: 1.5rem;">
+            <div style="display: flex; gap: 1rem;">
+              <div style="width: 48px; height: 48px; background: #31453A; color: white; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg style="width: 24px; height: 24px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                  <line x1="8" y1="21" x2="16" y2="21"/>
+                  <line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+              </div>
+              <div>
+                <h3 style="margin-bottom: 0.5rem;">Llave en Mano</h3>
+                <p style="color: var(--text-muted);">Nos encargamos de todo el proceso, desde el diseño hasta la entrega final. Incluye permisos, construcción, instalaciones y terminaciones.</p>
+              </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+              <div style="width: 48px; height: 48px; background: #31453A; color: white; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg style="width: 24px; height: 24px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="m18 2 4 4-2 2-4-4-2 2"/>
+                  <path d="M7.5 8.5 16 17l-2 2-8.5-8.5Z"/>
+                  <path d="m3 19 2-2"/>
+                </svg>
+              </div>
+              <div>
+                <h3 style="margin-bottom: 0.5rem;">Diseño Personalizado</h3>
+                <p style="color: var(--text-muted);">Equipo de arquitectos especializados que adaptarán el diseño a tus necesidades específicas y al terreno disponible.</p>
+              </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+              <div style="width: 48px; height: 48px; background: #31453A; color: white; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg style="width: 24px; height: 24px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="1" x2="12" y2="23"/>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <div>
+                <h3 style="margin-bottom: 0.5rem;">Financiamiento</h3>
+                <p style="color: var(--text-muted);">Convenios con principales bancos y opciones de financiamiento directo. Te ayudamos con la gestión de subsidios habitacionales.</p>
+              </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+              <div style="width: 48px; height: 48px; background: #31453A; color: white; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg style="width: 24px; height: 24px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/>
+                  <path d="M15 18H9"/>
+                  <path d="M19 18h2a1 1 0 0 0 1-1v-3.28a1 1 0 0 0-.684-.948l-1.923-.641a1 1 0 0 1-.578-.502l-1.539-3.076A1 1 0 0 0 16.382 8H14"/>
+                  <circle cx="8" cy="18" r="2"/>
+                  <circle cx="18" cy="18" r="2"/>
+                </svg>
+              </div>
+              <div>
+                <h3 style="margin-bottom: 0.5rem;">Transporte e Instalación</h3>
+                <p style="color: var(--text-muted);">Logística completa para llevar tu casa modular a cualquier punto del país. Instalación profesional en terreno.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section class="card" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.75rem; margin-bottom: 1.5rem;">Galería de Proyectos</h2>
+          
+          <div class="gallery-grid">
+            <div class="gallery-item">
+              <img src="https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=400" alt="Proyecto 1">
+            </div>
+            <div class="gallery-item">
+              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400" alt="Proyecto 2">
+            </div>
+            <div class="gallery-item">
+              <img src="https://images.unsplash.com/photo-1567428485548-c499e4931c10?w=400" alt="Proyecto 3">
+            </div>
+            <div class="gallery-item">
+              <img src="https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=400" alt="Proyecto 4">
+            </div>
+            <div class="gallery-item">
+              <img src="https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=400" alt="Proyecto 5">
+            </div>
+            <div class="gallery-item">
+              <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400" alt="Proyecto 6">
+            </div>
+          </div>
+          
+          <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">Ver Galería Completa (48 Proyectos)</button>
+        </section>
+
+        <!-- Models Section -->
+        <section class="card" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.75rem; margin-bottom: 1.5rem;">Modelos Destacados</h2>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+            <div class="card">
+              <img src="https://images.unsplash.com/photo-1449844908441-8829872d2607?w=300" alt="Modelo Eco" style="width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+              <h3 style="margin-bottom: 0.5rem;">Modelo Eco 120</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">120m² • 3 hab • 2 baños</p>
+              <p style="font-weight: 600; color: var(--primary); margin-bottom: 1rem;">Desde $85.000.000</p>
+              <button class="btn btn-secondary" style="width: 100%;">Ver Detalles</button>
+            </div>
+            
+            <div class="card">
+              <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=300" alt="Modelo Premium" style="width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+              <h3 style="margin-bottom: 0.5rem;">Modelo Premium 180</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">180m² • 4 hab • 3 baños</p>
+              <p style="font-weight: 600; color: var(--primary); margin-bottom: 1rem;">Desde $145.000.000</p>
+              <button class="btn btn-secondary" style="width: 100%;">Ver Detalles</button>
+            </div>
+            
+            <div class="card">
+              <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=300" alt="Modelo Compact" style="width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1rem;">
+              <h3 style="margin-bottom: 0.5rem;">Modelo Compact 60</h3>
+              <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">60m² • 2 hab • 1 baño</p>
+              <p style="font-weight: 600; color: var(--primary); margin-bottom: 1rem;">Desde $45.000.000</p>
+              <button class="btn btn-secondary" style="width: 100%;">Ver Detalles</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section class="card" style="margin-bottom: 2rem;">
+          <h2 style="font-size: 1.75rem; margin-bottom: 1.5rem;">Lo que Dicen Nuestros Clientes</h2>
+          
+          <div style="display: grid; gap: 1.5rem;">
+            <div class="testimonial-card">
+              <p style="line-height: 1.8; margin-bottom: 1rem;">
+                "Excelente experiencia de principio a fin. El equipo de EcoModular Pro fue profesional, cumplió con todos los plazos y el resultado superó nuestras expectativas."
+              </p>
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 50px; height: 50px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                  MP
+                </div>
+                <div>
+                  <strong>María Pérez</strong>
+                  <p style="color: var(--text-muted); font-size: 0.875rem;">Casa en Pucón, 2023</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="testimonial-card">
+              <p style="line-height: 1.8; margin-bottom: 1rem;">
+                "La calidad de construcción es impresionante. Llevamos 2 años viviendo en nuestra casa modular y no hemos tenido ningún problema. La eficiencia energética es notable."
+              </p>
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="width: 50px; height: 50px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                  JG
+                </div>
+                <div>
+                  <strong>Juan González</strong>
+                  <p style="color: var(--text-muted); font-size: 0.875rem;">Casa en Zapallar, 2022</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="card" id="contactSection">
+          <h2 style="font-size: 1.75rem; margin-bottom: 1.5rem;">Solicitar Cotización</h2>
+          
+          <form style="display: grid; gap: 1.5rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group" style="margin: 0;">
+                <label for="name" class="form-label">Nombre Completo</label>
+                <input type="text" id="name" class="input" required>
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" id="email" class="input" required>
+              </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="form-group" style="margin: 0;">
+                <label for="phone" class="form-label">Teléfono</label>
+                <input type="tel" id="phone" class="input" required>
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label for="location" class="form-label">Ubicación del Proyecto</label>
+                <select id="location" class="select">
+                  <option>Seleccionar región...</option>
+                  <option>Región Metropolitana</option>
+                  <option>Valparaíso</option>
+                  <option>Biobío</option>
+                  <option>La Araucanía</option>
+                  <option>Los Lagos</option>
+                  <option>Otra</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-group" style="margin: 0;">
+              <label for="message" class="form-label">Mensaje</label>
+              <textarea id="message" class="input" rows="4" placeholder="Cuéntanos sobre tu proyecto..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" style="font-size: 1rem; padding: 0.75rem;">
+              Enviar Solicitud
+            </button>
+          </form>
+        </section>
+      </main>
+
+      <!-- Right Sidebar -->
+      <aside>
+        <!-- Contact Card -->
+        <div class="card" style="position: sticky; top: 5rem;">
+          <h3 style="margin-bottom: 1.5rem;">Información de Contacto</h3>
+          
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <svg class="icon" style="color: var(--primary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              <div>
+                <p style="font-size: 0.875rem; color: var(--text-muted);">Oficina Central</p>
+                <p style="font-weight: 500;">Av. Providencia 1234, Santiago</p>
+              </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <svg class="icon" style="color: var(--primary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              <div>
+                <p style="font-size: 0.875rem; color: var(--text-muted);">Teléfono</p>
+                <p style="font-weight: 500;">+56 2 2345 6789</p>
+              </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <svg class="icon" style="color: var(--primary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <div>
+                <p style="font-size: 0.875rem; color: var(--text-muted);">Horario</p>
+                <p style="font-weight: 500;">Lun-Vie: 9:00-18:00</p>
+                <p style="font-weight: 500;">Sáb: 9:00-14:00</p>
+              </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <svg class="icon" style="color: var(--primary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              <div>
+                <p style="font-size: 0.875rem; color: var(--text-muted);">Email</p>
+                <p style="font-weight: 500;">info@ecomodular.cl</p>
+              </div>
+            </div>
+          </div>
+          
+          <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border);">
+          
+          <div>
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Certificaciones</p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <span class="badge badge-success">LEED Certified</span>
+              <span class="badge badge-primary">ISO 9001</span>
+              <span class="badge">NCh 433</span>
+            </div>
+          </div>
+          
+          <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border);">
+          
+          <div>
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Cobertura</p>
+            <p style="font-weight: 500;">Todo Chile Continental</p>
+          </div>
+          
+          <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border);">
+          
+          <div>
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Síguenos</p>
+            <div style="display: flex; gap: 0.5rem;">
+              <a href="#" class="btn btn-ghost btn-icon">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+              <a href="#" class="btn btn-ghost btn-icon">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.405a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
+                </svg>
+              </a>
+              <a href="#" class="btn btn-ghost btn-icon">
+                <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Fixed Contact Buttons -->
+  <div class="contact-float">
+    <a href="https://wa.me/56223456789" class="contact-btn whatsapp-btn">
+      <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+      </svg>
+      WhatsApp
+    </a>
+    <a href="tel:+56223456789" class="contact-btn">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+      </svg>
+      Llamar
+    </a>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>MODTOK</h3>
+          <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">La plataforma líder para encontrar tu hogar modular ideal en Chile.</p>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Categorías</h3>
+          <ul class="footer-links">
+            <li><a href="/houses.html">Casas Modulares</a></li>
+            <li><a href="/manufacturers.html">Fabricantes</a></li>
+            <li><a href="/services.html">Servicios</a></li>
+            <li><a href="/decoration.html">Decoración</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Recursos</h3>
+          <ul class="footer-links">
+            <li><a href="/blog.html">Blog</a></li>
+            <li><a href="/guides.html">Guías</a></li>
+            <li><a href="/hotspots.html">HotSpots</a></li>
+            <li><a href="/faq.html">Preguntas Frecuentes</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-section">
+          <h3>Empresa</h3>
+          <ul class="footer-links">
+            <li><a href="/about.html">Acerca de</a></li>
+            <li><a href="/contact.html">Contacto</a></li>
+            <li><a href="/advertise.html">Publicita con Nosotros</a></li>
+            <li><a href="/terms.html">Términos y Condiciones</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2024 MODTOK. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../app.js"></script>
+</body>
+</html>
