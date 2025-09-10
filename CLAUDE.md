@@ -1,0 +1,108 @@
+Of course. Based on the best practices outlined in the Anthropic article, here is an excellent, comprehensive `CLAUDE.md` template.
+
+You should copy this into a file named `CLAUDE.md` at the root of your project repository and customize the placeholders with details specific to your app. I've used the **MODTOK** project from our previous conversation as a realistic example.
+
+---
+
+# Project MODTOK: Claude Assistant Guide (CLAUDE.md)
+
+This document provides essential context for the Claude coding assistant. **IMPORTANT**: Adhere to these guidelines to ensure consistency, correctness, and efficiency when working on this codebase.
+
+***
+
+### 📜 Project Overview
+
+MODTOK is a curated digital marketplace for the modular and prefabricated housing industry in Chile. It connects homebuyers with manufacturers, services, and products.
+
+* **Frontend Framework**: **Astro.js** (for high-performance, SEO-focused, content-driven sites)
+* **Backend & Database**: **Supabase** (PostgreSQL, Auth, Storage, Edge Functions)
+* **Styling**: **Tailwind CSS**
+* **Package Manager**: **pnpm**
+* **Language**: **TypeScript**
+
+***
+
+### 📂 Key Files & Architecture
+
+Understanding this structure is critical. Before coding, familiarize yourself with these locations.
+
+* `src/pages/`: Contains all site routes. Each `.astro` file here becomes a page.
+* `src/components/`: Reusable Astro/UI Framework components (e.g., `Card.astro`, `FilterSidebar.tsx`).
+* `src/layouts/`: Base page layouts (e.g., `MainLayout.astro`) that define the shell for pages.
+* `src/lib/`: Core application logic, Supabase client, and type definitions.
+    * `src/lib/supabase.ts`: The Supabase client instance. **Use this shared client, do not initialize a new one.**
+    * `src/lib/types.ts`: Central location for all TypeScript types and interfaces.
+* `supabase/migrations/`: All database schema changes. New migrations are created using the Supabase CLI.
+
+***
+
+### 🛠️ Development Environment Setup
+
+To run this project locally, follow these steps precisely:
+
+1.  **Install Dependencies**: `pnpm install`
+2.  **Start Supabase services**: `supabase start` (This starts the local Postgres database and Studio in Docker).
+3.  **Run Dev Server**: `pnpm dev`
+
+The application will be available at `http://localhost:4321` and Supabase Studio at `http://localhost:54323`.
+
+***
+
+### 🤖 Common Commands
+
+These are the most frequently used commands.
+
+* `pnpm dev`: Starts the Astro development server with hot-reloading.
+* `pnpm build`: Compiles the application for production.
+* `pnpm preview`: Serves the production build locally to test it.
+* `pnpm check`: Runs `astro check` to perform type-checking on all `.astro` files. **Run this before committing.**
+* `pnpm test`: Runs the test suite using Vitest.
+
+***
+
+### ✅ Testing
+
+* **Framework**: We use **Vitest** for unit tests and **Playwright** for end-to-end tests.
+* **Location**: Unit tests are located alongside the code in `*.test.ts` files. E2E tests are in the `tests/` directory.
+* **Workflow**: **YOU MUST** write tests for new features. For bug fixes, first write a failing test that reproduces the bug, then write the code to make it pass.
+* **Performance**: Prefer running single tests during active development to save time (e.g., `pnpm test src/components/MyComponent.test.ts`).
+
+***
+
+### 🎨 Code Style & Conventions
+
+* **TypeScript**: Use TypeScript for all new logic. Define shared types in `src/lib/types.ts`.
+* **Styling**: **Use Tailwind CSS utility classes directly in the HTML/JSX.** Do not write custom CSS files or use inline `style` attributes unless absolutely necessary.
+* **ES Modules**: Use `import`/`export` syntax. Do not use `require`.
+* **Astro Components**: Keep components focused on a single responsibility. Pass data via `props`.
+* **IMPORTANT**: All components that accept props **MUST** have their props typed with a TypeScript interface.
+
+***
+
+### ✨ Workflow & Best Practices
+
+Follow this workflow for most tasks.
+
+1.  **Plan First**: Before writing any code, state your plan. For example: "I will create a new component in `src/components/`, add a new page in `src/pages/` that uses it, and fetch data from Supabase using the shared client."
+2.  **Implement**: Write the code, following the style guidelines.
+3.  **Test**: Write or update tests to cover your changes. Run the tests to ensure they pass and that you haven't broken anything.
+4.  **Verify**: Run `pnpm check` to ensure there are no type errors.
+5.  **Commit**: Use the Git Etiquette guidelines below to commit your changes.
+
+***
+
+### 🌳 Git & Repository Etiquette
+
+* **Branch Naming**: Use the format `type/short-description` (e.g., `feature/user-watchlist`, `fix/seo-meta-tags`).
+* **Commit Messages**: Follow the **Conventional Commits** specification (e.g., `feat: add watchlist functionality for users`). This is not optional.
+* **Pull Requests (PRs)**:
+    * Always **rebase** your branch on top of the `main` branch before creating a PR to avoid merge commits.
+    * Provide a clear description of the changes in the PR.
+    * Link the PR to the relevant GitHub issue.
+
+***
+
+### ⚠️ Known Issues & Quirks
+
+* The local Supabase instance sometimes doesn't apply new migrations correctly on the first try. If you encounter strange database errors, run `supabase stop` and then `supabase start` to fully restart the services.
+* Astro's view transitions can sometimes conflict with complex client-side JavaScript. If you see flickering or state-loss issues, consider disabling transitions for that specific page or component.
