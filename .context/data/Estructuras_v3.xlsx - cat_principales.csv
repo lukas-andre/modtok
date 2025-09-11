@@ -1,0 +1,58 @@
+,,,,,,,,
+,,,,,,,,
+,Categoria,Categoria,Feature,Etiqueta,Filtro /Ubicacion,Formato,Dato en tarjeta Casas | Nivel Premium,Dato en tarjeta Fabricante | Nivel Premium
+,,,,,,,,
+,Casas,Fabricante,Llave en Mano,Si,Lateral,check,SI,
+,,,,No,,,SI,
+,,,Servicios Disponibles,Diseño standard,,label,,SI
+,,,,Diseño personalizado,,label,,SI
+,,,,Instalación premontada,,label,,SI
+,,,,Construcción en terreno,,label,,SI
+,,,,Instalación,,label,,SI
+,,,,Kits de autoconstrucción,,label,,SI
+,,,,Asesoría técnica,,label,,SI
+,,,,Asesoría legal,,label,,SI
+,,,,Construcción personalizada,,label,,SI
+,,,,Logística y transporte,,label,,SI
+,,,,Financiamiento,,label,,SI
+,,,Ventanas,Termopanel,Lateral,,SI,SI
+,,,,Marco de PVC,,,SI,SI
+,,,,Marco de Aluminio,,,SI,SI
+,,,,Marco de Madera,,,SI,SI
+,,,Tecnología,Paneles SIP,,,SI,SI
+,,,,Estructura Contenedor,,,SI,SI
+,,,,Losa Radiante,,,SI,SI
+,,,,Losa Hormigon Liviano,,,SI,SI
+,,,,Jaula Acero Estructural,,,SI,SI
+,,,,Madera,,,SI,SI
+,,,,Cartón,,,SI,SI
+,,,,Lana,,,SI,SI
+,,,,Materiales Ecoamigables,,,SI,SI
+,,,,Acero Reciclado,,,SI,SI
+,,,,Acero Galvanizado,,,SI,SI
+,,,,Paneles de Poliuretano,,,SI,SI
+,,,,Zinc,,,SI,SI
+,,,,Fibrocemento,,,SI,SI
+,,,,OSB,,,SI,SI
+,,,,Poliestireno Expandido,,,SI,SI
+,,,,Acero|Contenedor Marítimo,,,SI,SI
+,,,,Vulcometal,,,SI,SI
+,,,,Metalcon,,,SI,SI
+,,,,Contenedores Marítimos,,,SI,SI
+,,,Especialidad,Tiny Houses,Lateral,,,
+,,,,Casas Modulares Panel Sip,,,,
+,,,,Casas Modulares Container,,,,
+,,,,Casas Modulares Hormigón,,,,
+,,,,Casas Modulares Madera,,,,
+,,,,Casas Prefabricadas Madera,,,,
+,,,,Oficinas Modulares Container,,,,
+,,,Experiencia,[cantidad de años operando],,,,SI
+,,,Nombre de la Empresa,[nombre empresa],,,SI,SI
+,,,Ubicación,[ubicacion matriz| puede ser mas de una ],Lateral,,,
+,,,Teléfono ,,,,,SI
+,,,Correo Electronico,,,,,SI
+,,,Cobertura geográfica para entregas,[region|una o varias| todo chile],,,,SI
+,,,Precio Referencia Minimo/m2,,"Lateral, rango de precios",,,SI
+,,,Precio Referencia Máximo/m2,,"Lateral, rango de precios",,,SI
+,,,Precio,,"Lateral, rango de precios",,,
+,,,Precio Oportunidad,,"Lateral, rango de precios",,,
