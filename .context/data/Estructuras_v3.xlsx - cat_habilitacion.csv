@@ -1,0 +1,44 @@
+,,,,,,,
+,Categoria,Feature,Etiqueta,Filtro /Ubicacion,Formato,Dato en tarjeta Casas | Nivel Premium,Dato en tarjeta Fabricante | Nivel Premium
+,,,,,,,
+,Habilitación & Servicios,Agua & Sanitarios,Perforación de pozos,,,,
+,,,Captación de agua lluvia,,,,
+,,,Alcantarillado Autónomo,,,,
+,,,Baños Secos,,,,
+,,,Reciclaje y Compostaje,,,,
+,,Energia,Paneles Solares,,,,
+,,,Generadores Eléctricos,,,,
+,,,Energía Eólica,,,,
+,,Pisos,Pisos Deck,,,,
+,,,Pisos de Madera,,,,
+,,,Pisos Vinilicos,,,,
+,,,Alfombras Vinilicas,,,,
+,,Revestimientos Interior,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,Revestimientos Exterior,Madera,,,,
+,,,Metal,,,,
+,,,Fibra Mineral,,,,
+,,,,,,,
+,,Cortasoles,Madera,,,,
+,,,Accionables,,,,
+,,,Folding / Sliding Shutter,,,,
+,,Fachadas,Paneles Aislantes,,,,
+,,,Fachadas de Madera,,,,
+,,,,,,,
+,,,,,,,
+,,Seguridad & Comunicación,Instalación Antenas y Repetidores,,,,
+,,,Comunicación Satelital,,,,
+,,,Camaras,,,,
+,,,,,,,SI
+,,Nombre de la Empresa,[nombre empresa],,,SI,SI
+,,Ubicación,[ubicacion matriz| puede ser mas de una ],Lateral,,,
+,,Teléfono ,,,,,SI
+,,Correo Electronico,,,,,SI
+,,Cobertura geográfica para entregas,[region|una o varias| todo chile],,,,SI
+,,Precio Referencia Minimo/m2,,"Lateral, rango de precios",,,SI
+,,Precio Referencia Máximo/m2,,"Lateral, rango de precios",,,SI
+,,Precio,,"Lateral, rango de precios",,,
+,,Precio Oportunidad,,"Lateral, rango de precios",,,
