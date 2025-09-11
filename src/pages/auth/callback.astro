@@ -1,0 +1,19 @@
+---
+import { createSupabaseClient } from '@/lib/supabase';
+
+const { url, cookies } = Astro;
+const requestUrl = new URL(url);
+const code = requestUrl.searchParams.get('code');
+const next = requestUrl.searchParams.get('next') ?? '/dashboard';
+
+if (code) {
+  const supabase = createSupabaseClient(cookies);
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  
+  if (!error) {
+    return Astro.redirect(next);
+  }
+}
+
+return Astro.redirect('/auth/login?error=auth_callback_error');
+---

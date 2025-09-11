@@ -1,0 +1,32 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RegisterForm from '@/components/auth/RegisterForm';
+import { getUser } from '@/lib/supabase';
+
+const user = await getUser(Astro.cookies);
+
+if (user) {
+  return Astro.redirect('/dashboard');
+}
+---
+
+<BaseLayout
+  title="Crear Cuenta - MODTOK"
+  description="Regístrate en MODTOK para acceder al marketplace de construcción modular más grande de Chile"
+>
+  <div class="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md">
+      <div class="text-center">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900">MODTOK</h1>
+        <h2 class="mt-6 text-2xl font-semibold text-gray-900">Crea tu cuenta</h2>
+        <p class="mt-2 text-sm text-gray-600">
+          ¿Ya tienes una cuenta?
+          <a href="/auth/login" class="font-medium text-primary hover:text-primary/90">
+            Inicia sesión aquí
+          </a>
+        </p>
+      </div>
+      <RegisterForm client:load />
+    </div>
+  </div>
+</BaseLayout>
