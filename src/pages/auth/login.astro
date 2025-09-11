@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import LoginForm from '@/components/auth/LoginForm';
 import { getUser } from '@/lib/supabase';
 
-const user = await getUser(Astro.cookies);
+const user = await getUser(Astro);
 
 if (user) {
   return Astro.redirect('/dashboard');

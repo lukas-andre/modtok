@@ -1,31 +1,36 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getUser, createSupabaseClient } from '@/lib/supabase';
-import type { Profile } from '@/lib/types';
+import { getUser, createSupabaseClient, type Database } from '@/lib/supabase';
 
-const user = await getUser(Astro.cookies);
+type Profile = Database['public']['Tables']['profiles']['Row'];
+
+const user = await getUser(Astro);
 
 if (!user) {
   return Astro.redirect('/auth/login');
 }
 
-const supabase = createSupabaseClient(Astro.cookies);
-const { data: profile } = await supabase
+const supabase = createSupabaseClient(Astro);
+const { data: profile, error } = await supabase
   .from('profiles')
   .select('*')
   .eq('id', user.id)
-  .single();
+  .single<Profile>();
 
-// Check if user needs onboarding
-if (profile && !profile.phone_verified && profile.role === 'provider') {
+if (error || !profile) {
   return Astro.redirect('/onboarding/provider');
-} else if (profile && !profile.email_verified) {
+}
+
+
+if (!profile.phone_verified && profile.role === 'provider') {
+  return Astro.redirect('/onboarding/provider');
+} else if (!profile.email_verified) {
   return Astro.redirect('/onboarding/verify-email');
 }
 
-const dashboardTitle = profile?.role === 'provider' 
+const dashboardTitle = profile.role === 'provider' 
   ? 'Panel de Proveedor' 
-  : profile?.role === 'admin' || profile?.role === 'super_admin'
+  : profile.role === 'admin' || profile.role === 'super_admin'
   ? 'Panel de Administración'
   : 'Mi Dashboard';
 ---
@@ -45,7 +50,7 @@ const dashboardTitle = profile?.role === 'provider'
           </div>
           <div class="flex items-center space-x-4">
             <span class="text-sm text-gray-700">
-              Hola, {profile?.full_name || user.email}
+              Hola, {profile.full_name || user.email}
             </span>
             <a
               href="/auth/logout"
@@ -66,7 +71,7 @@ const dashboardTitle = profile?.role === 'provider'
         </p>
       </div>
 
-      {profile?.role === 'provider' && (
+      {profile.role === 'provider' && (
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <div class="rounded-lg bg-white p-6 shadow">
             <h3 class="text-lg font-medium text-gray-900">Mi Empresa</h3>
@@ -107,7 +112,7 @@ const dashboardTitle = profile?.role === 'provider'
         </div>
       )}
 
-      {profile?.role === 'user' && (
+      {profile.role === 'user' && (
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <div class="rounded-lg bg-white p-6 shadow">
             <h3 class="text-lg font-medium text-gray-900">Mis Favoritos</h3>
@@ -148,7 +153,7 @@ const dashboardTitle = profile?.role === 'provider'
         </div>
       )}
 
-      {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
+      {(profile.role === 'admin' || profile.role === 'super_admin') && (
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <div class="rounded-lg bg-white p-6 shadow">
             <h3 class="text-lg font-medium text-gray-900">Proveedores</h3>

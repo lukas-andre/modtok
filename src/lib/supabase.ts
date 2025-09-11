@@ -1,25 +1,36 @@
-import { createServerClient } from '@supabase/ssr';
-import type { AstroCookies } from 'astro';
+import { createServerClient, parseCookieHeader, type CookieOptions } from '@supabase/ssr';
 import type { Database } from './database.types';
+import type { AstroCookies } from 'astro';
 
-export function createSupabaseClient(
-  cookies: AstroCookies,
-  context: 'server' | 'client' = 'server'
-) {
+export function createSupabaseClient(Astro: {
+  request: Request;
+  cookies: AstroCookies;
+}) {
+  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Missing Supabase environment variables');
+  }
+  
   return createServerClient<Database>(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {
-          return cookies.getAll().map((cookie) => ({
-            name: cookie.name,
-            value: cookie.value,
-          }));
+          const parsed = parseCookieHeader(Astro.request.headers.get('Cookie') ?? '');
+          // Filter out cookies with undefined values and ensure all have string values
+          return parsed
+            .filter(cookie => cookie.value !== undefined)
+            .map(cookie => ({
+              name: cookie.name,
+              value: cookie.value as string
+            }));
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: Array<{ name: string; value: string; options?: CookieOptions }>) {
           cookiesToSet.forEach(({ name, value, options }) => {
-            cookies.set(name, value, options);
+            Astro.cookies.set(name, value, options as any);
           });
         },
       },
@@ -27,8 +38,11 @@ export function createSupabaseClient(
   );
 }
 
-export async function getUser(cookies: AstroCookies) {
-  const supabase = createSupabaseClient(cookies);
+export async function getUser(Astro: {
+  request: Request;
+  cookies: AstroCookies;
+}) {
+  const supabase = createSupabaseClient(Astro);
   const { data: { user }, error } = await supabase.auth.getUser();
   
   if (error || !user) {
@@ -38,8 +52,11 @@ export async function getUser(cookies: AstroCookies) {
   return user;
 }
 
-export async function getSession(cookies: AstroCookies) {
-  const supabase = createSupabaseClient(cookies);
+export async function getSession(Astro: {
+  request: Request;
+  cookies: AstroCookies;
+}) {
+  const supabase = createSupabaseClient(Astro);
   const { data: { session }, error } = await supabase.auth.getSession();
   
   if (error || !session) {
@@ -48,3 +65,6 @@ export async function getSession(cookies: AstroCookies) {
   
   return session;
 }
+
+// Export the Database type for use in other files
+export type { Database };
