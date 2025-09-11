@@ -1,0 +1,151 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getUser } from '@/lib/supabase';
+
+const user = await getUser(Astro.cookies);
+---
+
+<BaseLayout>
+  <div class="min-h-screen bg-white">
+    <header class="bg-white shadow-sm">
+      <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+          <div class="flex items-center">
+            <h1 class="text-2xl font-bold text-gray-900">MODTOK</h1>
+          </div>
+          <div class="flex items-center space-x-4">
+            {user ? (
+              <>
+                <a href="/dashboard" class="text-sm font-medium text-gray-700 hover:text-gray-900">
+                  Dashboard
+                </a>
+                <a href="/auth/logout" class="text-sm font-medium text-gray-700 hover:text-gray-900">
+                  Cerrar sesión
+                </a>
+              </>
+            ) : (
+              <>
+                <a href="/auth/login" class="text-sm font-medium text-gray-700 hover:text-gray-900">
+                  Iniciar sesión
+                </a>
+                <a
+                  href="/auth/register"
+                  class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                >
+                  Registrarse
+                </a>
+              </>
+            )}
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <div class="relative">
+        <div class="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
+          <div class="text-center">
+            <h2 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+              El Marketplace de Casas Modulares más grande de Chile
+            </h2>
+            <p class="mx-auto mt-6 max-w-2xl text-xl text-gray-600">
+              Encuentra fabricantes, servicios y productos para construir tu casa modular. 
+              Conectamos a miles de personas con los mejores proveedores del país.
+            </p>
+            <div class="mt-10 flex justify-center space-x-4">
+              <a
+                href="/casas"
+                class="rounded-md bg-primary px-8 py-3 text-base font-medium text-white shadow hover:bg-primary/90"
+              >
+                Explorar Casas
+              </a>
+              <a
+                href="/fabricantes"
+                class="rounded-md border border-gray-300 bg-white px-8 py-3 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+              >
+                Ver Fabricantes
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 py-24">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="text-center">
+            <h3 class="text-3xl font-bold text-gray-900">¿Por qué MODTOK?</h3>
+            <p class="mt-4 text-lg text-gray-600">
+              La plataforma líder en construcción modular y prefabricada
+            </p>
+          </div>
+          <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="text-center">
+              <div class="mx-auto h-12 w-12 rounded-md bg-primary/10 p-3">
+                <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+              </div>
+              <h4 class="mt-4 text-lg font-medium text-gray-900">+500 Modelos</h4>
+              <p class="mt-2 text-sm text-gray-600">
+                La mayor variedad de casas modulares y prefabricadas del país
+              </p>
+            </div>
+            <div class="text-center">
+              <div class="mx-auto h-12 w-12 rounded-md bg-primary/10 p-3">
+                <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+              </div>
+              <h4 class="mt-4 text-lg font-medium text-gray-900">+100 Fabricantes</h4>
+              <p class="mt-2 text-sm text-gray-600">
+                Proveedores verificados y con experiencia comprobada
+              </p>
+            </div>
+            <div class="text-center">
+              <div class="mx-auto h-12 w-12 rounded-md bg-primary/10 p-3">
+                <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <h4 class="mt-4 text-lg font-medium text-gray-900">100% Seguro</h4>
+              <p class="mt-2 text-sm text-gray-600">
+                Plataforma confiable con proveedores verificados
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="py-24">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div class="rounded-2xl bg-primary px-6 py-16 sm:px-12 lg:px-16">
+            <div class="mx-auto max-w-2xl text-center">
+              <h3 class="text-3xl font-bold tracking-tight text-white">
+                ¿Eres fabricante o proveedor?
+              </h3>
+              <p class="mt-4 text-lg text-white/90">
+                Únete a MODTOK y conecta con miles de clientes potenciales
+              </p>
+              <a
+                href="/auth/register"
+                class="mt-8 inline-block rounded-md bg-white px-8 py-3 text-base font-medium text-primary shadow hover:bg-gray-100"
+              >
+                Registrar mi empresa
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-gray-900">
+      <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div class="text-center">
+          <p class="text-sm text-gray-400">
+            © 2024 MODTOK. Todos los derechos reservados.
+          </p>
+        </div>
+      </div>
+    </footer>
+  </div>
+</BaseLayout>

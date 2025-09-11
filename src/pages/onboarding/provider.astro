@@ -1,0 +1,28 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProviderOnboarding from '@/components/onboarding/ProviderOnboarding';
+import { getUser } from '@/lib/supabase';
+
+const user = await getUser(Astro.cookies);
+
+if (!user) {
+  return Astro.redirect('/auth/login');
+}
+---
+
+<BaseLayout
+  title="Configuración de Proveedor - MODTOK"
+  description="Completa tu perfil de proveedor en MODTOK"
+>
+  <div class="min-h-screen bg-gray-50 py-12">
+    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h1 class="text-3xl font-bold text-gray-900">Bienvenido a MODTOK</h1>
+        <p class="mt-2 text-lg text-gray-600">
+          Completa tu perfil de proveedor para comenzar a publicar
+        </p>
+      </div>
+      <ProviderOnboarding client:load userId={user.id} />
+    </div>
+  </div>
+</BaseLayout>

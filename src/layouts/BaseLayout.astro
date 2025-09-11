@@ -1,0 +1,77 @@
+---
+import '@/styles/globals.css';
+import { SEO } from 'astro-seo';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+  nofollow?: boolean;
+}
+
+const {
+  title = 'MODTOK - Marketplace de Casas Modulares en Chile',
+  description = 'Encuentra fabricantes, servicios y productos para construir tu casa modular. El marketplace líder en construcción modular y prefabricada en Chile.',
+  image = '/og-image.jpg',
+  noindex = false,
+  nofollow = false,
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    
+    <SEO
+      title={title}
+      description={description}
+      canonical={canonicalURL.toString()}
+      openGraph={{
+        basic: {
+          title: title,
+          type: 'website',
+          image: image,
+          url: canonicalURL.toString(),
+        },
+        optional: {
+          description: description,
+          locale: 'es_CL',
+          siteName: 'MODTOK',
+        },
+        image: {
+          url: image,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      }}
+      twitter={{
+        card: 'summary_large_image',
+        site: '@modtok_cl',
+        creator: '@modtok_cl',
+        title: title,
+        description: description,
+        image: image,
+      }}
+      noindex={noindex}
+      nofollow={nofollow}
+    />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

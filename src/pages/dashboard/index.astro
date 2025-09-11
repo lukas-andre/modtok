@@ -1,0 +1,193 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getUser, createSupabaseClient } from '@/lib/supabase';
+import type { Profile } from '@/lib/types';
+
+const user = await getUser(Astro.cookies);
+
+if (!user) {
+  return Astro.redirect('/auth/login');
+}
+
+const supabase = createSupabaseClient(Astro.cookies);
+const { data: profile } = await supabase
+  .from('profiles')
+  .select('*')
+  .eq('id', user.id)
+  .single();
+
+// Check if user needs onboarding
+if (profile && !profile.phone_verified && profile.role === 'provider') {
+  return Astro.redirect('/onboarding/provider');
+} else if (profile && !profile.email_verified) {
+  return Astro.redirect('/onboarding/verify-email');
+}
+
+const dashboardTitle = profile?.role === 'provider' 
+  ? 'Panel de Proveedor' 
+  : profile?.role === 'admin' || profile?.role === 'super_admin'
+  ? 'Panel de Administración'
+  : 'Mi Dashboard';
+---
+
+<BaseLayout
+  title={`${dashboardTitle} - MODTOK`}
+  description="Gestiona tu cuenta y proyectos en MODTOK"
+>
+  <div class="min-h-screen bg-gray-50">
+    <nav class="bg-white shadow">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 justify-between">
+          <div class="flex">
+            <div class="flex flex-shrink-0 items-center">
+              <h1 class="text-xl font-bold">MODTOK</h1>
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <span class="text-sm text-gray-700">
+              Hola, {profile?.full_name || user.email}
+            </span>
+            <a
+              href="/auth/logout"
+              class="text-sm text-gray-500 hover:text-gray-700"
+            >
+              Cerrar sesión
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900">{dashboardTitle}</h2>
+        <p class="mt-2 text-sm text-gray-600">
+          Bienvenido a tu panel de control en MODTOK
+        </p>
+      </div>
+
+      {profile?.role === 'provider' && (
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="rounded-lg bg-white p-6 shadow">
+            <h3 class="text-lg font-medium text-gray-900">Mi Empresa</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Gestiona la información de tu empresa
+            </p>
+            <a
+              href="/dashboard/provider/company"
+              class="mt-4 inline-block text-sm font-medium text-primary hover:text-primary/90"
+            >
+              Editar perfil →
+            </a>
+          </div>
+          <div class="rounded-lg bg-white p-6 shadow">
+            <h3 class="text-lg font-medium text-gray-900">Mis Productos</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Administra tus casas y servicios
+            </p>
+            <a
+              href="/dashboard/provider/products"
+              class="mt-4 inline-block text-sm font-medium text-primary hover:text-primary/90"
+            >
+              Ver productos →
+            </a>
+          </div>
+          <div class="rounded-lg bg-white p-6 shadow">
+            <h3 class="text-lg font-medium text-gray-900">Consultas</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Responde a las consultas de clientes
+            </p>
+            <a
+              href="/dashboard/provider/inquiries"
+              class="mt-4 inline-block text-sm font-medium text-primary hover:text-primary/90"
+            >
+              Ver consultas →
+            </a>
+          </div>
+        </div>
+      )}
+
+      {profile?.role === 'user' && (
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="rounded-lg bg-white p-6 shadow">
+            <h3 class="text-lg font-medium text-gray-900">Mis Favoritos</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Casas y proveedores guardados
+            </p>
+            <a
+              href="/dashboard/favorites"
+              class="mt-4 inline-block text-sm font-medium text-primary hover:text-primary/90"
+            >
+              Ver favoritos →
+            </a>
+          </div>
+          <div class="rounded-lg bg-white p-6 shadow">
+            <h3 class="text-lg font-medium text-gray-900">Mis Consultas</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Historial de consultas realizadas
+            </p>
+            <a
+              href="/dashboard/inquiries"
+              class="mt-4 inline-block text-sm font-medium text-primary hover:text-primary/90"
+            >
+              Ver consultas →
+            </a>
+          </div>
+          <div class="rounded-lg bg-white p-6 shadow">
+            <h3 class="text-lg font-medium text-gray-900">Mi Perfil</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Actualiza tu información personal
+            </p>
+            <a
+              href="/dashboard/profile"
+              class="mt-4 inline-block text-sm font-medium text-primary hover:text-primary/90"
+            >
+              Editar perfil →
+            </a>
+          </div>
+        </div>
+      )}
+
+      {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="rounded-lg bg-white p-6 shadow">
+            <h3 class="text-lg font-medium text-gray-900">Proveedores</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Gestiona proveedores y aprobaciones
+            </p>
+            <a
+              href="/admin/providers"
+              class="mt-4 inline-block text-sm font-medium text-primary hover:text-primary/90"
+            >
+              Administrar →
+            </a>
+          </div>
+          <div class="rounded-lg bg-white p-6 shadow">
+            <h3 class="text-lg font-medium text-gray-900">Usuarios</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Administra usuarios y permisos
+            </p>
+            <a
+              href="/admin/users"
+              class="mt-4 inline-block text-sm font-medium text-primary hover:text-primary/90"
+            >
+              Ver usuarios →
+            </a>
+          </div>
+          <div class="rounded-lg bg-white p-6 shadow">
+            <h3 class="text-lg font-medium text-gray-900">Contenido</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              Blog posts y páginas
+            </p>
+            <a
+              href="/admin/content"
+              class="mt-4 inline-block text-sm font-medium text-primary hover:text-primary/90"
+            >
+              Gestionar →
+            </a>
+          </div>
+        </div>
+      )}
+    </main>
+  </div>
+</BaseLayout>

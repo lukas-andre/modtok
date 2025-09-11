@@ -1,0 +1,32 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import LoginForm from '@/components/auth/LoginForm';
+import { getUser } from '@/lib/supabase';
+
+const user = await getUser(Astro.cookies);
+
+if (user) {
+  return Astro.redirect('/dashboard');
+}
+---
+
+<BaseLayout
+  title="Iniciar Sesión - MODTOK"
+  description="Accede a tu cuenta en MODTOK para gestionar tus proyectos de construcción modular"
+>
+  <div class="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md">
+      <div class="text-center">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900">MODTOK</h1>
+        <h2 class="mt-6 text-2xl font-semibold text-gray-900">Inicia sesión en tu cuenta</h2>
+        <p class="mt-2 text-sm text-gray-600">
+          ¿No tienes una cuenta?
+          <a href="/auth/register" class="font-medium text-primary hover:text-primary/90">
+            Regístrate aquí
+          </a>
+        </p>
+      </div>
+      <LoginForm client:load />
+    </div>
+  </div>
+</BaseLayout>
