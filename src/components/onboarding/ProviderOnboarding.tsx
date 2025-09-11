@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import type { CategoryType } from '@/lib/types';
 
 interface Props {
@@ -28,7 +28,7 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
   const [yearsExperience, setYearsExperience] = useState('');
   const [specialties, setSpecialties] = useState('');
   
-  const supabase = createBrowserClient(
+  const supabase = createClient(
     import.meta.env.PUBLIC_SUPABASE_URL,
     import.meta.env.PUBLIC_SUPABASE_ANON_KEY
   );
