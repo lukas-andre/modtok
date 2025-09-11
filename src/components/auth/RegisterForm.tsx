@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { createClient } from '@supabase/supabase-js';
 import type { UserRole } from '@/lib/types';
 
 const RegisterForm: React.FC = () => {
@@ -16,33 +15,33 @@ const RegisterForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const supabase = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY
-  );
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: {
-            full_name: fullName,
-            phone,
-            role,
-          },
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          email,
+          password,
+          fullName,
+          phone,
+          role,
+        }),
       });
 
-      if (error) throw error;
+      const data = await response.json();
 
-      if (data.user) {
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al crear la cuenta');
+      }
+
+      if (data.success) {
         setSuccess(true);
       }
     } catch (err: any) {
