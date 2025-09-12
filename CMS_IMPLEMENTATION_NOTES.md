@@ -18,8 +18,8 @@ Error creating admin user: Error: Failed to create auth user: User not allowed
 - Ver Admin por ID no funciona http://localhost:4321/admin/super/admins/3c74ab29-377b-4eb2-a440-ab02cf8b2ad1 404 NOT FOUND
 - http://localhost:4321/admin Admin dashboard is using dummy metrics. we should ensure using real ones.
 - MARK SEO & Metadada - Biblioteca de Medios - Páginas Estáticas as TBD or "Proximamente" on http://localhost:4321/admin/content
-- En super admin dashboard sacar "Consultas Pendientes"
-- Super Admin dasbhoard quitar emoji de generar contraseña
+- En super admin dashboard dejar como "Proximamente" "Consultas Pendientes"
+- Super Admin dasbhoard quitar emoji de generar contraseña y poner ese ojito para poder verla.
 - Admin user doesnt works http://localhost:4321/admin/users#id
 - Checkear bien todo lo que tenga que ver con SEO en http://localhost:4321/admin/settings ver si es verdad que con eso podemos mejorar.
 - Marcar "Aprobaciones Pendientes" y "Elementos que requieren revisión y aprobación" como "coming soon" o "proximamente" y la parte de "consultas" igual com comming soon. 

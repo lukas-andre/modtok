@@ -3,7 +3,6 @@ import { StatCard } from './StatCard';
 import { QuickActions } from './QuickActions';
 import { RecentActivity } from './RecentActivity';
 import { PendingApprovals } from './PendingApprovals';
-import { GlobalSearch } from './GlobalSearch';
 
 // Mock data - in real app this would come from props or API
 const mockStats = [
@@ -153,44 +152,58 @@ export default function AdminDashboard({ user }: AdminDashboardProps) {
 
   return (
     <div>
-      {/* Global Search */}
-      <div className="mb-8 flex justify-end">
-        <GlobalSearch />
-      </div>
-
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {mockStats.map((stat, index) => (
-          <StatCard
-            key={index}
-            title={stat.title}
-            value={stat.value}
-            trend={stat.trend}
-            icon={stat.icon}
-            onClick={() => {
-              // Navigate to relevant section
-              const routes = {
-                'Proveedores': '/admin/providers',
-                'Casas': '/admin/content/houses',
-                'Consultas': '/admin/inquiries',
-                'Usuarios': '/admin/users',
-              };
-              window.location.href = routes[stat.title as keyof typeof routes] || '/admin';
-            }}
-          />
-        ))}
+        {mockStats.map((stat, index) => {
+          const isConsultas = stat.title === 'Consultas';
+          return (
+            <div key={index} className={isConsultas ? 'relative' : ''}>
+              <StatCard
+                title={stat.title}
+                value={stat.value}
+                trend={stat.trend}
+                icon={stat.icon}
+                onClick={isConsultas ? undefined : () => {
+                  // Navigate to relevant section
+                  const routes = {
+                    'Proveedores': '/admin/providers',
+                    'Casas': '/admin/content/houses',
+                    'Usuarios': '/admin/users',
+                  };
+                  window.location.href = routes[stat.title as keyof typeof routes] || '/admin';
+                }}
+              />
+              {isConsultas && (
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-sm font-semibold text-gray-900">Próximamente</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Dashboard Components Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         <QuickActions actions={mockQuickActions} />
         <RecentActivity activities={mockActivities} />
-        <PendingApprovals 
-          approvals={mockApprovals}
-          onApprove={handleApproval}
-          onReject={handleRejection}
-          onView={handleView}
-        />
+        <div className="relative">
+          <PendingApprovals 
+            approvals={mockApprovals}
+            onApprove={handleApproval}
+            onReject={handleRejection}
+            onView={handleView}
+          />
+          {/* Coming Soon Overlay */}
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-lg font-semibold text-gray-900 mb-1">Próximamente</div>
+              <div className="text-sm text-gray-600">Esta función estará disponible pronto</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

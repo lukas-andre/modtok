@@ -24,27 +24,27 @@ const navigationItems: NavigationItem[] = [
   {
     name: 'Dashboard',
     href: '/admin',
-    icon: '□'
+    icon: ''
   },
   {
     name: 'Proveedores',
     href: '/admin/providers',
-    icon: '■'
+    icon: ''
   },
   {
     name: 'Contenido',
     href: '/admin/content',
-    icon: '▢'
+    icon: ''
   },
   {
     name: 'Usuarios',
     href: '/admin/users',
-    icon: '○'
+    icon: ''
   },
   {
     name: 'Configuración',
     href: '/admin/settings',
-    icon: '◆'
+    icon: ''
   }
 ];
 
@@ -53,17 +53,17 @@ const superAdminItems: NavigationItem[] = user.role === 'super_admin' ? [
   {
     name: 'Super Admin',
     href: '/admin/super',
-    icon: '◈',
+    icon: '',
     submenu: [
       {
         name: 'Panel Principal',
         href: '/admin/super',
-        icon: '▣'
+        icon: ''
       },
       {
         name: 'Administradores',
         href: '/admin/super/admins',
-        icon: '◉'
+        icon: ''
       }
     ]
   }
@@ -121,8 +121,7 @@ const allNavItems = [...navigationItems, ...superAdminItems];
               {item.submenu ? (
                 <!-- Super Admin section with submenu -->
                 <div>
-                  <div class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 mb-2">
-                    <span class="text-lg">{item.icon}</span>
+                  <div class="px-3 py-2 rounded-lg text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 mb-2">
                     <span>{item.name}</span>
                   </div>
                   <ul class="ml-6 space-y-1">
@@ -130,13 +129,12 @@ const allNavItems = [...navigationItems, ...superAdminItems];
                       <li>
                         <a 
                           href={subItem.href}
-                          class={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          class={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                             currentPage === subItem.href || (subItem.href === '/admin/super' && currentPage.startsWith('/admin/super'))
-                              ? 'bg-primary text-white' 
+                              ? 'bg-brand-black' 
                               : 'text-gray-600 hover:bg-gray-100'
                           }`}
                         >
-                          <span class="text-sm">{subItem.icon}</span>
                           <span>{subItem.name}</span>
                         </a>
                       </li>
@@ -147,13 +145,12 @@ const allNavItems = [...navigationItems, ...superAdminItems];
                 <!-- Regular navigation item -->
                 <a 
                   href={item.href}
-                  class={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  class={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     currentPage === item.href || (item.href !== '/admin' && currentPage.startsWith(item.href))
-                      ? 'bg-primary text-white' 
+                      ? 'bg-brand-black' 
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
-                  <span class="text-lg">{item.icon}</span>
                   <span>{item.name}</span>
                 </a>
               )}

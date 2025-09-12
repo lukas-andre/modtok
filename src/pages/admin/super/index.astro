@@ -60,7 +60,7 @@ if (!user) {
         </div>
       </div>
 
-      <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-lg text-white">
+      <div class="relative bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-lg text-white">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-purple-100 text-sm">Consultas Pendientes</p>
@@ -70,6 +70,12 @@ if (!user) {
             <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z"/>
             </svg>
+          </div>
+        </div>
+        <!-- Coming Soon Overlay -->
+        <div class="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
+          <div class="text-center">
+            <div class="text-sm font-semibold text-gray-900">Próximamente</div>
           </div>
         </div>
       </div>
