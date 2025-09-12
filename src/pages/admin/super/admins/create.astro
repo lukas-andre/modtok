@@ -10,35 +10,7 @@ if (!user) {
   return Astro.redirect('/auth/login?redirect=/admin/super/admins/create');
 }
 
-let success = false;
-let error = '';
-
-// Handle form submission
-if (Astro.request.method === 'POST') {
-  try {
-    const formData = await Astro.request.formData();
-    const email = formData.get('email') as string;
-    const full_name = formData.get('full_name') as string;
-    const role = formData.get('role') as 'admin' | 'super_admin';
-    const temp_password = formData.get('temp_password') as string;
-
-    // Basic validation
-    if (!email || !full_name || !role || !temp_password) {
-      throw new Error('Todos los campos son requeridos');
-    }
-
-    if (temp_password.length < 8) {
-      throw new Error('La contraseña temporal debe tener al menos 8 caracteres');
-    }
-
-    // TODO: Create the admin user using Supabase Admin API
-    // This would require the service role key and proper error handling
-    success = true;
-    
-  } catch (err) {
-    error = err instanceof Error ? err.message : 'Error desconocido';
-  }
-}
+// Admin creation is handled via API route
 ---
 
 <AdminLayout title="Crear Administrador" user={user} currentPage="/admin/super">
@@ -58,29 +30,25 @@ if (Astro.request.method === 'POST') {
     </div>
 
     <!-- Success/Error Messages -->
-    {success && (
-      <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-        <div class="flex items-center">
-          <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>
-          <p class="text-green-800 font-medium">
-            ¡Administrador creado exitosamente! Se ha enviado un email con las credenciales.
-          </p>
-        </div>
+    <div id="successMessage" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg hidden">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <p class="text-green-800 font-medium">
+          ¡Administrador creado exitosamente! Se ha enviado un email con las credenciales.
+        </p>
       </div>
-    )}
+    </div>
 
-    {error && (
-      <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-        <div class="flex items-center">
-          <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="X6 18L18 6M6 6l12 12"/>
-          </svg>
-          <p class="text-red-800 font-medium">{error}</p>
-        </div>
+    <div id="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg hidden">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        <p class="text-red-800 font-medium" id="errorText"></p>
       </div>
-    )}
+    </div>
 
     <!-- Create Admin Form -->
     <div class="bg-white rounded-lg border border-gray-200">
@@ -88,7 +56,7 @@ if (Astro.request.method === 'POST') {
         <h3 class="text-lg font-medium text-gray-900">Información del Administrador</h3>
       </div>
       
-      <form method="POST" class="p-6 space-y-6">
+      <form id="createAdminForm" class="p-6 space-y-6">
         <!-- Full Name -->
         <div>
           <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2">
@@ -207,12 +175,96 @@ if (Astro.request.method === 'POST') {
 </AdminLayout>
 
 <script>
-  function generatePassword() {
+  function generatePassword(): void {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
     let password = '';
     for (let i = 0; i < 12; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    document.getElementById('temp_password').value = password;
+    const passwordInput = document.getElementById('temp_password') as HTMLInputElement;
+    if (passwordInput) {
+      passwordInput.value = password;
+    }
   }
+
+  function showMessage(type: string, message?: string): void {
+    const successDiv = document.getElementById('successMessage');
+    const errorDiv = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    
+    if (type === 'success') {
+      successDiv?.classList.remove('hidden');
+      errorDiv?.classList.add('hidden');
+    } else if (message) {
+      errorDiv?.classList.remove('hidden');
+      successDiv?.classList.add('hidden');
+      if (errorText) {
+        errorText.textContent = message;
+      }
+    }
+  }
+
+  function hideMessages(): void {
+    const successDiv = document.getElementById('successMessage');
+    const errorDiv = document.getElementById('errorMessage');
+    successDiv?.classList.add('hidden');
+    errorDiv?.classList.add('hidden');
+  }
+
+  // Handle form submission
+  const createForm = document.getElementById('createAdminForm') as HTMLFormElement;
+  if (createForm) {
+    createForm.addEventListener('submit', async (e: Event) => {
+      e.preventDefault();
+      hideMessages();
+
+      const target = e.target as HTMLFormElement;
+      const formData = new FormData(target);
+      const submitButton = target.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const originalText = submitButton?.textContent || 'Crear Administrador';
+
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Creando...';
+      }
+
+      try {
+        const response = await fetch('/api/admin/create-admin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: formData.get('email'),
+            full_name: formData.get('full_name'),
+            role: formData.get('role'),
+            temp_password: formData.get('temp_password')
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showMessage('success');
+          target.reset();
+          // Redirect to admin list after 2 seconds
+          setTimeout(() => {
+            window.location.href = '/admin/super/admins';
+          }, 2000);
+        } else {
+          showMessage('error', data.error || 'Error al crear administrador');
+        }
+      } catch (error) {
+        showMessage('error', 'Error de conexión. Inténtalo de nuevo.');
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = originalText;
+        }
+      }
+    });
+  }
+
+  // Make function global so it can be called from onclick attribute
+  (window as any).generatePassword = generatePassword;
 </script>

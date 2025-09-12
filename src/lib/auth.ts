@@ -7,6 +7,25 @@ export interface AdminAuthResult {
   user: Profile | null;
   isAdmin: boolean;
   isSuperAdmin: boolean;
+  sessionExpired?: boolean;
+}
+
+// Session timeout configuration (in minutes)
+const ADMIN_SESSION_TIMEOUT = 120; // 2 hours
+const USER_SESSION_TIMEOUT = 480; // 8 hours
+
+/**
+ * Check if session has expired based on role and timeout settings
+ */
+function isSessionExpired(session: any, isAdminUser: boolean): boolean {
+  if (!session?.expires_at) return false;
+  
+  const expiresAt = new Date(session.expires_at);
+  const now = new Date();
+  const timeoutMinutes = isAdminUser ? ADMIN_SESSION_TIMEOUT : USER_SESSION_TIMEOUT;
+  const maxAge = new Date(now.getTime() - (timeoutMinutes * 60 * 1000));
+  
+  return expiresAt < maxAge;
 }
 
 /**
@@ -46,6 +65,19 @@ export async function getAdminAuth(Astro: {
 
   const isAdmin = profile.role === 'admin' || profile.role === 'super_admin';
   const isSuperAdmin = profile.role === 'super_admin';
+  const sessionExpired = isSessionExpired(session, isAdmin);
+
+  if (sessionExpired) {
+    // Sign out expired session
+    await supabase.auth.signOut();
+    return {
+      isAuthenticated: false,
+      user: null,
+      isAdmin: false,
+      isSuperAdmin: false,
+      sessionExpired: true
+    };
+  }
 
   return {
     isAuthenticated: true,

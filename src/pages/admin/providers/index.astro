@@ -1,0 +1,314 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '../../../lib/auth';
+import { createSupabaseClient } from '../../../lib/supabase';
+
+// Protect this page - only admins can access
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/providers');
+}
+
+// Fetch all providers  
+const supabase = createSupabaseClient(Astro);
+const { data: providers, error } = await supabase
+  .from('providers')
+  .select(`
+    *,
+    profile:profiles!providers_profile_id_fkey(full_name, email),
+    approved_by_profile:profiles!providers_approved_by_fkey(full_name, email)
+  `)
+  .order('created_at', { ascending: false });
+
+if (error) {
+  console.error('Error fetching providers:', error);
+}
+---
+
+<AdminLayout title="Gestión de Proveedores" user={user} currentPage="/admin/providers">
+  <div class="p-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h2 class="text-xl font-semibold text-gray-900">Gestión de Proveedores</h2>
+        <p class="text-gray-600 mt-1">Administra los proveedores de la plataforma MODTOK</p>
+      </div>
+      <a 
+        href="/admin/providers/create"
+        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+      >
+        + Crear Proveedor
+      </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="flex items-center space-x-2">
+          <label for="status_filter" class="text-sm font-medium text-gray-700">Estado:</label>
+          <select id="status_filter" class="border border-gray-300 rounded px-3 py-1 text-sm">
+            <option value="">Todos</option>
+            <option value="active">Activo</option>
+            <option value="pending_review">Pendiente</option>
+            <option value="inactive">Inactivo</option>
+            <option value="rejected">Rechazado</option>
+          </select>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <label for="tier_filter" class="text-sm font-medium text-gray-700">Nivel:</label>
+          <select id="tier_filter" class="border border-gray-300 rounded px-3 py-1 text-sm">
+            <option value="">Todos</option>
+            <option value="standard">Estándar</option>
+            <option value="premium">Premium</option>
+            <option value="destacado">Destacado</option>
+          </select>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <input
+            type="text"
+            id="search_filter"
+            placeholder="Buscar por nombre o email..."
+            class="border border-gray-300 rounded px-3 py-1 text-sm w-64"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Providers List -->
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-medium text-gray-900">Lista de Proveedores</h3>
+          <span class="text-sm text-gray-500">
+            {providers ? `${providers.length} proveedores` : 'Cargando...'}
+          </span>
+        </div>
+      </div>
+      
+      {!providers || providers.length === 0 ? (
+        <div class="p-8 text-center">
+          <div class="text-gray-400 mb-4">
+            <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0v-5a1 1 0 011-1h4a1 1 0 011 1v5m-4-5V9a1 1 0 011-1h2a1 1 0 011 1v4.01" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No hay proveedores</h3>
+          <p class="text-gray-600 mb-4">Crea el primer proveedor de la plataforma.</p>
+          <a 
+            href="/admin/providers/create"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+          >
+            Crear Proveedor
+          </a>
+        </div>
+      ) : (
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Proveedor
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Información
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Nivel
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Estado
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Creado por
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Acciones
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              {providers.map((provider) => (
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="flex-shrink-0 h-12 w-12">
+                        {provider.logo_url ? (
+                          <img class="h-12 w-12 rounded-lg object-cover" src={provider.logo_url} alt="" />
+                        ) : (
+                          <div class="h-12 w-12 rounded-lg bg-gray-300 flex items-center justify-center">
+                            <span class="text-sm font-medium text-gray-700">
+                              {provider.company_name?.charAt(0)?.toUpperCase() || '?'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                          {provider.company_name}
+                        </div>
+                        <div class="text-sm text-gray-500">{provider.profile?.full_name || provider.profile?.email || 'N/A'}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{provider.email}</div>
+                    <div class="text-sm text-gray-500">{provider.phone}</div>
+                    <div class="text-sm text-gray-500">{provider.city}, {provider.region}</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      provider.tier === 'destacado' 
+                        ? 'bg-yellow-100 text-yellow-800' 
+                        : provider.tier === 'premium'
+                        ? 'bg-purple-100 text-purple-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {provider.tier === 'destacado' ? 'Destacado' : 
+                       provider.tier === 'premium' ? 'Premium' : 'Estándar'}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      provider.status === 'active' 
+                        ? 'bg-green-100 text-green-800' 
+                        : provider.status === 'pending_review'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : provider.status === 'inactive'
+                        ? 'bg-gray-100 text-gray-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {provider.status === 'active' ? 'Activo' : 
+                       provider.status === 'pending_review' ? 'Pendiente' : 
+                       provider.status === 'inactive' ? 'Inactivo' : 
+                       provider.status === 'rejected' ? 'Rechazado' : 'Borrador'}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {provider.approved_by_profile?.full_name || provider.approved_by_profile?.email || 'Auto-registro'}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex space-x-2">
+                      <a 
+                        href={`/admin/providers/${provider.id}`}
+                        class="text-blue-600 hover:text-blue-900"
+                      >
+                        Ver
+                      </a>
+                      <a 
+                        href={`/admin/providers/${provider.id}/edit`}
+                        class="text-indigo-600 hover:text-indigo-900"
+                      >
+                        Editar
+                      </a>
+                      {provider.status === 'pending_review' && (
+                        <button 
+                          onclick={`approveProvider('${provider.id}')`}
+                          class="text-green-600 hover:text-green-900"
+                        >
+                          Aprobar
+                        </button>
+                      )}
+                      <button 
+                        onclick={`deleteProvider('${provider.id}', '${provider.company_name}')`}
+                        class="text-red-600 hover:text-red-900"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  function approveProvider(providerId: string): void {
+    if (confirm('¿Confirmas que deseas aprobar este proveedor?')) {
+      // TODO: Implement API call to approve provider
+      alert('Funcionalidad de aprobación pendiente de implementar');
+    }
+  }
+
+  function deleteProvider(providerId: string, providerName: string): void {
+    if (confirm(`¿Estás seguro que deseas eliminar al proveedor "${providerName}"?`)) {
+      // TODO: Implement API call to delete provider
+      alert('Funcionalidad de eliminación pendiente de implementar');
+    }
+  }
+
+  // Filter functionality
+  const statusFilter = document.getElementById('status_filter') as HTMLSelectElement;
+  const tierFilter = document.getElementById('tier_filter') as HTMLSelectElement;
+  const searchFilter = document.getElementById('search_filter') as HTMLInputElement;
+
+  if (statusFilter) statusFilter.addEventListener('change', filterProviders);
+  if (tierFilter) tierFilter.addEventListener('change', filterProviders);
+  if (searchFilter) searchFilter.addEventListener('input', filterProviders);
+
+  function filterProviders(): void {
+    const statusValue = statusFilter?.value || '';
+    const tierValue = tierFilter?.value || '';
+    const searchValue = searchFilter?.value.toLowerCase() || '';
+    
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach((row: Element) => {
+      let show = true;
+      
+      // Status filter
+      if (statusValue) {
+        const statusBadge = row.querySelector('td:nth-child(4) span');
+        if (statusBadge) {
+          const status = statusBadge.textContent?.toLowerCase() || '';
+          if (
+            (statusValue === 'active' && status !== 'activo') ||
+            (statusValue === 'pending_review' && status !== 'pendiente') ||
+            (statusValue === 'inactive' && status !== 'inactivo') ||
+            (statusValue === 'rejected' && status !== 'rechazado')
+          ) {
+            show = false;
+          }
+        }
+      }
+      
+      // Tier filter  
+      if (show && tierValue) {
+        const tierBadge = row.querySelector('td:nth-child(3) span');
+        if (tierBadge) {
+          const tier = tierBadge.textContent?.toLowerCase() || '';
+          if (
+            (tierValue === 'standard' && tier !== 'estándar') ||
+            (tierValue === 'premium' && tier !== 'premium') ||
+            (tierValue === 'destacado' && tier !== 'destacado')
+          ) {
+            show = false;
+          }
+        }
+      }
+      
+      // Search filter
+      if (show && searchValue) {
+        const text = row.textContent?.toLowerCase() || '';
+        if (!text.includes(searchValue)) {
+          show = false;
+        }
+      }
+      
+      const htmlRow = row as HTMLElement;
+      htmlRow.style.display = show ? '' : 'none';
+    });
+  }
+
+  // Make functions global so they can be called from onclick attributes
+  (window as any).approveProvider = approveProvider;
+  (window as any).deleteProvider = deleteProvider;
+</script>
