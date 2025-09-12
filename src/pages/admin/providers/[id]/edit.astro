@@ -1,0 +1,748 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '../../../../lib/auth';
+import { createSupabaseClient } from '../../../../lib/supabase';
+
+// Protect this page - only admins can access
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/providers');
+}
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/admin/providers');
+}
+
+// Fetch provider data
+const supabase = createSupabaseClient(Astro);
+const { data: provider, error } = await supabase
+  .from('providers')
+  .select('*')
+  .eq('id', id)
+  .single();
+
+if (error || !provider) {
+  return Astro.redirect('/admin/providers?error=Provider not found');
+}
+
+// Fetch features data based on CSV structure
+const { data: features } = await supabase
+  .from('features')
+  .select('*')
+  .order('category_id', { ascending: true });
+
+const { data: categories } = await supabase
+  .from('categories')
+  .select('*')
+  .order('display_order', { ascending: true });
+
+// Group features by category for easier rendering
+const featuresByCategory = features?.reduce((acc, feature) => {
+  const categoryId = feature.category_id;
+  if (categoryId && !acc[categoryId]) {
+    acc[categoryId] = [];
+  }
+  if (categoryId) {
+    acc[categoryId].push(feature);
+  }
+  return acc;
+}, {} as Record<string, typeof features>);
+---
+
+<AdminLayout title={`Editar ${provider.company_name}`} user={user} currentPage="/admin/providers">
+  <div class="p-6">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center space-x-4 mb-4">
+        <a 
+          href={`/admin/providers/${id}`}
+          class="text-gray-600 hover:text-gray-900"
+        >
+          ← Volver al Proveedor
+        </a>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-900">Editar Proveedor: {provider.company_name}</h2>
+      <p class="text-gray-600 mt-1">Modifica la información del proveedor en la plataforma MODTOK</p>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="successMessage" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg hidden">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <p class="text-green-800 font-medium">
+          ¡Proveedor actualizado exitosamente!
+        </p>
+      </div>
+    </div>
+
+    <div id="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg hidden">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        <p class="text-red-800 font-medium" id="errorText"></p>
+      </div>
+    </div>
+
+    <form id="editProviderForm" class="space-y-8">
+      <!-- Company Information -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Información de la Empresa</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label for="company_name" class="block text-sm font-medium text-gray-700 mb-2">
+              Nombre de la Empresa *
+            </label>
+            <input
+              type="text"
+              id="company_name"
+              name="company_name"
+              required
+              value={provider.company_name}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Construcciones Modular Chile"
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+              Correo Electrónico *
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              value={provider.email}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="contacto@empresa.cl"
+            />
+          </div>
+
+          <div>
+            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+              Teléfono *
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              required
+              value={provider.phone}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="+56 9 1234 5678"
+            />
+          </div>
+
+          <div>
+            <label for="whatsapp" class="block text-sm font-medium text-gray-700 mb-2">
+              WhatsApp
+            </label>
+            <input
+              type="tel"
+              id="whatsapp"
+              name="whatsapp"
+              value={provider.whatsapp || ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="+56 9 8765 4321"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="website" class="block text-sm font-medium text-gray-700 mb-2">
+              Sitio Web
+            </label>
+            <input
+              type="url"
+              id="website"
+              name="website"
+              value={provider.website || ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="https://www.empresa.cl"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+              Descripción de la Empresa
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows="4"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Describe los servicios y especialidades de la empresa..."
+            >{provider.description || ''}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location Information -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Ubicación</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
+              Dirección
+            </label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={provider.address || ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Av. Providencia 1234"
+            />
+          </div>
+
+          <div>
+            <label for="city" class="block text-sm font-medium text-gray-700 mb-2">
+              Ciudad
+            </label>
+            <input
+              type="text"
+              id="city"
+              name="city"
+              value={provider.city || ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Santiago"
+            />
+          </div>
+
+          <div>
+            <label for="region" class="block text-sm font-medium text-gray-700 mb-2">
+              Región
+            </label>
+            <select
+              id="region"
+              name="region"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Seleccionar región...</option>
+              <option value="Región de Arica y Parinacota" selected={provider.region === 'Región de Arica y Parinacota'}>Región de Arica y Parinacota</option>
+              <option value="Región de Tarapacá" selected={provider.region === 'Región de Tarapacá'}>Región de Tarapacá</option>
+              <option value="Región de Antofagasta" selected={provider.region === 'Región de Antofagasta'}>Región de Antofagasta</option>
+              <option value="Región de Atacama" selected={provider.region === 'Región de Atacama'}>Región de Atacama</option>
+              <option value="Región de Coquimbo" selected={provider.region === 'Región de Coquimbo'}>Región de Coquimbo</option>
+              <option value="Región de Valparaíso" selected={provider.region === 'Región de Valparaíso'}>Región de Valparaíso</option>
+              <option value="Región Metropolitana" selected={provider.region === 'Región Metropolitana'}>Región Metropolitana</option>
+              <option value="Región del Libertador General Bernardo O'Higgins" selected={provider.region === "Región del Libertador General Bernardo O'Higgins"}>Región del Libertador General Bernardo O'Higgins</option>
+              <option value="Región del Maule" selected={provider.region === 'Región del Maule'}>Región del Maule</option>
+              <option value="Región de Ñuble" selected={provider.region === 'Región de Ñuble'}>Región de Ñuble</option>
+              <option value="Región del Biobío" selected={provider.region === 'Región del Biobío'}>Región del Biobío</option>
+              <option value="Región de La Araucanía" selected={provider.region === 'Región de La Araucanía'}>Región de La Araucanía</option>
+              <option value="Región de Los Ríos" selected={provider.region === 'Región de Los Ríos'}>Región de Los Ríos</option>
+              <option value="Región de Los Lagos" selected={provider.region === 'Región de Los Lagos'}>Región de Los Lagos</option>
+              <option value="Región Aysén del General Carlos Ibáñez del Campo" selected={provider.region === 'Región Aysén del General Carlos Ibáñez del Campo'}>Región Aysén del General Carlos Ibáñez del Campo</option>
+              <option value="Región de Magallanes y de la Antártica Chilena" selected={provider.region === 'Región de Magallanes y de la Antártica Chilena'}>Región de Magallanes y de la Antártica Chilena</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Provider Configuration -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Configuración del Proveedor</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="tier" class="block text-sm font-medium text-gray-700 mb-2">
+              Nivel de Proveedor *
+            </label>
+            <select
+              id="tier"
+              name="tier"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="standard" selected={provider.tier === 'standard'}>Estándar</option>
+              <option value="premium" selected={provider.tier === 'premium'}>Premium</option>
+              <option value="destacado" selected={provider.tier === 'destacado'}>Destacado</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+              Estado *
+            </label>
+            <select
+              id="status"
+              name="status"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="draft" selected={provider.status === 'draft'}>Borrador</option>
+              <option value="pending_review" selected={provider.status === 'pending_review'}>Pendiente</option>
+              <option value="active" selected={provider.status === 'active'}>Activo</option>
+              <option value="inactive" selected={provider.status === 'inactive'}>Inactivo</option>
+              <option value="rejected" selected={provider.status === 'rejected'}>Rechazado</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="featured_until" class="block text-sm font-medium text-gray-700 mb-2">
+              Destacado hasta
+            </label>
+            <input
+              type="datetime-local"
+              id="featured_until"
+              name="featured_until"
+              value={provider.featured_until ? new Date(provider.featured_until).toISOString().slice(0, 16) : ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="premium_until" class="block text-sm font-medium text-gray-700 mb-2">
+              Premium hasta
+            </label>
+            <input
+              type="datetime-local"
+              id="premium_until"
+              name="premium_until"
+              value={provider.premium_until ? new Date(provider.premium_until).toISOString().slice(0, 16) : ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="featured_order" class="block text-sm font-medium text-gray-700 mb-2">
+              Orden de Destacado
+            </label>
+            <input
+              type="number"
+              id="featured_order"
+              name="featured_order"
+              min="1"
+              value={provider.featured_order || ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="1 = más destacado"
+            />
+          </div>
+
+          <div>
+            <label for="internal_rating" class="block text-sm font-medium text-gray-700 mb-2">
+              Calificación Interna
+            </label>
+            <select
+              id="internal_rating"
+              name="internal_rating"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Sin calificar</option>
+              <option value="1" selected={provider.internal_rating === 1}>⭐ (1)</option>
+              <option value="2" selected={provider.internal_rating === 2}>⭐⭐ (2)</option>
+              <option value="3" selected={provider.internal_rating === 3}>⭐⭐⭐ (3)</option>
+              <option value="4" selected={provider.internal_rating === 4}>⭐⭐⭐⭐ (4)</option>
+              <option value="5" selected={provider.internal_rating === 5}>⭐⭐⭐⭐⭐ (5)</option>
+            </select>
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="admin_notes" class="block text-sm font-medium text-gray-700 mb-2">
+              Notas Administrativas
+            </label>
+            <textarea
+              id="admin_notes"
+              name="admin_notes"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Notas internas para administradores..."
+            >{provider.admin_notes || ''}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Type -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Categoría de Proveedor</h3>
+        </div>
+        <div class="p-6">
+          <label for="category_type" class="block text-sm font-medium text-gray-700 mb-2">
+            Tipo de Proveedor *
+          </label>
+          <select
+            id="category_type"
+            name="category_type"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Seleccionar categoría...</option>
+            <option value="casas" selected={provider.category_type === 'casas'}>Casas Prefabricadas</option>
+            <option value="fabricantes" selected={provider.category_type === 'fabricantes'}>Fabricantes de Casas</option>
+            <option value="habilitacion_servicios" selected={provider.category_type === 'habilitacion_servicios'}>Habilitación y Servicios</option>
+            <option value="decoracion" selected={provider.category_type === 'decoracion'}>Decoración y Mejoras</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Business Details -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Detalles del Negocio</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="years_experience" class="block text-sm font-medium text-gray-700 mb-2">
+              Años de Experiencia
+            </label>
+            <input
+              type="number"
+              id="years_experience"
+              name="years_experience"
+              min="0"
+              max="100"
+              value={provider.years_experience || ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: 15"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="specialties" class="block text-sm font-medium text-gray-700 mb-2">
+              Especialidades (separadas por comas)
+            </label>
+            <input
+              type="text"
+              id="specialties"
+              name="specialties"
+              value={provider.specialties ? provider.specialties.join(', ') : ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Paneles SIP, Construcción Sustentable, Casas Modulares"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="services_offered" class="block text-sm font-medium text-gray-700 mb-2">
+              Servicios Ofrecidos (separados por comas)
+            </label>
+            <input
+              type="text"
+              id="services_offered"
+              name="services_offered"
+              value={provider.services_offered ? provider.services_offered.join(', ') : ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Llave en Mano, Diseño Personalizado, Financiamiento"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="coverage_areas" class="block text-sm font-medium text-gray-700 mb-2">
+              Áreas de Cobertura (separadas por comas)
+            </label>
+            <input
+              type="text"
+              id="coverage_areas"
+              name="coverage_areas"
+              value={provider.coverage_areas ? provider.coverage_areas.join(', ') : ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Región Metropolitana, Valparaíso, Biobío"
+            />
+          </div>
+
+          <div>
+            <label for="price_range_min" class="block text-sm font-medium text-gray-700 mb-2">
+              Precio Mínimo (CLP)
+            </label>
+            <input
+              type="number"
+              id="price_range_min"
+              name="price_range_min"
+              min="0"
+              value={provider.price_range_min || ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: 45000000"
+            />
+          </div>
+
+          <div>
+            <label for="price_range_max" class="block text-sm font-medium text-gray-700 mb-2">
+              Precio Máximo (CLP)
+            </label>
+            <input
+              type="number"
+              id="price_range_max"
+              name="price_range_max"
+              min="0"
+              value={provider.price_range_max || ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: 200000000"
+            />
+          </div>
+
+          <div>
+            <label for="price_per_m2_min" class="block text-sm font-medium text-gray-700 mb-2">
+              Precio por m² Mínimo (CLP)
+            </label>
+            <input
+              type="number"
+              id="price_per_m2_min"
+              name="price_per_m2_min"
+              min="0"
+              value={provider.price_per_m2_min || ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: 65000"
+            />
+          </div>
+
+          <div>
+            <label for="price_per_m2_max" class="block text-sm font-medium text-gray-700 mb-2">
+              Precio por m² Máximo (CLP)
+            </label>
+            <input
+              type="number"
+              id="price_per_m2_max"
+              name="price_per_m2_max"
+              min="0"
+              value={provider.price_per_m2_max || ''}
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: 120000"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <div class="flex items-center space-x-6">
+              <label class="flex items-center">
+                <input type="checkbox" name="llave_en_mano" value="true" checked={provider.llave_en_mano} class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                <span class="ml-2 text-sm text-gray-700">Ofrece Llave en Mano</span>
+              </label>
+              <label class="flex items-center">
+                <input type="checkbox" name="financing_available" value="true" checked={provider.financing_available} class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                <span class="ml-2 text-sm text-gray-700">Ofrece Financiamiento</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Características y Especialidades</h3>
+          <p class="text-gray-600 text-sm mt-1">Selecciona las características que aplican a este proveedor</p>
+        </div>
+        <div class="p-6">
+          <div id="features-container">
+            <!-- Features will be populated based on selected category -->
+            <p class="text-gray-500 text-sm">Cargando características...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Buttons -->
+      <div class="flex justify-end space-x-4">
+        <a
+          href={`/admin/providers/${id}`}
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Cancelar
+        </a>
+        <button
+          type="submit"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Actualizar Proveedor
+        </button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<script is:inline define:vars={{ features, categories, featuresByCategory, provider, id }}>
+  function showMessage(type, message) {
+    const successDiv = document.getElementById('successMessage');
+    const errorDiv = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    
+    if (type === 'success') {
+      successDiv?.classList.remove('hidden');
+      errorDiv?.classList.add('hidden');
+    } else if (message) {
+      errorDiv?.classList.remove('hidden');
+      successDiv?.classList.add('hidden');
+      if (errorText) {
+        errorText.textContent = message;
+      }
+    }
+  }
+
+  function hideMessages() {
+    const successDiv = document.getElementById('successMessage');
+    const errorDiv = document.getElementById('errorMessage');
+    successDiv?.classList.add('hidden');
+    errorDiv?.classList.add('hidden');
+  }
+
+  // Handle form submission
+  const editForm = document.getElementById('editProviderForm');
+  if (editForm) {
+    editForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideMessages();
+
+      const target = e.target;
+      const formData = new FormData(target);
+      const submitButton = target.querySelector('button[type="submit"]');
+      const originalText = submitButton?.textContent || 'Actualizar Proveedor';
+
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Actualizando...';
+      }
+
+      try {
+        // Collect selected features
+        const featureElements = document.querySelectorAll('input[name^="feature_"]:checked');
+        const features = {};
+        featureElements.forEach(el => {
+          const featureSlug = el.name.replace('feature_', '');
+          features[featureSlug] = true;
+        });
+
+        // Parse arrays from comma-separated strings
+        const parseArray = (value) => {
+          if (!value) return [];
+          return value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        };
+
+        const providerData = {
+          company_name: formData.get('company_name'),
+          email: formData.get('email'),
+          phone: formData.get('phone'),
+          category_type: formData.get('category_type'),
+          description: formData.get('description'),
+          website: formData.get('website'),
+          whatsapp: formData.get('whatsapp'),
+          address: formData.get('address'),
+          city: formData.get('city'),
+          region: formData.get('region'),
+          years_experience: formData.get('years_experience'),
+          specialties: parseArray(formData.get('specialties')),
+          services_offered: parseArray(formData.get('services_offered')),
+          coverage_areas: parseArray(formData.get('coverage_areas')),
+          price_range_min: formData.get('price_range_min'),
+          price_range_max: formData.get('price_range_max'),
+          price_per_m2_min: formData.get('price_per_m2_min'),
+          price_per_m2_max: formData.get('price_per_m2_max'),
+          llave_en_mano: formData.get('llave_en_mano') === 'true',
+          financing_available: formData.get('financing_available') === 'true',
+          features: features,
+          tier: formData.get('tier'),
+          status: formData.get('status'),
+          featured_until: formData.get('featured_until'),
+          premium_until: formData.get('premium_until'),
+          featured_order: formData.get('featured_order'),
+          internal_rating: formData.get('internal_rating'),
+          admin_notes: formData.get('admin_notes')
+        };
+
+        const response = await fetch(`/api/admin/providers/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(providerData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showMessage('success');
+          // Redirect to provider detail after 2 seconds
+          setTimeout(() => {
+            window.location.href = `/admin/providers/${id}`;
+          }, 2000);
+        } else {
+          showMessage('error', result.error || 'Error al actualizar el proveedor');
+        }
+
+      } catch (error) {
+        showMessage('error', 'Error de conexión. Inténtalo de nuevo.');
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = originalText;
+        }
+      }
+    });
+  }
+
+  // Features data from server
+  const featuresData = features || [];
+  const categoriesData = categories || [];
+  const featuresByCategoryData = featuresByCategory || {};
+
+  // Handle category type change to show relevant features
+  const categorySelect = document.getElementById('category_type');
+  const featuresContainer = document.getElementById('features-container');
+  
+  if (categorySelect && featuresContainer) {
+    categorySelect.addEventListener('change', function() {
+      updateFeatures(this.value);
+    });
+    
+    // Initialize with current category
+    if (provider.category_type) {
+      updateFeatures(provider.category_type);
+    }
+  }
+
+  function updateFeatures(categoryType) {
+    const container = document.getElementById('features-container');
+    if (!container) return;
+
+    // Find the category ID
+    const category = categoriesData.find((cat) => cat.type === categoryType);
+    
+    if (!category) {
+      container.innerHTML = '<p class="text-gray-500 text-sm">Selecciona una categoría válida.</p>';
+      return;
+    }
+
+    const categoryFeatures = featuresByCategoryData[category.id] || [];
+
+    if (categoryFeatures.length === 0) {
+      container.innerHTML = '<p class="text-gray-500 text-sm">No hay características específicas para esta categoría.</p>';
+      return;
+    }
+
+    let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+    
+    categoryFeatures.forEach((feature) => {
+      const isChecked = provider.features && provider.features[feature.slug] ? 'checked' : '';
+      html += `
+        <label class="flex items-start space-x-2">
+          <input 
+            type="checkbox" 
+            name="feature_${feature.slug}" 
+            value="true" 
+            ${isChecked}
+            class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mt-0.5"
+          >
+          <div>
+            <span class="text-sm font-medium text-gray-700">${feature.name}</span>
+            ${feature.show_in_card_premium ? '<span class="text-xs text-blue-600 block">Visible en tarjeta premium</span>' : ''}
+          </div>
+        </label>
+      `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
+  // Make functions global
+  window.updateFeatures = updateFeatures;
+</script>

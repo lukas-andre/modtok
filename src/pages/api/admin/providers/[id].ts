@@ -24,14 +24,15 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
 
     const supabase = createSupabaseClient({ request, cookies });
 
+    console.log('API: Attempting to fetch provider with ID:', id);
+    
     const { data: provider, error } = await supabase
       .from('providers')
-      .select(`
-        *,
-        profile:profiles(*)
-      `)
+      .select('*')
       .eq('id', id)
       .single();
+      
+    console.log('API: Provider fetch result:', { provider, error });
 
     if (error) {
       return new Response(
