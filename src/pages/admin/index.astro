@@ -5,6 +5,10 @@ import { getAdminAuth, requireAdmin } from '../../lib/auth';
 // Protect this page - only admins can access
 const auth = await getAdminAuth(Astro);
 const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin');
+}
 ---
 
 <AdminLayout title="Panel de Control" user={user} currentPage="/admin">

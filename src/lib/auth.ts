@@ -1,5 +1,5 @@
 import { createSupabaseClient, getSession } from './supabase';
-import type { Profile, UserRole } from './types';
+import type { Profile } from './types';
 import type { AstroCookies } from 'astro';
 
 export interface AdminAuthResult {
@@ -56,27 +56,21 @@ export async function getAdminAuth(Astro: {
 }
 
 /**
- * Redirect to login if not authenticated admin
+ * Check if user is authenticated admin
  */
-export function requireAdmin(auth: AdminAuthResult): Profile | never {
+export function requireAdmin(auth: AdminAuthResult): Profile | null {
   if (!auth.isAuthenticated || !auth.isAdmin || !auth.user) {
-    throw new Response('Unauthorized', { 
-      status: 302, 
-      headers: { Location: '/auth/login?redirect=/admin' } 
-    });
+    return null;
   }
   return auth.user;
 }
 
 /**
- * Redirect to login if not authenticated super admin
+ * Check if user is authenticated super admin
  */
-export function requireSuperAdmin(auth: AdminAuthResult): Profile | never {
+export function requireSuperAdmin(auth: AdminAuthResult): Profile | null {
   if (!auth.isAuthenticated || !auth.isSuperAdmin || !auth.user) {
-    throw new Response('Unauthorized', { 
-      status: 302, 
-      headers: { Location: '/auth/login?redirect=/admin/super' } 
-    });
+    return null;
   }
   return auth.user;
 }

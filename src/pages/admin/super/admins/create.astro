@@ -6,6 +6,10 @@ import { getAdminAuth, requireSuperAdmin } from '../../../../lib/auth';
 const auth = await getAdminAuth(Astro);
 const user = requireSuperAdmin(auth);
 
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/super/admins/create');
+}
+
 let success = false;
 let error = '';
 
