@@ -1,6 +1,7 @@
 ---
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getAdminAuth, requireAdmin } from '../../../lib/auth';
+import { createSupabaseClient } from '../../../lib/supabase';
 
 // Protect this page - only admins can access
 const auth = await getAdminAuth(Astro);
@@ -9,6 +10,30 @@ const user = requireAdmin(auth);
 if (!user) {
   return Astro.redirect('/auth/login?redirect=/admin/providers/create');
 }
+
+// Fetch features data based on CSV structure
+const supabase = createSupabaseClient(Astro);
+const { data: features } = await supabase
+  .from('features')
+  .select('*')
+  .order('category_id', { ascending: true });
+
+const { data: categories } = await supabase
+  .from('categories')
+  .select('*')
+  .order('display_order', { ascending: true });
+
+// Group features by category for easier rendering
+const featuresByCategory = features?.reduce((acc, feature) => {
+  const categoryId = feature.category_id;
+  if (categoryId && !acc[categoryId]) {
+    acc[categoryId] = [];
+  }
+  if (categoryId) {
+    acc[categoryId].push(feature);
+  }
+  return acc;
+}, {} as Record<string, typeof features>);
 ---
 
 <AdminLayout title="Crear Proveedor" user={user} currentPage="/admin/providers">
@@ -302,40 +327,188 @@ if (!user) {
         </div>
       </div>
 
-      <!-- Services -->
+      <!-- Category Type -->
       <div class="bg-white rounded-lg border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">Servicios</h3>
+          <h3 class="text-lg font-medium text-gray-900">Categoría de Proveedor</h3>
         </div>
         <div class="p-6">
-          <label class="block text-sm font-medium text-gray-700 mb-3">
-            Servicios que ofrece (selecciona todos los que apliquen)
+          <label for="category_type" class="block text-sm font-medium text-gray-700 mb-2">
+            Tipo de Proveedor *
           </label>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <label class="flex items-center">
-              <input type="checkbox" name="services" value="casas_modulares" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-              <span class="ml-2 text-sm text-gray-700">Casas Modulares</span>
+          <select
+            id="category_type"
+            name="category_type"
+            required
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">Seleccionar categoría...</option>
+            <option value="fabricantes">Fabricantes de Casas</option>
+            <option value="habilitacion_servicios">Habilitación y Servicios</option>
+            <option value="decoracion">Decoración y Mejoras</option>
+          </select>
+          <p class="mt-2 text-sm text-gray-600">
+            <strong>Fabricantes:</strong> Empresas que construyen casas modulares/prefabricadas<br/>
+            <strong>Habilitación y Servicios:</strong> Contratistas especialistas en servicios básicos<br/>
+            <strong>Decoración y Mejoras:</strong> Productos y servicios para mejorar espacios
+          </p>
+        </div>
+      </div>
+
+      <!-- Business Details -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Detalles del Negocio</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="years_experience" class="block text-sm font-medium text-gray-700 mb-2">
+              Años de Experiencia
             </label>
-            <label class="flex items-center">
-              <input type="checkbox" name="services" value="casas_prefabricadas" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-              <span class="ml-2 text-sm text-gray-700">Casas Prefabricadas</span>
+            <input
+              type="number"
+              id="years_experience"
+              name="years_experience"
+              min="0"
+              max="100"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: 15"
+            />
+          </div>
+
+          <div>
+            <label for="whatsapp" class="block text-sm font-medium text-gray-700 mb-2">
+              WhatsApp
             </label>
-            <label class="flex items-center">
-              <input type="checkbox" name="services" value="construccion_tradicional" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-              <span class="ml-2 text-sm text-gray-700">Construcción Tradicional</span>
+            <input
+              type="tel"
+              id="whatsapp"
+              name="whatsapp"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="+56 9 8765 4321"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="specialties" class="block text-sm font-medium text-gray-700 mb-2">
+              Especialidades (separadas por comas)
             </label>
-            <label class="flex items-center">
-              <input type="checkbox" name="services" value="diseno_arquitectonico" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-              <span class="ml-2 text-sm text-gray-700">Diseño Arquitectónico</span>
+            <input
+              type="text"
+              id="specialties"
+              name="specialties"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Paneles SIP, Construcción Sustentable, Casas Modulares"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="services_offered" class="block text-sm font-medium text-gray-700 mb-2">
+              Servicios Ofrecidos (separados por comas)
             </label>
-            <label class="flex items-center">
-              <input type="checkbox" name="services" value="gestion_permisos" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-              <span class="ml-2 text-sm text-gray-700">Gestión de Permisos</span>
+            <input
+              type="text"
+              id="services_offered"
+              name="services_offered"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Llave en Mano, Diseño Personalizado, Financiamiento"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="coverage_areas" class="block text-sm font-medium text-gray-700 mb-2">
+              Áreas de Cobertura (separadas por comas)
             </label>
-            <label class="flex items-center">
-              <input type="checkbox" name="services" value="financiamiento" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-              <span class="ml-2 text-sm text-gray-700">Financiamiento</span>
+            <input
+              type="text"
+              id="coverage_areas"
+              name="coverage_areas"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Región Metropolitana, Valparaíso, Biobío"
+            />
+          </div>
+
+          <div>
+            <label for="price_range_min" class="block text-sm font-medium text-gray-700 mb-2">
+              Precio Mínimo (CLP)
             </label>
+            <input
+              type="number"
+              id="price_range_min"
+              name="price_range_min"
+              min="0"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: 45000000"
+            />
+          </div>
+
+          <div>
+            <label for="price_range_max" class="block text-sm font-medium text-gray-700 mb-2">
+              Precio Máximo (CLP)
+            </label>
+            <input
+              type="number"
+              id="price_range_max"
+              name="price_range_max"
+              min="0"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: 200000000"
+            />
+          </div>
+
+          <div>
+            <label for="price_per_m2_min" class="block text-sm font-medium text-gray-700 mb-2">
+              Precio por m² Mínimo (CLP)
+            </label>
+            <input
+              type="number"
+              id="price_per_m2_min"
+              name="price_per_m2_min"
+              min="0"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: 65000"
+            />
+          </div>
+
+          <div>
+            <label for="price_per_m2_max" class="block text-sm font-medium text-gray-700 mb-2">
+              Precio por m² Máximo (CLP)
+            </label>
+            <input
+              type="number"
+              id="price_per_m2_max"
+              name="price_per_m2_max"
+              min="0"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: 120000"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <div class="flex items-center space-x-6">
+              <label class="flex items-center">
+                <input type="checkbox" name="llave_en_mano" value="true" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                <span class="ml-2 text-sm text-gray-700">Ofrece Llave en Mano</span>
+              </label>
+              <label class="flex items-center">
+                <input type="checkbox" name="financing_available" value="true" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+                <span class="ml-2 text-sm text-gray-700">Ofrece Financiamiento</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Características y Especialidades</h3>
+          <p class="text-gray-600 text-sm mt-1">Selecciona las características que aplican a este proveedor</p>
+        </div>
+        <div class="p-6">
+          <div id="features-container">
+            <!-- Features will be populated based on selected category -->
+            <p class="text-gray-500 text-sm">Selecciona una categoría primero para ver las características disponibles.</p>
           </div>
         </div>
       </div>
@@ -375,20 +548,20 @@ if (!user) {
   </div>
 </AdminLayout>
 
-<script>
-  function generatePassword(): void {
+<script is:inline define:vars={{ features, categories, featuresByCategory }}>
+  function generatePassword() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
     let password = '';
     for (let i = 0; i < 12; i++) {
       password += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    const passwordInput = document.getElementById('temp_password') as HTMLInputElement;
+    const passwordInput = document.getElementById('temp_password');
     if (passwordInput) {
       passwordInput.value = password;
     }
   }
 
-  function showMessage(type: string, message?: string): void {
+  function showMessage(type, message) {
     const successDiv = document.getElementById('successMessage');
     const errorDiv = document.getElementById('errorMessage');
     const errorText = document.getElementById('errorText');
@@ -405,7 +578,7 @@ if (!user) {
     }
   }
 
-  function hideMessages(): void {
+  function hideMessages() {
     const successDiv = document.getElementById('successMessage');
     const errorDiv = document.getElementById('errorMessage');
     successDiv?.classList.add('hidden');
@@ -413,19 +586,19 @@ if (!user) {
   }
 
   // Handle form submission
-  const createForm = document.getElementById('createProviderForm') as HTMLFormElement;
+  const createForm = document.getElementById('createProviderForm');
   if (createForm) {
-    createForm.addEventListener('submit', async (e: Event) => {
+    createForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       hideMessages();
 
-      const target = e.target as HTMLFormElement;
+      const target = e.target;
       const formData = new FormData(target);
-      const submitButton = target.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const submitButton = target.querySelector('button[type="submit"]');
       const originalText = submitButton?.textContent || 'Crear Proveedor';
 
       // Collect services
-      const serviceElements = document.querySelectorAll('input[name="services"]:checked') as NodeListOf<HTMLInputElement>;
+      const serviceElements = document.querySelectorAll('input[name="services"]:checked');
       const services = Array.from(serviceElements).map(cb => cb.value);
 
       if (submitButton) {
@@ -434,38 +607,69 @@ if (!user) {
       }
 
       try {
+        // Collect selected features
+        const featureElements = document.querySelectorAll('input[name^="feature_"]:checked');
+        const features = {};
+        featureElements.forEach(el => {
+          const featureSlug = el.name.replace('feature_', '');
+          features[featureSlug] = true;
+        });
+
+        // Parse arrays from comma-separated strings
+        const parseArray = (value) => {
+          if (!value) return [];
+          return value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        };
+
         const providerData = {
           company_name: formData.get('company_name'),
-          contact_name: formData.get('contact_name'),
-          rut: formData.get('rut'),
           email: formData.get('email'),
           phone: formData.get('phone'),
-          website: formData.get('website'),
+          category_type: formData.get('category_type'),
           description: formData.get('description'),
+          website: formData.get('website'),
+          whatsapp: formData.get('whatsapp'),
           address: formData.get('address'),
           city: formData.get('city'),
           region: formData.get('region'),
+          years_experience: formData.get('years_experience'),
+          specialties: parseArray(formData.get('specialties')),
+          services_offered: parseArray(formData.get('services_offered')),
+          coverage_areas: parseArray(formData.get('coverage_areas')),
+          price_range_min: formData.get('price_range_min'),
+          price_range_max: formData.get('price_range_max'),
+          price_per_m2_min: formData.get('price_per_m2_min'),
+          price_per_m2_max: formData.get('price_per_m2_max'),
+          llave_en_mano: formData.get('llave_en_mano') === 'true',
+          financing_available: formData.get('financing_available') === 'true',
+          features: features,
           tier: formData.get('tier'),
           status: formData.get('status'),
           temp_password: formData.get('temp_password'),
-          admin_notes: formData.get('admin_notes'),
-          services: services
+          admin_notes: formData.get('admin_notes')
         };
 
-        // For MVP, we'll just show success message
-        // In production, this would call an API endpoint
-        setTimeout(() => {
+        const response = await fetch('/api/admin/providers/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(providerData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
           showMessage('success');
-          console.log('Provider data to create:', providerData);
-          
           // Reset form
           target.reset();
-          
           // Redirect to provider list after 2 seconds
           setTimeout(() => {
             window.location.href = '/admin/providers';
           }, 2000);
-        }, 1000);
+        } else {
+          showMessage('error', result.error || 'Error al crear el proveedor');
+        }
 
       } catch (error) {
         showMessage('error', 'Error de conexión. Inténtalo de nuevo.');
@@ -478,6 +682,66 @@ if (!user) {
     });
   }
 
-  // Make function global so it can be called from onclick attribute
-  (window as any).generatePassword = generatePassword;
+  // Features data from server
+  const featuresData = features || [];
+  const categoriesData = categories || [];
+  const featuresByCategoryData = featuresByCategory || {};
+
+  // Handle category type change to show relevant features
+  const categorySelect = document.getElementById('category_type');
+  const featuresContainer = document.getElementById('features-container');
+  
+  if (categorySelect && featuresContainer) {
+    categorySelect.addEventListener('change', function() {
+      updateFeatures(this.value);
+    });
+  }
+
+  function updateFeatures(categoryType) {
+    const container = document.getElementById('features-container');
+    if (!container) return;
+
+    // Find the category ID
+    const categories = JSON.parse(categoriesData);
+    const category = categories.find((cat) => cat.type === categoryType);
+    
+    if (!category) {
+      container.innerHTML = '<p class="text-gray-500 text-sm">Selecciona una categoría válida.</p>';
+      return;
+    }
+
+    const featuresByCategory = JSON.parse(featuresByCategoryData);
+    const categoryFeatures = featuresByCategory[category.id] || [];
+
+    if (categoryFeatures.length === 0) {
+      container.innerHTML = '<p class="text-gray-500 text-sm">No hay características específicas para esta categoría.</p>';
+      return;
+    }
+
+    let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+    
+    categoryFeatures.forEach((feature) => {
+      html += `
+        <label class="flex items-start space-x-2">
+          <input 
+            type="checkbox" 
+            name="feature_${feature.slug}" 
+            value="true" 
+            class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500 mt-0.5"
+          >
+          <div>
+            <span class="text-sm font-medium text-gray-700">${feature.name}</span>
+            ${feature.show_in_card_premium ? '<span class="text-xs text-blue-600 block">Visible en tarjeta premium</span>' : ''}
+          </div>
+        </label>
+      `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
+  // Make functions global so they can be called from onclick attributes
+  window.generatePassword = generatePassword;
+  window.updateFeatures = updateFeatures;
 </script>

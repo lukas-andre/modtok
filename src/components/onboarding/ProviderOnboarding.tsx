@@ -47,7 +47,11 @@ const ProviderOnboarding: React.FC<Props> = ({ userId, session }) => {
   }, []);
 
   const updateFormField = (field: keyof typeof formDataRef.current, value: string) => {
-    formDataRef.current[field] = value;
+    if (field === 'categoryType') {
+      formDataRef.current[field] = value as CategoryType;
+    } else {
+      (formDataRef.current as any)[field] = value;
+    }
     setFormValues(prev => ({ ...prev, [field]: value }));
   };
 
