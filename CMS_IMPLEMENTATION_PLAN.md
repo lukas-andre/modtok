@@ -158,20 +158,20 @@ CREATE TABLE admin_actions (
 - [ ] Upload logo and cover images
 - [ ] Define service areas and specialties
 
-### 4.2 Provider Page Builder
-- [ ] Visual page editor for premium providers
-- [ ] Template selection system
-- [ ] Custom sections management
-- [ ] Gallery management
-- [ ] SEO settings per provider
-- [ ] Preview before publish
+### 4.2 Provider Page Builder (just super admin and admin can edit this)
+- [ ] Visual page editor for premium providers 
+- [ ] Template selection system MARK AS "PROXIMAMENTE"
+- [ ] Custom sections management MARK AS "PROXIMAMENTE"
+- [ ] Gallery management 
+- [ ] SEO settings per provider 
+- [ ] Preview before publish 
 
 ### 4.3 Provider Verification System
-- [ ] Document upload interface
-- [ ] Verification checklist
-- [ ] Approval workflow
-- [ ] Email notifications on status change
-- [ ] Rejection reasons management
+- [ ] Document upload interface MARK AS "PROXIMAMENTE"
+- [ ] Verification checklist MARK AS "PROXIMAMENTE"
+- [ ] Approval workflow MARK AS "PROXIMAMENTE"
+- [ ] Email notifications on status change MARK AS "PROXIMAMENTE"
+- [ ] Rejection reasons management MARK AS "PROXIMAMENTE"
 
 ---
 
