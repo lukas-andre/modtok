@@ -24,27 +24,27 @@ const navigationItems: NavigationItem[] = [
   {
     name: 'Dashboard',
     href: '/admin',
-    icon: '📊'
+    icon: '□'
   },
   {
     name: 'Proveedores',
     href: '/admin/providers',
-    icon: '🏢'
+    icon: '■'
   },
   {
     name: 'Contenido',
     href: '/admin/content',
-    icon: '📝'
+    icon: '▢'
   },
   {
     name: 'Usuarios',
     href: '/admin/users',
-    icon: '👥'
+    icon: '○'
   },
   {
     name: 'Configuración',
     href: '/admin/settings',
-    icon: '⚙️'
+    icon: '◆'
   }
 ];
 
@@ -53,17 +53,17 @@ const superAdminItems: NavigationItem[] = user.role === 'super_admin' ? [
   {
     name: 'Super Admin',
     href: '/admin/super',
-    icon: '👑',
+    icon: '◈',
     submenu: [
       {
         name: 'Panel Principal',
         href: '/admin/super',
-        icon: '🎛️'
+        icon: '▣'
       },
       {
         name: 'Administradores',
         href: '/admin/super/admins',
-        icon: '👨‍💼'
+        icon: '◉'
       }
     ]
   }
@@ -79,20 +79,7 @@ const allNavItems = [...navigationItems, ...superAdminItems];
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{title} - MODTOK Admin</title>
   
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script is:inline>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#2563eb',
-            secondary: '#64748b'
-          }
-        }
-      }
-    }
-  </script>
+  <!-- Tailwind CSS is now handled by the @astrojs/tailwind integration -->
 </head>
 
 <body class="bg-gray-50 min-h-screen">
