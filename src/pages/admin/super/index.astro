@@ -1,0 +1,194 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getAdminAuth, requireSuperAdmin } from '../../../lib/auth';
+
+// Protect this page - only super_admin can access
+const auth = await getAdminAuth(Astro);
+const user = requireSuperAdmin(auth);
+---
+
+<AdminLayout title="Super Admin Dashboard" user={user} currentPage="/admin/super">
+  <div class="p-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h2 class="text-xl font-semibold text-gray-900">Panel de Super Administrador</h2>
+        <p class="text-gray-600 mt-1">Gestión completa del sistema MODTOK</p>
+      </div>
+      <div class="flex space-x-3">
+        <button 
+          onclick="window.location.href='/admin/super/admins/create'"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+        >
+          + Crear Admin
+        </button>
+      </div>
+    </div>
+
+    <!-- System Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 rounded-lg text-white">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-blue-100 text-sm">Total Usuarios</p>
+            <p class="text-2xl font-bold" id="total-users">-</p>
+          </div>
+          <div class="text-blue-200">
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-r from-green-500 to-green-600 p-6 rounded-lg text-white">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-green-100 text-sm">Proveedores Activos</p>
+            <p class="text-2xl font-bold" id="active-providers">-</p>
+          </div>
+          <div class="text-green-200">
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/>
+              <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-6 rounded-lg text-white">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-purple-100 text-sm">Consultas Pendientes</p>
+            <p class="text-2xl font-bold" id="pending-inquiries">-</p>
+          </div>
+          <div class="text-purple-200">
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 rounded-lg text-white">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-yellow-100 text-sm">Administradores</p>
+            <p class="text-2xl font-bold" id="total-admins">-</p>
+          </div>
+          <div class="text-yellow-200">
+            <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Admin Management -->
+      <div class="bg-white border border-gray-200 rounded-lg">
+        <div class="p-6 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">Gestión de Administradores</h3>
+        </div>
+        <div class="p-6">
+          <div class="space-y-4" id="admin-list">
+            <!-- Admins will be loaded here -->
+            <div class="text-center py-4 text-gray-500">
+              Cargando administradores...
+            </div>
+          </div>
+          <div class="mt-6 pt-4 border-t border-gray-200">
+            <a 
+              href="/admin/super/admins"
+              class="text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Ver todos los administradores →
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Health -->
+      <div class="bg-white border border-gray-200 rounded-lg">
+        <div class="p-6 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">Estado del Sistema</h3>
+        </div>
+        <div class="p-6">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Base de datos</span>
+              <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                Activa
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Supabase Auth</span>
+              <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                Activa
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Storage</span>
+              <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                Activa
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-gray-600">Edge Functions</span>
+              <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                Activas
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  // Load dashboard data
+  async function loadDashboardData() {
+    try {
+      // This would normally fetch from API endpoints
+      // For now, we'll use placeholder data
+      
+      // Update statistics
+      document.getElementById('total-users').textContent = '24';
+      document.getElementById('active-providers').textContent = '8';
+      document.getElementById('pending-inquiries').textContent = '3';
+      document.getElementById('total-admins').textContent = '2';
+
+      // Load recent admins
+      const adminList = document.getElementById('admin-list');
+      adminList.innerHTML = `
+        <div class="flex items-center justify-between py-3">
+          <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+              SA
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-900">Super Admin</p>
+              <p class="text-xs text-gray-500">super@modtok.cl</p>
+            </div>
+          </div>
+          <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+            Super Admin
+          </span>
+        </div>
+        <div class="text-center py-2">
+          <a href="/admin/super/admins/create" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+            + Agregar nuevo administrador
+          </a>
+        </div>
+      `;
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    }
+  }
+
+  // Load data when page loads
+  document.addEventListener('DOMContentLoaded', loadDashboardData);
+</script>
