@@ -1,0 +1,83 @@
+---
+// Color and font test component for the entire app
+---
+
+<div class="p-8 space-y-6 font-sans">
+  <h1 class="text-3xl font-bold text-brand-black">MODTOK Design System</h1>
+  <p class="text-brand-grey">TeXGyreHeros font family with custom color palette</p>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Brand Blue Test -->
+    <div class="bg-brand-blue text-brand-white p-4 rounded-lg">
+      <h3 class="font-bold text-lg">Brand Blue</h3>
+      <p class="text-sm">#1ca3fc</p>
+      <p class="mt-2 text-sm opacity-90">Use sparingly for CTAs and key elements</p>
+    </div>
+    
+    <!-- Main Text Test -->
+    <div class="bg-white border-2 border-gray-200 p-4 rounded-lg">
+      <h3 class="font-bold text-lg text-brand-black">Main Text</h3>
+      <p class="text-sm text-brand-grey">#292929</p>
+      <p class="text-brand-black mt-2">Primary content and headings use this color</p>
+    </div>
+    
+    <!-- Sub Headers Test -->
+    <div class="bg-gray-50 p-4 rounded-lg">
+      <h3 class="font-bold text-lg text-brand-black">Sub Headers</h3>
+      <p class="text-sm text-brand-grey">#757575</p>
+      <p class="text-brand-grey mt-2">Secondary information and descriptions</p>
+    </div>
+    
+    <!-- Image Overlay Test -->
+    <div class="bg-gradient-to-br from-gray-800 to-gray-600 p-4 rounded-lg relative">
+      <div class="text-white">
+        <h3 class="font-bold text-lg">Image Overlays</h3>
+        <p class="text-sm opacity-75">White text</p>
+        <p class="mt-2 text-sm">Always use white text over images</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Font Family Tests -->
+  <div class="space-y-4">
+    <h2 class="text-2xl font-bold text-brand-black">Font Family Showcase</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Regular TeXGyreHeros -->
+      <div class="font-tex-gyre">
+        <h3 class="text-xl font-bold text-brand-black mb-2">TeXGyreHeros Regular</h3>
+        <p class="text-brand-black">Regular weight text content</p>
+        <p class="text-brand-black font-bold">Bold weight text content</p>
+        <p class="text-brand-grey">Grey secondary text</p>
+      </div>
+      
+      <!-- Condensed TeXGyreHeros -->
+      <div class="font-tex-gyre-condensed">
+        <h3 class="text-xl font-bold text-brand-black mb-2">TeXGyreHeros Condensed</h3>
+        <p class="text-brand-black">Condensed regular text</p>
+        <p class="text-brand-black font-bold">Condensed bold text</p>
+        <p class="text-brand-grey">Condensed grey text</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shadcn Components Test -->
+  <div class="space-y-4">
+    <h2 class="text-2xl font-bold text-brand-black">Shadcn Components</h2>
+    
+    <div class="flex gap-4 flex-wrap">
+      <button class="bg-primary text-primary-foreground px-6 py-3 rounded-md hover:bg-primary/90 transition-colors font-semibold">
+        Primary Button
+      </button>
+      
+      <button class="bg-secondary text-secondary-foreground px-6 py-3 rounded-md hover:bg-secondary/80 transition-colors">
+        Secondary Button
+      </button>
+    </div>
+    
+    <div class="bg-card text-card-foreground p-6 rounded-lg border">
+      <h4 class="font-bold text-lg mb-2">Card Component</h4>
+      <p class="text-muted-foreground">This uses the muted-foreground color for secondary text content</p>
+    </div>
+  </div>
+</div>
