@@ -1,0 +1,9 @@
+---
+// Admin login redirect page
+// This redirects to the main login with admin context
+
+const redirect = Astro.url.searchParams.get('redirect') || '/admin';
+const loginUrl = `/auth/login?redirect=${encodeURIComponent(redirect)}&admin=true`;
+
+return Astro.redirect(loginUrl);
+---

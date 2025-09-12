@@ -1,0 +1,137 @@
+---
+import type { Profile } from '../lib/types';
+
+interface Props {
+  title: string;
+  user: Profile;
+  currentPage?: string;
+}
+
+const { title, user, currentPage = '' } = Astro.props;
+
+const navigationItems = [
+  {
+    name: 'Dashboard',
+    href: '/admin',
+    icon: '📊'
+  },
+  {
+    name: 'Providers',
+    href: '/admin/providers',
+    icon: '🏢'
+  },
+  {
+    name: 'Content',
+    href: '/admin/content',
+    icon: '📝'
+  },
+  {
+    name: 'Users',
+    href: '/admin/users',
+    icon: '👥'
+  }
+];
+
+// Add super admin items if user is super admin
+const superAdminItems = user.role === 'super_admin' ? [
+  {
+    name: 'Super Admin',
+    href: '/admin/super',
+    icon: '👑'
+  }
+] : [];
+
+const allNavItems = [...navigationItems, ...superAdminItems];
+---
+
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} - MODTOK Admin</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2563eb',
+            secondary: '#64748b'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+  <!-- Top Navigation -->
+  <nav class="bg-white border-b border-gray-200 fixed w-full top-0 z-10">
+    <div class="px-6 py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+          <h1 class="text-xl font-semibold text-gray-900">MODTOK Admin</h1>
+          {user.role === 'super_admin' && (
+            <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+              Super Admin
+            </span>
+          )}
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-gray-600">
+            Hola, {user.full_name}
+          </span>
+          <a 
+            href="/auth/logout" 
+            class="text-sm text-red-600 hover:text-red-800 font-medium"
+          >
+            Cerrar Sesión
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="flex pt-16">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 fixed left-0 top-16 bottom-0 overflow-y-auto">
+      <nav class="p-6">
+        <ul class="space-y-2">
+          {allNavItems.map((item) => (
+            <li>
+              <a 
+                href={item.href}
+                class={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  currentPage === item.href 
+                    ? 'bg-primary text-white' 
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <span class="text-lg">{item.icon}</span>
+                <span>{item.name}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 ml-64 p-6">
+      <div class="max-w-7xl mx-auto">
+        <div class="mb-6">
+          <h1 class="text-2xl font-bold text-gray-900">{title}</h1>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+          <slot />
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
