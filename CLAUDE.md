@@ -108,6 +108,28 @@ Follow this workflow for most tasks.
 * The local Supabase instance sometimes doesn't apply new migrations correctly on the first try. If you encounter strange database errors, run `supabase stop` and then `supabase start` to fully restart the services.
 * Astro's view transitions can sometimes conflict with complex client-side JavaScript. If you see flickering or state-loss issues, consider disabling transitions for that specific page or component.
 * **IMPORTANT**: Supabase SSR cookie handling conflicts with Vite in React components. Always use `@supabase/supabase-js` directly for browser components, NOT `@supabase/ssr`.
+* **CRITICAL - Astro Script Processing Fix**: When using CDN scripts (like Tailwind CSS) in Astro components, you MUST add the `is:inline` directive to prevent Astro from processing them as ES modules. This was a major issue that caused JavaScript runtime errors throughout the admin interface.
+
+**Example of the fix:**
+```astro
+<!-- WRONG - Causes runtime errors -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { ... };
+</script>
+
+<!-- CORRECT - Fixed with is:inline -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script is:inline>
+  tailwind.config = { ... };
+</script>
+```
+
+**When to use `is:inline`:**
+- CDN scripts (Tailwind, Alpine.js, etc.)
+- Configuration objects for third-party libraries
+- Scripts that need to run immediately without module processing
+- Global variable assignments that need to be accessible from other scripts
 
 ***
 

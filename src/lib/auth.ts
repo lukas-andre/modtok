@@ -1,4 +1,4 @@
-import { createSupabaseClient, getSession } from './supabase';
+import { createSupabaseClient, getUser } from './supabase';
 import type { Profile } from './types';
 import type { AstroCookies } from 'astro';
 
@@ -10,23 +10,7 @@ export interface AdminAuthResult {
   sessionExpired?: boolean;
 }
 
-// Session timeout configuration (in minutes)
-const ADMIN_SESSION_TIMEOUT = 120; // 2 hours
-const USER_SESSION_TIMEOUT = 480; // 8 hours
-
-/**
- * Check if session has expired based on role and timeout settings
- */
-function isSessionExpired(session: any, isAdminUser: boolean): boolean {
-  if (!session?.expires_at) return false;
-  
-  const expiresAt = new Date(session.expires_at);
-  const now = new Date();
-  const timeoutMinutes = isAdminUser ? ADMIN_SESSION_TIMEOUT : USER_SESSION_TIMEOUT;
-  const maxAge = new Date(now.getTime() - (timeoutMinutes * 60 * 1000));
-  
-  return expiresAt < maxAge;
-}
+// Note: Session timeout is now handled by Supabase JWT expiration
 
 /**
  * Get authenticated user with role information for admin areas
@@ -36,9 +20,9 @@ export async function getAdminAuth(Astro: {
   cookies: AstroCookies;
 }): Promise<AdminAuthResult> {
   const supabase = createSupabaseClient(Astro);
-  const session = await getSession(Astro);
+  const user = await getUser(Astro);
   
-  if (!session?.user) {
+  if (!user) {
     return {
       isAuthenticated: false,
       user: null,
@@ -51,10 +35,11 @@ export async function getAdminAuth(Astro: {
   const { data: profile, error } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .single();
 
   if (error || !profile) {
+    console.error('Profile error:', error);
     return {
       isAuthenticated: true,
       user: null,
@@ -65,19 +50,6 @@ export async function getAdminAuth(Astro: {
 
   const isAdmin = profile.role === 'admin' || profile.role === 'super_admin';
   const isSuperAdmin = profile.role === 'super_admin';
-  const sessionExpired = isSessionExpired(session, isAdmin);
-
-  if (sessionExpired) {
-    // Sign out expired session
-    await supabase.auth.signOut();
-    return {
-      isAuthenticated: false,
-      user: null,
-      isAdmin: false,
-      isSuperAdmin: false,
-      sessionExpired: true
-    };
-  }
 
   return {
     isAuthenticated: true,
