@@ -1,0 +1,813 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '../../../../lib/auth';
+
+// Protect this page - only admins can access
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/content/blog/create');
+}
+---
+
+<AdminLayout title="Nueva Publicación de Blog" user={user} currentPage="/admin/content/blog">
+  <div class="p-6 max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Nueva Publicación de Blog</h2>
+        <p class="text-gray-600 mt-1">Crea contenido valioso para la comunidad de construcción modular</p>
+      </div>
+      <div class="flex space-x-3">
+        <a 
+          href="/admin/content/blog" 
+          class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
+        >
+          ← Volver
+        </a>
+      </div>
+    </div>
+
+    <form id="blog-form" class="space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Title -->
+          <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+              Título de la Publicación *
+            </label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              required
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Ej: Tendencias en Construcción Modular 2024"
+            >
+            <p class="text-xs text-gray-500 mt-1">
+              El título aparecerá como encabezado principal y en los resultados de búsqueda
+            </p>
+          </div>
+
+          <!-- Excerpt -->
+          <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <label for="excerpt" class="block text-sm font-medium text-gray-700 mb-2">
+              Extracto/Resumen
+            </label>
+            <textarea
+              id="excerpt"
+              name="excerpt"
+              rows="3"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Breve descripción que aparecerá en las tarjetas y feeds..."
+            ></textarea>
+            <p class="text-xs text-gray-500 mt-1">
+              Si no se especifica, se generará automáticamente desde el contenido principal
+            </p>
+          </div>
+
+          <!-- Content Editor -->
+          <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <label class="block text-sm font-medium text-gray-700 mb-4">
+              Contenido Principal *
+            </label>
+            
+            <!-- Editor Toolbar -->
+            <div id="editor-toolbar" class="border border-gray-300 rounded-t-lg p-2 bg-gray-50 flex flex-wrap gap-1">
+              <button type="button" data-command="bold" class="editor-btn">
+                <strong>B</strong>
+              </button>
+              <button type="button" data-command="italic" class="editor-btn">
+                <em>I</em>
+              </button>
+              <button type="button" data-command="underline" class="editor-btn">
+                <u>U</u>
+              </button>
+              <span class="border-l border-gray-400 mx-1"></span>
+              <button type="button" data-command="h1" class="editor-btn">H1</button>
+              <button type="button" data-command="h2" class="editor-btn">H2</button>
+              <button type="button" data-command="h3" class="editor-btn">H3</button>
+              <span class="border-l border-gray-400 mx-1"></span>
+              <button type="button" data-command="ul" class="editor-btn">• Lista</button>
+              <button type="button" data-command="ol" class="editor-btn">1. Lista</button>
+              <button type="button" data-command="quote" class="editor-btn">" Cita</button>
+              <span class="border-l border-gray-400 mx-1"></span>
+              <button type="button" data-command="link" class="editor-btn">🔗 Link</button>
+              <button type="button" data-command="image" class="editor-btn">🖼️ Imagen</button>
+            </div>
+
+            <!-- Content Editor -->
+            <div 
+              id="content-editor" 
+              contenteditable="true"
+              class="w-full border border-gray-300 border-t-0 rounded-b-lg px-4 py-3 min-h-96 focus:ring-2 focus:ring-blue-500 focus:border-transparent prose max-w-none"
+              style="outline: none;"
+            >
+              <p>Comienza a escribir tu artículo aquí...</p>
+            </div>
+            
+            <input type="hidden" id="content" name="content" required>
+            
+            <div class="mt-4 flex items-center justify-between text-sm text-gray-500">
+              <div>
+                Palabras: <span id="word-count">0</span> | 
+                Tiempo de lectura: <span id="reading-time">1</span> min
+              </div>
+              <button 
+                type="button" 
+                onclick="insertImageFromUpload()" 
+                class="text-blue-600 hover:text-blue-800"
+              >
+                Subir imagen desde archivo
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+          <!-- Featured Image -->
+          <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <label class="block text-sm font-medium text-gray-700 mb-4">
+              Imagen Destacada
+            </label>
+            
+            <div id="featured-image-preview" class="hidden mb-4">
+              <img id="featured-image-img" src="" alt="Vista previa" class="w-full h-48 object-cover rounded-lg">
+              <button 
+                type="button" 
+                onclick="removeFeaturedImage()" 
+                class="mt-2 text-sm text-red-600 hover:text-red-800"
+              >
+                Eliminar imagen
+              </button>
+            </div>
+            
+            <div id="featured-image-upload" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <input 
+                type="file" 
+                id="featured-image-input" 
+                accept="image/*" 
+                class="hidden"
+                onchange="handleFeaturedImageUpload(this)"
+              >
+              <button 
+                type="button" 
+                onclick="document.getElementById('featured-image-input').click()" 
+                class="text-blue-600 hover:text-blue-800 font-medium"
+              >
+                Seleccionar Imagen
+              </button>
+              <p class="text-xs text-gray-500 mt-2">JPG, PNG, WebP hasta 10MB</p>
+            </div>
+            
+            <input type="hidden" id="featured_image_url" name="featured_image_url">
+          </div>
+
+          <!-- Category and Tags -->
+          <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="space-y-4">
+              <div>
+                <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                  Categoría
+                </label>
+                <select 
+                  id="category" 
+                  name="category"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Seleccionar categoría</option>
+                  <option value="tendencias">Tendencias</option>
+                  <option value="guias">Guías</option>
+                  <option value="casos_exito">Casos de Éxito</option>
+                  <option value="noticias">Noticias</option>
+                  <option value="tutoriales">Tutoriales</option>
+                </select>
+              </div>
+
+              <div>
+                <label for="tags-input" class="block text-sm font-medium text-gray-700 mb-2">
+                  Etiquetas
+                </label>
+                <input
+                  type="text"
+                  id="tags-input"
+                  placeholder="Ej: construcción, modular, sustentable (separar con comas)"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                <div id="tags-preview" class="flex flex-wrap gap-2 mt-2"></div>
+                <input type="hidden" id="tags" name="tags">
+              </div>
+            </div>
+          </div>
+
+          <!-- SEO Settings -->
+          <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="text-sm font-medium text-gray-700 mb-4">Optimización SEO</h3>
+            
+            <div class="space-y-4">
+              <div>
+                <label for="meta_title" class="block text-xs text-gray-600 mb-1">
+                  Título SEO
+                </label>
+                <input
+                  type="text"
+                  id="meta_title"
+                  name="meta_title"
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500"
+                  placeholder="Título optimizado para buscadores"
+                >
+                <p class="text-xs text-gray-500 mt-1">
+                  Recomendado: 50-60 caracteres. <span id="meta-title-count">0</span>/60
+                </p>
+              </div>
+
+              <div>
+                <label for="meta_description" class="block text-xs text-gray-600 mb-1">
+                  Descripción SEO
+                </label>
+                <textarea
+                  id="meta_description"
+                  name="meta_description"
+                  rows="3"
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500"
+                  placeholder="Descripción que aparecerá en Google"
+                ></textarea>
+                <p class="text-xs text-gray-500 mt-1">
+                  Recomendado: 150-160 caracteres. <span id="meta-description-count">0</span>/160
+                </p>
+              </div>
+
+              <div>
+                <label for="keywords" class="block text-xs text-gray-600 mb-1">
+                  Palabras Clave
+                </label>
+                <input
+                  type="text"
+                  id="keywords"
+                  name="keywords"
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500"
+                  placeholder="casas modulares, construcción, Chile"
+                >
+              </div>
+
+              <div>
+                <label for="slug" class="block text-xs text-gray-600 mb-1">
+                  URL Slug
+                </label>
+                <input
+                  type="text"
+                  id="slug"
+                  name="slug"
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500"
+                  placeholder="Se genera automáticamente"
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Publishing Options -->
+          <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="text-sm font-medium text-gray-700 mb-4">Opciones de Publicación</h3>
+            
+            <div class="space-y-4">
+              <div>
+                <label for="status" class="block text-sm text-gray-600 mb-2">
+                  Estado
+                </label>
+                <select 
+                  id="status" 
+                  name="status"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="draft">Borrador</option>
+                  <option value="pending_review">Pendiente de Revisión</option>
+                  <option value="published">Publicado</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="flex items-center">
+                  <input 
+                    type="checkbox" 
+                    id="schedule_publish" 
+                    name="schedule_publish"
+                    class="rounded border-gray-300"
+                    onchange="toggleSchedulePublish()"
+                  >
+                  <span class="ml-2 text-sm text-gray-700">Programar publicación</span>
+                </label>
+              </div>
+
+              <div id="schedule-fields" class="hidden space-y-3">
+                <div>
+                  <label for="schedule_date" class="block text-xs text-gray-600 mb-1">
+                    Fecha
+                  </label>
+                  <input
+                    type="date"
+                    id="schedule_date"
+                    name="schedule_date"
+                    class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500"
+                  >
+                </div>
+                <div>
+                  <label for="schedule_time" class="block text-xs text-gray-600 mb-1">
+                    Hora (Chile)
+                  </label>
+                  <input
+                    type="time"
+                    id="schedule_time"
+                    name="schedule_time"
+                    class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500"
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="space-y-3">
+              <button
+                type="submit"
+                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Crear Publicación
+              </button>
+              
+              <button
+                type="button"
+                onclick="saveDraft()"
+                class="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Guardar Borrador
+              </button>
+
+              <button
+                type="button"
+                onclick="previewPost()"
+                class="w-full border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Vista Previa
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <!-- Hidden file input for content images -->
+    <input type="file" id="content-image-input" accept="image/*" class="hidden" onchange="handleContentImageUpload(this)">
+
+    <!-- Loading Indicator -->
+    <div id="loading-indicator" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded-lg shadow-lg">
+        <div class="flex items-center space-x-3">
+          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          <span class="text-gray-700">Guardando...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script is:inline>
+  let currentPostId = null;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    setupEditor();
+    setupSEOCounters();
+    setupTagsInput();
+    setupFormHandling();
+    
+    // Auto-save every 2 minutes
+    setInterval(autoSave, 120000);
+  });
+
+  function setupEditor() {
+    const editor = document.getElementById('content-editor');
+    const toolbar = document.getElementById('editor-toolbar');
+    
+    // Toolbar event handling
+    toolbar.addEventListener('click', function(e) {
+      if (e.target.hasAttribute('data-command')) {
+        e.preventDefault();
+        const command = e.target.getAttribute('data-command');
+        executeEditorCommand(command);
+      }
+    });
+
+    // Content change tracking
+    editor.addEventListener('input', function() {
+      updateWordCount();
+      updateHiddenContent();
+    });
+
+    // Prevent default behavior for some keys
+    editor.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        document.execCommand('insertText', false, '  ');
+      }
+    });
+
+    updateWordCount();
+  }
+
+  function executeEditorCommand(command) {
+    const editor = document.getElementById('content-editor');
+    editor.focus();
+
+    switch (command) {
+      case 'bold':
+        document.execCommand('bold');
+        break;
+      case 'italic':
+        document.execCommand('italic');
+        break;
+      case 'underline':
+        document.execCommand('underline');
+        break;
+      case 'h1':
+        document.execCommand('formatBlock', false, 'h1');
+        break;
+      case 'h2':
+        document.execCommand('formatBlock', false, 'h2');
+        break;
+      case 'h3':
+        document.execCommand('formatBlock', false, 'h3');
+        break;
+      case 'ul':
+        document.execCommand('insertUnorderedList');
+        break;
+      case 'ol':
+        document.execCommand('insertOrderedList');
+        break;
+      case 'quote':
+        document.execCommand('formatBlock', false, 'blockquote');
+        break;
+      case 'link':
+        const url = prompt('Ingresa la URL:');
+        if (url) {
+          document.execCommand('createLink', false, url);
+        }
+        break;
+      case 'image':
+        insertImageFromUpload();
+        break;
+    }
+  }
+
+  function updateWordCount() {
+    const editor = document.getElementById('content-editor');
+    const text = editor.innerText;
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+    const wordCount = words.length;
+    const readingTime = Math.max(1, Math.round(wordCount / 200));
+
+    document.getElementById('word-count').textContent = wordCount;
+    document.getElementById('reading-time').textContent = readingTime;
+  }
+
+  function updateHiddenContent() {
+    const editor = document.getElementById('content-editor');
+    document.getElementById('content').value = editor.innerHTML;
+  }
+
+  function setupSEOCounters() {
+    document.getElementById('meta_title').addEventListener('input', function() {
+      const count = this.value.length;
+      document.getElementById('meta-title-count').textContent = count;
+      document.getElementById('meta-title-count').className = count > 60 ? 'text-red-500' : 'text-gray-500';
+    });
+
+    document.getElementById('meta_description').addEventListener('input', function() {
+      const count = this.value.length;
+      document.getElementById('meta-description-count').textContent = count;
+      document.getElementById('meta-description-count').className = count > 160 ? 'text-red-500' : 'text-gray-500';
+    });
+
+    // Auto-generate SEO fields from title
+    document.getElementById('title').addEventListener('input', function() {
+      const title = this.value;
+      if (title && !document.getElementById('meta_title').value) {
+        document.getElementById('meta_title').value = title;
+        document.getElementById('meta_title').dispatchEvent(new Event('input'));
+      }
+      
+      // Generate slug
+      if (title) {
+        const slug = title
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim()
+          .substring(0, 100);
+        document.getElementById('slug').value = slug;
+      }
+    });
+  }
+
+  function setupTagsInput() {
+    const tagsInput = document.getElementById('tags-input');
+    const tagsPreview = document.getElementById('tags-preview');
+    const tagsHidden = document.getElementById('tags');
+
+    tagsInput.addEventListener('input', function() {
+      const tags = this.value.split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0);
+
+      // Update preview
+      tagsPreview.innerHTML = tags.map(tag => `
+        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          ${tag}
+        </span>
+      `).join('');
+
+      // Update hidden field
+      tagsHidden.value = JSON.stringify(tags);
+    });
+  }
+
+  function setupFormHandling() {
+    document.getElementById('blog-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      await savePost();
+    });
+  }
+
+  function toggleSchedulePublish() {
+    const checkbox = document.getElementById('schedule_publish');
+    const fields = document.getElementById('schedule-fields');
+    
+    if (checkbox.checked) {
+      fields.classList.remove('hidden');
+      // Set default date to tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('schedule_date').value = tomorrow.toISOString().split('T')[0];
+      document.getElementById('schedule_time').value = '09:00';
+    } else {
+      fields.classList.add('hidden');
+    }
+  }
+
+  // Image handling
+  async function handleFeaturedImageUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    try {
+      showLoading(true);
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'featured');
+      if (currentPostId) formData.append('post_id', currentPostId);
+
+      const response = await fetch('/api/admin/blog/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      // Update preview
+      document.getElementById('featured_image_url').value = result.file.url;
+      document.getElementById('featured-image-img').src = result.file.url;
+      document.getElementById('featured-image-preview').classList.remove('hidden');
+      document.getElementById('featured-image-upload').style.display = 'none';
+
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error al subir la imagen: ' + error.message);
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  function removeFeaturedImage() {
+    document.getElementById('featured_image_url').value = '';
+    document.getElementById('featured-image-preview').classList.add('hidden');
+    document.getElementById('featured-image-upload').style.display = 'block';
+  }
+
+  function insertImageFromUpload() {
+    document.getElementById('content-image-input').click();
+  }
+
+  async function handleContentImageUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    try {
+      showLoading(true);
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'content');
+      if (currentPostId) formData.append('post_id', currentPostId);
+
+      const response = await fetch('/api/admin/blog/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      // Insert image into editor
+      const editor = document.getElementById('content-editor');
+      const img = `<img src="${result.file.url}" alt="" class="max-w-full h-auto rounded-lg my-4">`;
+      
+      if (document.getSelection().rangeCount > 0) {
+        const range = document.getSelection().getRangeAt(0);
+        const imgElement = document.createElement('div');
+        imgElement.innerHTML = img;
+        range.insertNode(imgElement.firstChild);
+      } else {
+        editor.innerHTML += img;
+      }
+
+      updateHiddenContent();
+
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error al subir la imagen: ' + error.message);
+    } finally {
+      showLoading(false);
+      input.value = ''; // Reset input
+    }
+  }
+
+  // Form actions
+  async function savePost(isDraft = false) {
+    try {
+      showLoading(true);
+      updateHiddenContent();
+
+      const formData = new FormData(document.getElementById('blog-form'));
+      const data = Object.fromEntries(formData);
+
+      // Parse JSON fields
+      try {
+        data.tags = JSON.parse(data.tags || '[]');
+      } catch (e) {
+        data.tags = [];
+      }
+
+      if (data.keywords) {
+        data.keywords = data.keywords.split(',').map(k => k.trim()).filter(k => k.length > 0);
+      }
+
+      if (isDraft) {
+        data.status = 'draft';
+      }
+
+      const response = await fetch('/api/admin/blog/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      currentPostId = result.post.id;
+      
+      if (!isDraft) {
+        alert('Publicación creada exitosamente');
+        window.location.href = '/admin/content/blog';
+      } else {
+        alert('Borrador guardado');
+      }
+
+    } catch (error) {
+      console.error('Error saving post:', error);
+      alert('Error al guardar: ' + error.message);
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  async function saveDraft() {
+    await savePost(true);
+  }
+
+  async function autoSave() {
+    if (document.getElementById('title').value || document.getElementById('content-editor').innerText.trim() !== 'Comienza a escribir tu artículo aquí...') {
+      try {
+        await savePost(true);
+        console.log('Auto-saved at', new Date().toLocaleTimeString());
+      } catch (error) {
+        console.error('Auto-save failed:', error);
+      }
+    }
+  }
+
+  function previewPost() {
+    updateHiddenContent();
+    const formData = new FormData(document.getElementById('blog-form'));
+    const data = Object.fromEntries(formData);
+    
+    // Open preview in new window (simplified)
+    const previewWindow = window.open('', '_blank');
+    previewWindow.document.write(`
+      <html>
+        <head>
+          <title>${data.title || 'Vista Previa'}</title>
+          <style>
+            body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+            h1, h2, h3 { color: #1f2937; }
+            img { max-width: 100%; height: auto; border-radius: 8px; }
+            blockquote { border-left: 4px solid #3b82f6; padding-left: 16px; margin: 16px 0; font-style: italic; }
+          </style>
+        </head>
+        <body>
+          <h1>${data.title || 'Sin título'}</h1>
+          ${data.featured_image_url ? `<img src="${data.featured_image_url}" alt="Imagen destacada" style="width: 100%; max-height: 400px; object-fit: cover; margin-bottom: 20px;">` : ''}
+          ${data.excerpt ? `<p style="font-size: 18px; color: #6b7280; margin-bottom: 20px;">${data.excerpt}</p>` : ''}
+          <div>${data.content || 'Sin contenido'}</div>
+        </body>
+      </html>
+    `);
+  }
+
+  function showLoading(show) {
+    const indicator = document.getElementById('loading-indicator');
+    if (show) {
+      indicator.classList.remove('hidden');
+    } else {
+      indicator.classList.add('hidden');
+    }
+  }
+</script>
+
+<style>
+  .editor-btn {
+    @apply px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100 transition-colors;
+  }
+  
+  .editor-btn:hover {
+    @apply bg-gray-100;
+  }
+  
+  .editor-btn.active {
+    @apply bg-blue-100 border-blue-300;
+  }
+
+  #content-editor {
+    font-family: system-ui, -apple-system, sans-serif;
+  }
+
+  #content-editor h1 {
+    @apply text-2xl font-bold mt-6 mb-4;
+  }
+
+  #content-editor h2 {
+    @apply text-xl font-bold mt-5 mb-3;
+  }
+
+  #content-editor h3 {
+    @apply text-lg font-bold mt-4 mb-2;
+  }
+
+  #content-editor blockquote {
+    @apply border-l-4 border-blue-500 pl-4 my-4 italic text-gray-700;
+  }
+
+  #content-editor ul {
+    @apply list-disc list-inside my-4;
+  }
+
+  #content-editor ol {
+    @apply list-decimal list-inside my-4;
+  }
+
+  #content-editor a {
+    @apply text-blue-600 underline;
+  }
+
+  #content-editor img {
+    @apply max-w-full h-auto rounded-lg my-4;
+  }
+</style>

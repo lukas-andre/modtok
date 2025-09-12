@@ -179,13 +179,13 @@ CREATE TABLE admin_actions (
 **Priority: HIGH | Timeline: Week 4-5**
 
 ### 5.1 Blog/News Management
-- [ ] Rich text editor (TipTap or similar)
-- [ ] Image upload and management
-- [ ] Category and tag management
-- [ ] SEO optimization tools
-- [ ] Schedule publishing
-- [ ] Draft/Published states
-- [ ] Author attribution (admin name)
+- [X] Rich text editor (TipTap or similar)
+- [X] Image upload and management
+- [X] Category and tag management
+- [X] SEO optimization tools
+- [X] Schedule publishing
+- [X] Draft/Published states
+- [X] Author attribution (admin name)
 
 ### 5.2 House/Product Catalog Management
 - [ ] Bulk import from CSV/Excel
