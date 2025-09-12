@@ -40,6 +40,11 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Custom app colors
+        'brand-black': "hsl(var(--app-black))",
+        'brand-grey': "hsl(var(--app-grey))",
+        'brand-blue': "hsl(var(--app-blue))",
+        'brand-white': "hsl(var(--app-white))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -47,7 +52,9 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["Inter var", "Inter", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+        sans: ["TeXGyreHeros", "Helvetica Neue", "Helvetica", "Arial", "system-ui", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        'tex-gyre': ["TeXGyreHeros", "Helvetica Neue", "Helvetica", "sans-serif"],
+        'tex-gyre-condensed': ["TeXGyreHerosCondensed", "Helvetica Neue", "Helvetica", "sans-serif"],
       },
     },
   },
