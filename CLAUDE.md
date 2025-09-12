@@ -149,6 +149,16 @@ const el = document.getElementById('id');
 function fn(param) { }
 ```
 
+**Select Option Conditional Attributes:**
+- NEVER use the `{condition ? 'attribute' : ''}` pattern - it causes TypeScript parsing errors:
+```astro
+<!-- ❌ WRONG - Causes TypeScript parsing errors -->
+<option value="draft" {post.status === 'draft' ? 'selected' : ''}>Borrador</option>
+
+<!-- ✅ CORRECT - Use boolean attribute syntax -->
+<option value="draft" selected={post.status === 'draft'}>Borrador</option>
+```
+
 **Database type regeneration:**
 - If you get "table doesn't exist" errors, regenerate types: `npx supabase gen types typescript --project-id ygetqjqtjhdlbksdpyyr > src/lib/database.types.ts`
 
