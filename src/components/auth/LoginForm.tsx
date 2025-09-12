@@ -22,7 +22,11 @@ const LoginForm: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      // Get current URL params to pass to API
+      const urlParams = new URLSearchParams(window.location.search);
+      const apiUrl = `/api/auth/login?${urlParams.toString()}`;
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

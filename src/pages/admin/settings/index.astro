@@ -1,0 +1,362 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '../../../lib/auth';
+
+// Protect this page - only admins can access
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/settings');
+}
+---
+
+<AdminLayout title="Configuración del Sistema" user={user} currentPage="/admin/settings">
+  <div class="p-6">
+    <!-- Header -->
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold text-gray-900">Configuración del Sistema</h2>
+      <p class="text-gray-600 mt-1">Gestiona las configuraciones generales de la plataforma MODTOK</p>
+    </div>
+
+    <!-- Settings Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      
+      <!-- Platform Settings -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Configuración de la Plataforma</h3>
+        </div>
+        <div class="p-6 space-y-6">
+          <div>
+            <label for="site_name" class="block text-sm font-medium text-gray-700 mb-2">
+              Nombre del Sitio
+            </label>
+            <input
+              type="text"
+              id="site_name"
+              value="MODTOK"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          
+          <div>
+            <label for="site_description" class="block text-sm font-medium text-gray-700 mb-2">
+              Descripción del Sitio
+            </label>
+            <textarea
+              id="site_description"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Tu marketplace de construcción modular en Chile"
+            ></textarea>
+          </div>
+
+          <div>
+            <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-2">
+              Email de Contacto
+            </label>
+            <input
+              type="email"
+              id="contact_email"
+              value="contacto@modtok.cl"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="maintenance_mode" class="flex items-center">
+              <input
+                type="checkbox"
+                id="maintenance_mode"
+                class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+              />
+              <span class="ml-2 text-sm text-gray-700">Modo de Mantenimiento</span>
+            </label>
+            <p class="mt-1 text-xs text-gray-500">Activar para mostrar página de mantenimiento a usuarios</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Provider Settings -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Configuración de Proveedores</h3>
+        </div>
+        <div class="p-6 space-y-6">
+          <div>
+            <label for="auto_approve_providers" class="flex items-center">
+              <input
+                type="checkbox"
+                id="auto_approve_providers"
+                class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+              />
+              <span class="ml-2 text-sm text-gray-700">Auto-aprobar Proveedores</span>
+            </label>
+            <p class="mt-1 text-xs text-gray-500">Los nuevos proveedores se aprueban automáticamente</p>
+          </div>
+
+          <div>
+            <label for="provider_commission" class="block text-sm font-medium text-gray-700 mb-2">
+              Comisión de Plataforma (%)
+            </label>
+            <input
+              type="number"
+              id="provider_commission"
+              min="0"
+              max="50"
+              step="0.1"
+              value="5.0"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="max_images_per_provider" class="block text-sm font-medium text-gray-700 mb-2">
+              Máximo de Imágenes por Proveedor
+            </label>
+            <input
+              type="number"
+              id="max_images_per_provider"
+              min="1"
+              max="100"
+              value="20"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="featured_provider_price" class="block text-sm font-medium text-gray-700 mb-2">
+              Precio Proveedor Destacado (CLP/mes)
+            </label>
+            <input
+              type="number"
+              id="featured_provider_price"
+              min="0"
+              step="1000"
+              value="50000"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Email Settings -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Configuración de Emails</h3>
+        </div>
+        <div class="p-6 space-y-6">
+          <div>
+            <label for="smtp_enabled" class="flex items-center">
+              <input
+                type="checkbox"
+                id="smtp_enabled"
+                checked
+                class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+              />
+              <span class="ml-2 text-sm text-gray-700">SMTP Habilitado</span>
+            </label>
+          </div>
+
+          <div>
+            <label for="from_email" class="block text-sm font-medium text-gray-700 mb-2">
+              Email Remitente
+            </label>
+            <input
+              type="email"
+              id="from_email"
+              value="noreply@modtok.cl"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="admin_notification_email" class="block text-sm font-medium text-gray-700 mb-2">
+              Email de Notificaciones Admin
+            </label>
+            <input
+              type="email"
+              id="admin_notification_email"
+              value="admin@modtok.cl"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="email_notifications" class="flex items-center">
+              <input
+                type="checkbox"
+                id="email_notifications"
+                checked
+                class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+              />
+              <span class="ml-2 text-sm text-gray-700">Notificaciones por Email</span>
+            </label>
+            <p class="mt-1 text-xs text-gray-500">Enviar notificaciones automáticas a administradores</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEO Settings -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Configuración SEO</h3>
+        </div>
+        <div class="p-6 space-y-6">
+          <div>
+            <label for="google_analytics_id" class="block text-sm font-medium text-gray-700 mb-2">
+              Google Analytics ID
+            </label>
+            <input
+              type="text"
+              id="google_analytics_id"
+              placeholder="G-XXXXXXXXXX"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="google_tag_manager_id" class="block text-sm font-medium text-gray-700 mb-2">
+              Google Tag Manager ID
+            </label>
+            <input
+              type="text"
+              id="google_tag_manager_id"
+              placeholder="GTM-XXXXXX"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label for="meta_keywords" class="block text-sm font-medium text-gray-700 mb-2">
+              Palabras Clave Meta
+            </label>
+            <textarea
+              id="meta_keywords"
+              rows="2"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="casas modulares, construcción modular, prefabricadas, Chile"
+            ></textarea>
+          </div>
+
+          <div>
+            <label for="robots_txt" class="flex items-center">
+              <input
+                type="checkbox"
+                id="robots_txt"
+                checked
+                class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+              />
+              <span class="ml-2 text-sm text-gray-700">Permitir Indexación (robots.txt)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Button -->
+    <div class="mt-8 flex justify-end">
+      <button
+        id="saveSettings"
+        type="button"
+        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+      >
+        Guardar Configuración
+      </button>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="settingsSuccess" class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg hidden">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <p class="text-green-800 font-medium">Configuración guardada exitosamente</p>
+      </div>
+    </div>
+
+    <div id="settingsError" class="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg hidden">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        <p class="text-red-800 font-medium" id="settingsErrorText"></p>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  const saveButton = document.getElementById('saveSettings') as HTMLButtonElement;
+  if (saveButton) {
+    saveButton.addEventListener('click', async () => {
+      const originalText = saveButton.textContent || 'Guardar Configuración';
+      
+      saveButton.disabled = true;
+      saveButton.textContent = 'Guardando...';
+
+      // Hide previous messages
+      const successDiv = document.getElementById('settingsSuccess');
+      const errorDiv = document.getElementById('settingsError');
+      successDiv?.classList.add('hidden');
+      errorDiv?.classList.add('hidden');
+
+      try {
+        // Collect all form data with proper type casting
+        const siteName = document.getElementById('site_name') as HTMLInputElement;
+        const siteDescription = document.getElementById('site_description') as HTMLTextAreaElement;
+        const contactEmail = document.getElementById('contact_email') as HTMLInputElement;
+        const maintenanceMode = document.getElementById('maintenance_mode') as HTMLInputElement;
+        const autoApprove = document.getElementById('auto_approve_providers') as HTMLInputElement;
+        const providerCommission = document.getElementById('provider_commission') as HTMLInputElement;
+        const maxImages = document.getElementById('max_images_per_provider') as HTMLInputElement;
+        const featuredPrice = document.getElementById('featured_provider_price') as HTMLInputElement;
+        const smtpEnabled = document.getElementById('smtp_enabled') as HTMLInputElement;
+        const fromEmail = document.getElementById('from_email') as HTMLInputElement;
+        const adminEmail = document.getElementById('admin_notification_email') as HTMLInputElement;
+        const emailNotifications = document.getElementById('email_notifications') as HTMLInputElement;
+        const googleAnalytics = document.getElementById('google_analytics_id') as HTMLInputElement;
+        const googleTagManager = document.getElementById('google_tag_manager_id') as HTMLInputElement;
+        const metaKeywords = document.getElementById('meta_keywords') as HTMLTextAreaElement;
+        const robotsTxt = document.getElementById('robots_txt') as HTMLInputElement;
+
+        const settings = {
+          site_name: siteName?.value || '',
+          site_description: siteDescription?.value || '',
+          contact_email: contactEmail?.value || '',
+          maintenance_mode: maintenanceMode?.checked || false,
+          auto_approve_providers: autoApprove?.checked || false,
+          provider_commission: parseFloat(providerCommission?.value || '0'),
+          max_images_per_provider: parseInt(maxImages?.value || '20'),
+          featured_provider_price: parseInt(featuredPrice?.value || '50000'),
+          smtp_enabled: smtpEnabled?.checked || false,
+          from_email: fromEmail?.value || '',
+          admin_notification_email: adminEmail?.value || '',
+          email_notifications: emailNotifications?.checked || false,
+          google_analytics_id: googleAnalytics?.value || '',
+          google_tag_manager_id: googleTagManager?.value || '',
+          meta_keywords: metaKeywords?.value || '',
+          robots_txt: robotsTxt?.checked || false,
+        };
+
+        // For MVP, we'll just show success message
+        // In production, this would save to database via API
+        setTimeout(() => {
+          successDiv?.classList.remove('hidden');
+          console.log('Settings to save:', settings);
+        }, 1000);
+
+      } catch (error) {
+        errorDiv?.classList.remove('hidden');
+        const errorText = document.getElementById('settingsErrorText');
+        if (errorText) {
+          errorText.textContent = 'Error al guardar configuración';
+        }
+      } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = originalText;
+      }
+    });
+  }
+</script>

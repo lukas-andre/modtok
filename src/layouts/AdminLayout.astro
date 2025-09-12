@@ -9,35 +9,63 @@ interface Props {
 
 const { title, user, currentPage = '' } = Astro.props;
 
-const navigationItems = [
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon: string;
+  submenu?: {
+    name: string;
+    href: string;
+    icon: string;
+  }[];
+}
+
+const navigationItems: NavigationItem[] = [
   {
     name: 'Dashboard',
     href: '/admin',
     icon: '📊'
   },
   {
-    name: 'Providers',
+    name: 'Proveedores',
     href: '/admin/providers',
     icon: '🏢'
   },
   {
-    name: 'Content',
+    name: 'Contenido',
     href: '/admin/content',
     icon: '📝'
   },
   {
-    name: 'Users',
+    name: 'Usuarios',
     href: '/admin/users',
     icon: '👥'
+  },
+  {
+    name: 'Configuración',
+    href: '/admin/settings',
+    icon: '⚙️'
   }
 ];
 
 // Add super admin items if user is super admin
-const superAdminItems = user.role === 'super_admin' ? [
+const superAdminItems: NavigationItem[] = user.role === 'super_admin' ? [
   {
     name: 'Super Admin',
     href: '/admin/super',
-    icon: '👑'
+    icon: '👑',
+    submenu: [
+      {
+        name: 'Panel Principal',
+        href: '/admin/super',
+        icon: '🎛️'
+      },
+      {
+        name: 'Administradores',
+        href: '/admin/super/admins',
+        icon: '👨‍💼'
+      }
+    ]
   }
 ] : [];
 
@@ -53,7 +81,7 @@ const allNavItems = [...navigationItems, ...superAdminItems];
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
+  <script is:inline>
     tailwind.config = {
       theme: {
         extend: {
@@ -103,17 +131,45 @@ const allNavItems = [...navigationItems, ...superAdminItems];
         <ul class="space-y-2">
           {allNavItems.map((item) => (
             <li>
-              <a 
-                href={item.href}
-                class={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  currentPage === item.href 
-                    ? 'bg-primary text-white' 
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <span class="text-lg">{item.icon}</span>
-                <span>{item.name}</span>
-              </a>
+              {item.submenu ? (
+                <!-- Super Admin section with submenu -->
+                <div>
+                  <div class="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 mb-2">
+                    <span class="text-lg">{item.icon}</span>
+                    <span>{item.name}</span>
+                  </div>
+                  <ul class="ml-6 space-y-1">
+                    {item.submenu.map((subItem) => (
+                      <li>
+                        <a 
+                          href={subItem.href}
+                          class={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            currentPage === subItem.href || (subItem.href === '/admin/super' && currentPage.startsWith('/admin/super'))
+                              ? 'bg-primary text-white' 
+                              : 'text-gray-600 hover:bg-gray-100'
+                          }`}
+                        >
+                          <span class="text-sm">{subItem.icon}</span>
+                          <span>{subItem.name}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <!-- Regular navigation item -->
+                <a 
+                  href={item.href}
+                  class={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    currentPage === item.href || (item.href !== '/admin' && currentPage.startsWith(item.href))
+                      ? 'bg-primary text-white' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  <span class="text-lg">{item.icon}</span>
+                  <span>{item.name}</span>
+                </a>
+              )}
             </li>
           ))}
         </ul>

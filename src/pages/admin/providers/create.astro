@@ -1,0 +1,483 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '../../../lib/auth';
+
+// Protect this page - only admins can access
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/providers/create');
+}
+---
+
+<AdminLayout title="Crear Proveedor" user={user} currentPage="/admin/providers">
+  <div class="p-6">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center space-x-4 mb-4">
+        <a 
+          href="/admin/providers" 
+          class="text-gray-600 hover:text-gray-900"
+        >
+          ← Volver a Proveedores
+        </a>
+      </div>
+      <h2 class="text-xl font-semibold text-gray-900">Crear Nuevo Proveedor</h2>
+      <p class="text-gray-600 mt-1">Registra un nuevo proveedor en la plataforma MODTOK</p>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="successMessage" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg hidden">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <p class="text-green-800 font-medium">
+          ¡Proveedor creado exitosamente! Se ha enviado un email con las credenciales.
+        </p>
+      </div>
+    </div>
+
+    <div id="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg hidden">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        <p class="text-red-800 font-medium" id="errorText"></p>
+      </div>
+    </div>
+
+    <form id="createProviderForm" class="space-y-8">
+      <!-- Company Information -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Información de la Empresa</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label for="company_name" class="block text-sm font-medium text-gray-700 mb-2">
+              Nombre de la Empresa *
+            </label>
+            <input
+              type="text"
+              id="company_name"
+              name="company_name"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Construcciones Modular Chile"
+            />
+          </div>
+
+          <div>
+            <label for="contact_name" class="block text-sm font-medium text-gray-700 mb-2">
+              Nombre del Contacto *
+            </label>
+            <input
+              type="text"
+              id="contact_name"
+              name="contact_name"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Juan Pérez"
+            />
+          </div>
+
+          <div>
+            <label for="rut" class="block text-sm font-medium text-gray-700 mb-2">
+              RUT de la Empresa *
+            </label>
+            <input
+              type="text"
+              id="rut"
+              name="rut"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: 12.345.678-9"
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+              Correo Electrónico *
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="contacto@empresa.cl"
+            />
+          </div>
+
+          <div>
+            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+              Teléfono *
+            </label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="+56 9 1234 5678"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="website" class="block text-sm font-medium text-gray-700 mb-2">
+              Sitio Web
+            </label>
+            <input
+              type="url"
+              id="website"
+              name="website"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="https://www.empresa.cl"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+              Descripción de la Empresa
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows="4"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Describe los servicios y especialidades de la empresa..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location Information -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Ubicación</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
+              Dirección *
+            </label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Av. Providencia 1234"
+            />
+          </div>
+
+          <div>
+            <label for="city" class="block text-sm font-medium text-gray-700 mb-2">
+              Ciudad *
+            </label>
+            <input
+              type="text"
+              id="city"
+              name="city"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Ej: Santiago"
+            />
+          </div>
+
+          <div>
+            <label for="region" class="block text-sm font-medium text-gray-700 mb-2">
+              Región *
+            </label>
+            <select
+              id="region"
+              name="region"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Seleccionar región...</option>
+              <option value="Región de Arica y Parinacota">Región de Arica y Parinacota</option>
+              <option value="Región de Tarapacá">Región de Tarapacá</option>
+              <option value="Región de Antofagasta">Región de Antofagasta</option>
+              <option value="Región de Atacama">Región de Atacama</option>
+              <option value="Región de Coquimbo">Región de Coquimbo</option>
+              <option value="Región de Valparaíso">Región de Valparaíso</option>
+              <option value="Región Metropolitana">Región Metropolitana</option>
+              <option value="Región del Libertador General Bernardo O'Higgins">Región del Libertador General Bernardo O'Higgins</option>
+              <option value="Región del Maule">Región del Maule</option>
+              <option value="Región de Ñuble">Región de Ñuble</option>
+              <option value="Región del Biobío">Región del Biobío</option>
+              <option value="Región de La Araucanía">Región de La Araucanía</option>
+              <option value="Región de Los Ríos">Región de Los Ríos</option>
+              <option value="Región de Los Lagos">Región de Los Lagos</option>
+              <option value="Región Aysén del General Carlos Ibáñez del Campo">Región Aysén del General Carlos Ibáñez del Campo</option>
+              <option value="Región de Magallanes y de la Antártica Chilena">Región de Magallanes y de la Antártica Chilena</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Provider Configuration -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Configuración del Proveedor</h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="tier" class="block text-sm font-medium text-gray-700 mb-2">
+              Nivel de Proveedor *
+            </label>
+            <select
+              id="tier"
+              name="tier"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="standard">Estándar</option>
+              <option value="premium">Premium</option>
+              <option value="destacado">Destacado</option>
+            </select>
+            <p class="mt-2 text-sm text-gray-600">
+              <strong>Estándar:</strong> Perfil básico<br/>
+              <strong>Premium:</strong> Mayor visibilidad y funciones<br/>
+              <strong>Destacado:</strong> Máxima visibilidad
+            </p>
+          </div>
+
+          <div>
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
+              Estado *
+            </label>
+            <select
+              id="status"
+              name="status"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="active">Activo</option>
+              <option value="pending">Pendiente</option>
+              <option value="suspended">Suspendido</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="temp_password" class="block text-sm font-medium text-gray-700 mb-2">
+              Contraseña Temporal *
+            </label>
+            <input
+              type="password"
+              id="temp_password"
+              name="temp_password"
+              required
+              minlength="8"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Mínimo 8 caracteres"
+            />
+          </div>
+
+          <div class="flex items-end">
+            <button
+              type="button"
+              onclick="generatePassword()"
+              class="px-4 py-2 text-blue-600 hover:text-blue-800 text-sm font-medium border border-blue-300 rounded-md hover:bg-blue-50"
+            >
+              🎲 Generar contraseña
+            </button>
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="admin_notes" class="block text-sm font-medium text-gray-700 mb-2">
+              Notas Administrativas
+            </label>
+            <textarea
+              id="admin_notes"
+              name="admin_notes"
+              rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Notas internas para administradores..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services -->
+      <div class="bg-white rounded-lg border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Servicios</h3>
+        </div>
+        <div class="p-6">
+          <label class="block text-sm font-medium text-gray-700 mb-3">
+            Servicios que ofrece (selecciona todos los que apliquen)
+          </label>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <label class="flex items-center">
+              <input type="checkbox" name="services" value="casas_modulares" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+              <span class="ml-2 text-sm text-gray-700">Casas Modulares</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="services" value="casas_prefabricadas" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+              <span class="ml-2 text-sm text-gray-700">Casas Prefabricadas</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="services" value="construccion_tradicional" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+              <span class="ml-2 text-sm text-gray-700">Construcción Tradicional</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="services" value="diseno_arquitectonico" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+              <span class="ml-2 text-sm text-gray-700">Diseño Arquitectónico</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="services" value="gestion_permisos" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+              <span class="ml-2 text-sm text-gray-700">Gestión de Permisos</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="services" value="financiamiento" class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
+              <span class="ml-2 text-sm text-gray-700">Financiamiento</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Buttons -->
+      <div class="flex justify-end space-x-4">
+        <a
+          href="/admin/providers"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Cancelar
+        </a>
+        <button
+          type="submit"
+          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Crear Proveedor
+        </button>
+      </div>
+    </form>
+
+    <!-- Important Notice -->
+    <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+      <div class="flex items-start">
+        <svg class="w-5 h-5 text-yellow-400 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+        </svg>
+        <div>
+          <p class="text-yellow-800 font-medium">Importante</p>
+          <p class="text-yellow-700 text-sm mt-1">
+            Al crear un proveedor, se enviará un email con las credenciales de acceso. 
+            El proveedor deberá cambiar la contraseña en su primer inicio de sesión.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>
+
+<script>
+  function generatePassword(): void {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    const passwordInput = document.getElementById('temp_password') as HTMLInputElement;
+    if (passwordInput) {
+      passwordInput.value = password;
+    }
+  }
+
+  function showMessage(type: string, message?: string): void {
+    const successDiv = document.getElementById('successMessage');
+    const errorDiv = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    
+    if (type === 'success') {
+      successDiv?.classList.remove('hidden');
+      errorDiv?.classList.add('hidden');
+    } else if (message) {
+      errorDiv?.classList.remove('hidden');
+      successDiv?.classList.add('hidden');
+      if (errorText) {
+        errorText.textContent = message;
+      }
+    }
+  }
+
+  function hideMessages(): void {
+    const successDiv = document.getElementById('successMessage');
+    const errorDiv = document.getElementById('errorMessage');
+    successDiv?.classList.add('hidden');
+    errorDiv?.classList.add('hidden');
+  }
+
+  // Handle form submission
+  const createForm = document.getElementById('createProviderForm') as HTMLFormElement;
+  if (createForm) {
+    createForm.addEventListener('submit', async (e: Event) => {
+      e.preventDefault();
+      hideMessages();
+
+      const target = e.target as HTMLFormElement;
+      const formData = new FormData(target);
+      const submitButton = target.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const originalText = submitButton?.textContent || 'Crear Proveedor';
+
+      // Collect services
+      const serviceElements = document.querySelectorAll('input[name="services"]:checked') as NodeListOf<HTMLInputElement>;
+      const services = Array.from(serviceElements).map(cb => cb.value);
+
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Creando...';
+      }
+
+      try {
+        const providerData = {
+          company_name: formData.get('company_name'),
+          contact_name: formData.get('contact_name'),
+          rut: formData.get('rut'),
+          email: formData.get('email'),
+          phone: formData.get('phone'),
+          website: formData.get('website'),
+          description: formData.get('description'),
+          address: formData.get('address'),
+          city: formData.get('city'),
+          region: formData.get('region'),
+          tier: formData.get('tier'),
+          status: formData.get('status'),
+          temp_password: formData.get('temp_password'),
+          admin_notes: formData.get('admin_notes'),
+          services: services
+        };
+
+        // For MVP, we'll just show success message
+        // In production, this would call an API endpoint
+        setTimeout(() => {
+          showMessage('success');
+          console.log('Provider data to create:', providerData);
+          
+          // Reset form
+          target.reset();
+          
+          // Redirect to provider list after 2 seconds
+          setTimeout(() => {
+            window.location.href = '/admin/providers';
+          }, 2000);
+        }, 1000);
+
+      } catch (error) {
+        showMessage('error', 'Error de conexión. Inténtalo de nuevo.');
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = originalText;
+        }
+      }
+    });
+  }
+
+  // Make function global so it can be called from onclick attribute
+  (window as any).generatePassword = generatePassword;
+</script>
