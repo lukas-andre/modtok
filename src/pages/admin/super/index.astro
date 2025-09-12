@@ -5,6 +5,10 @@ import { getAdminAuth, requireSuperAdmin } from '../../../lib/auth';
 // Protect this page - only super_admin can access
 const auth = await getAdminAuth(Astro);
 const user = requireSuperAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/super');
+}
 ---
 
 <AdminLayout title="Super Admin Dashboard" user={user} currentPage="/admin/super">

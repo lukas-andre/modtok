@@ -7,6 +7,10 @@ import { createSupabaseClient } from '../../../../lib/supabase';
 const auth = await getAdminAuth(Astro);
 const user = requireSuperAdmin(auth);
 
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/super/admins');
+}
+
 // Fetch all admin users
 const supabase = createSupabaseClient(Astro);
 const { data: adminUsers, error } = await supabase
