@@ -131,6 +131,60 @@ Follow this workflow for most tasks.
 - Scripts that need to run immediately without module processing
 - Global variable assignments that need to be accessible from other scripts
 
+### 🚫 Astro File Pitfalls to Avoid
+
+**NEVER use TypeScript syntax in `<script>` tags** unless using `is:inline`:
+- No type annotations: `as HTMLElement`, `: string`, `: void`
+- No generics: `Array<string>`, `NodeListOf<HTMLInputElement>`
+- Convert to plain JavaScript or use `define:vars` to pass data
+
+**Common fixes:**
+```javascript
+// ❌ WRONG
+const el = document.getElementById('id') as HTMLInputElement;
+function fn(param: string): void { }
+
+// ✅ CORRECT
+const el = document.getElementById('id');
+function fn(param) { }
+```
+
+**Database type regeneration:**
+- If you get "table doesn't exist" errors, regenerate types: `npx supabase gen types typescript --project-id ygetqjqtjhdlbksdpyyr > src/lib/database.types.ts`
+
+**Admin Actions & Enum Type Issues:**
+- When inserting into `admin_actions` table, always check if `auth?.user?.id` exists before inserting to avoid "Type 'undefined' is not assignable to type 'string'" errors:
+```typescript
+// ❌ WRONG - Can cause undefined error
+await supabase.from('admin_actions').insert({
+  admin_id: auth?.user?.id, // This can be undefined
+  action_type: 'create',
+  // ...
+});
+
+// ✅ CORRECT - Check for existence first
+if (auth?.user?.id) {
+  await supabase.from('admin_actions').insert({
+    admin_id: auth.user.id, // Now guaranteed to be string
+    action_type: 'create',
+    // ...
+  });
+}
+```
+
+- For enum types in API routes, properly type search parameters to avoid "string is not assignable to enum" errors:
+```typescript
+// ❌ WRONG - Generic string type causes enum errors
+const status = searchParams.get('status');
+query = query.eq('status', status); // Error: string not assignable to enum
+
+// ✅ CORRECT - Type the parameter with enum values
+const status = searchParams.get('status') as 'draft' | 'pending_review' | 'active' | 'inactive' | 'rejected' | null;
+if (status && ['draft', 'pending_review', 'active', 'inactive', 'rejected'].includes(status)) {
+  query = query.eq('status', status); // Now properly typed
+}
+```
+
 ***
 
 ### 📝 TypeScript & Database Types
@@ -160,6 +214,7 @@ await supabase.from('providers').insert(providerData);
 * Always import types from `@/lib/database.types.ts` or `@/lib/types.ts`
 * Never use untyped objects with Supabase operations
 * Run `pnpm supabase gen types typescript --local > src/lib/database.types.ts` to regenerate types after schema changes
+* **Type Aliases Preservation**: When you regenerate database types with `npx supabase gen types`, the custom type aliases (Profile, ProfileInsert, Provider, etc.) will be preserved since they're added after the auto-generated content. The types are working correctly and all imports should resolve properly throughout your codebase
 
 ***
 

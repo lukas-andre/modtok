@@ -2,6 +2,7 @@
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getAdminAuth, requireAdmin } from '../../../lib/auth';
 import { createSupabaseClient } from '../../../lib/supabase';
+import type { Database } from '../../../lib/database.types';
 
 // Protect this page - only admins can access
 const auth = await getAdminAuth(Astro);
@@ -11,19 +12,66 @@ if (!user) {
   return Astro.redirect('/auth/login?redirect=/admin/providers');
 }
 
-// Fetch all providers  
+// Get initial page parameters
+const page = parseInt(Astro.url.searchParams.get('page') || '1');
+const status = (Astro.url.searchParams.get('status') || '') as Database["public"]["Enums"]["listing_status"] | '';
+const tier = (Astro.url.searchParams.get('tier') || '') as Database["public"]["Enums"]["listing_tier"] | '';
+const search = Astro.url.searchParams.get('search') || '';
+
+// Fetch providers with pagination and filters
 const supabase = createSupabaseClient(Astro);
-const { data: providers, error } = await supabase
+let query = supabase
   .from('providers')
   .select(`
     *,
-    profile:profiles!providers_profile_id_fkey(full_name, email),
-    approved_by_profile:profiles!providers_approved_by_fkey(full_name, email)
-  `)
-  .order('created_at', { ascending: false });
+    profile:profiles!providers_profile_id_fkey(full_name, email, avatar_url),
+    approved_by_profile:profiles!providers_approved_by_fkey(full_name, email),
+    created_by_profile:profiles!providers_created_by_fkey(full_name, email)
+  `, { count: 'exact' });
+
+// Apply filters
+if (status) {
+  query = query.eq('status', status as Database["public"]["Enums"]["listing_status"]);
+}
+if (tier) {
+  query = query.eq('tier', tier as Database["public"]["Enums"]["listing_tier"]);
+}
+if (search) {
+  query = query.or(`company_name.ilike.%${search}%,email.ilike.%${search}%,description.ilike.%${search}%`);
+}
+
+// Apply pagination
+const limit = 20;
+const offset = (page - 1) * limit;
+query = query.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
+
+const { data: providers, error, count } = await query;
 
 if (error) {
   console.error('Error fetching providers:', error);
+}
+
+// Calculate pagination info
+const totalPages = Math.ceil((count || 0) / limit);
+const hasNextPage = page < totalPages;
+const hasPrevPage = page > 1;
+
+// Calculate page numbers for pagination buttons
+const pageNumbers = [];
+const maxVisiblePages = Math.min(5, totalPages);
+
+for (let i = 0; i < maxVisiblePages; i++) {
+  let pageNum;
+  if (totalPages <= 5) {
+    pageNum = i + 1;
+  } else if (page <= 3) {
+    pageNum = i + 1;
+  } else if (page >= totalPages - 2) {
+    pageNum = totalPages - 4 + i;
+  } else {
+    pageNum = page - 2 + i;
+  }
+  pageNumbers.push(pageNum);
 }
 ---
 
@@ -43,40 +91,73 @@ if (error) {
       </a>
     </div>
 
-    <!-- Filters -->
-    <div class="bg-white p-4 rounded-lg border border-gray-200 mb-6">
-      <div class="flex flex-wrap items-center gap-4">
-        <div class="flex items-center space-x-2">
-          <label for="status_filter" class="text-sm font-medium text-gray-700">Estado:</label>
-          <select id="status_filter" class="border border-gray-300 rounded px-3 py-1 text-sm">
-            <option value="">Todos</option>
-            <option value="active">Activo</option>
-            <option value="pending_review">Pendiente</option>
-            <option value="inactive">Inactivo</option>
-            <option value="rejected">Rechazado</option>
-          </select>
+    <!-- Filters & Actions -->
+    <form method="GET" class="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-4">
+          <div class="flex items-center space-x-2">
+            <label for="status" class="text-sm font-medium text-gray-700">Estado:</label>
+            <select name="status" id="status" class="border border-gray-300 rounded px-3 py-1 text-sm">
+              <option value="">Todos</option>
+              <option value="active" selected={status === 'active'}>Activo</option>
+              <option value="pending_review" selected={status === 'pending_review'}>Pendiente</option>
+              <option value="inactive" selected={status === 'inactive'}>Inactivo</option>
+              <option value="rejected" selected={status === 'rejected'}>Rechazado</option>
+            </select>
+          </div>
+          
+          <div class="flex items-center space-x-2">
+            <label for="tier" class="text-sm font-medium text-gray-700">Nivel:</label>
+            <select name="tier" id="tier" class="border border-gray-300 rounded px-3 py-1 text-sm">
+              <option value="">Todos</option>
+              <option value="standard" selected={tier === 'standard'}>Estándar</option>
+              <option value="premium" selected={tier === 'premium'}>Premium</option>
+              <option value="destacado" selected={tier === 'destacado'}>Destacado</option>
+            </select>
+          </div>
+          
+          <div class="flex items-center space-x-2">
+            <input
+              type="text"
+              name="search"
+              id="search"
+              placeholder="Buscar por nombre o email..."
+              class="border border-gray-300 rounded px-3 py-1 text-sm w-64"
+              value={search}
+            />
+          </div>
+          
+          <button type="submit" class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+            Filtrar
+          </button>
+          
+          {(status || tier || search) && (
+            <a href="/admin/providers" class="px-3 py-1 text-sm text-gray-600 hover:text-gray-900">
+              Limpiar
+            </a>
+          )}
         </div>
         
+        <!-- Bulk Actions -->
         <div class="flex items-center space-x-2">
-          <label for="tier_filter" class="text-sm font-medium text-gray-700">Nivel:</label>
-          <select id="tier_filter" class="border border-gray-300 rounded px-3 py-1 text-sm">
-            <option value="">Todos</option>
-            <option value="standard">Estándar</option>
-            <option value="premium">Premium</option>
-            <option value="destacado">Destacado</option>
+          <select id="bulk_action" class="border border-gray-300 rounded px-3 py-1 text-sm" disabled>
+            <option value="">Acciones en lote...</option>
+            <option value="approve">Aprobar seleccionados</option>
+            <option value="reject">Rechazar seleccionados</option>
+            <option value="change_tier">Cambiar nivel</option>
+            <option value="set_featured">Configurar destacados</option>
           </select>
-        </div>
-        
-        <div class="flex items-center space-x-2">
-          <input
-            type="text"
-            id="search_filter"
-            placeholder="Buscar por nombre o email..."
-            class="border border-gray-300 rounded px-3 py-1 text-sm w-64"
-          />
+          <button
+            type="button"
+            id="apply_bulk"
+            class="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled
+          >
+            Aplicar
+          </button>
         </div>
       </div>
-    </div>
+    </form>
 
     <!-- Providers List -->
     <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -84,7 +165,7 @@ if (error) {
         <div class="flex justify-between items-center">
           <h3 class="text-lg font-medium text-gray-900">Lista de Proveedores</h3>
           <span class="text-sm text-gray-500">
-            {providers ? `${providers.length} proveedores` : 'Cargando...'}
+            {providers ? `${providers.length} de ${count || 0} proveedores` : 'Cargando...'}
           </span>
         </div>
       </div>
@@ -110,11 +191,22 @@ if (error) {
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
+                <th class="px-6 py-3 text-left">
+                  <input
+                    type="checkbox"
+                    id="select_all"
+                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+                    onchange="toggleSelectAll(this)"
+                  />
+                </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Proveedor
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Información
+                  Categoría
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Contacto
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Nivel
@@ -123,7 +215,7 @@ if (error) {
                   Estado
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Creado por
+                  Métricas
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Acciones
@@ -133,6 +225,14 @@ if (error) {
             <tbody class="bg-white divide-y divide-gray-200">
               {providers.map((provider) => (
                 <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      class="provider-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+                      value={provider.id}
+                      onchange="updateBulkActions()"
+                    />
+                  </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                       <div class="flex-shrink-0 h-12 w-12">
@@ -148,11 +248,34 @@ if (error) {
                       </div>
                       <div class="ml-4">
                         <div class="text-sm font-medium text-gray-900">
-                          {provider.company_name}
+                          <a href={`/admin/providers/${provider.id}`} class="hover:text-blue-600">
+                            {provider.company_name}
+                          </a>
                         </div>
-                        <div class="text-sm text-gray-500">{provider.profile?.full_name || provider.profile?.email || 'N/A'}</div>
+                        <div class="text-sm text-gray-500">
+                          {provider.years_experience ? `${provider.years_experience} años exp.` : ''}
+                          {provider.specialties && provider.specialties.length > 0 && (
+                            <span class="ml-2 text-xs text-blue-600">
+                              {provider.specialties.slice(0, 2).join(', ')}
+                              {provider.specialties.length > 2 && '...'}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      provider.category_type === 'fabricantes' 
+                        ? 'bg-blue-100 text-blue-800' 
+                        : provider.category_type === 'habilitacion_servicios'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-purple-100 text-purple-800'
+                    }`}>
+                      {provider.category_type === 'fabricantes' ? 'Fabricantes' : 
+                       provider.category_type === 'habilitacion_servicios' ? 'Servicios' : 
+                       'Decoración'}
+                    </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm text-gray-900">{provider.email}</div>
@@ -160,16 +283,31 @@ if (error) {
                     <div class="text-sm text-gray-500">{provider.city}, {provider.region}</div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <span class={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      provider.tier === 'destacado' 
-                        ? 'bg-yellow-100 text-yellow-800' 
-                        : provider.tier === 'premium'
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {provider.tier === 'destacado' ? 'Destacado' : 
-                       provider.tier === 'premium' ? 'Premium' : 'Estándar'}
-                    </span>
+                    <div class="flex flex-col space-y-1">
+                      <span class={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        provider.tier === 'destacado' 
+                          ? 'bg-yellow-100 text-yellow-800' 
+                          : provider.tier === 'premium'
+                          ? 'bg-purple-100 text-purple-800'
+                          : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {provider.tier === 'destacado' ? 'Destacado' : 
+                         provider.tier === 'premium' ? 'Premium' : 'Estándar'}
+                      </span>
+                      {provider.internal_rating && (
+                        <div class="flex items-center">
+                          {Array.from({length: 5}).map((_, i) => (
+                            <svg 
+                              class={`w-3 h-3 ${i < (provider.internal_rating || 0) ? 'text-yellow-400' : 'text-gray-300'}`} 
+                              fill="currentColor" 
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -187,8 +325,12 @@ if (error) {
                        provider.status === 'rejected' ? 'Rechazado' : 'Borrador'}
                     </span>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {provider.approved_by_profile?.full_name || provider.approved_by_profile?.email || 'Auto-registro'}
+                  <td class="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
+                    <div class="space-y-1">
+                      <div>👁️ {provider.views_count || 0}</div>
+                      <div>📞 {provider.inquiries_count || 0}</div>
+                      <div>👆 {provider.clicks_count || 0}</div>
+                    </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div class="flex space-x-2">
@@ -206,18 +348,20 @@ if (error) {
                       </a>
                       {provider.status === 'pending_review' && (
                         <button 
-                          onclick={`approveProvider('${provider.id}')`}
+                          onclick={`quickApprove('${provider.id}')`}
                           class="text-green-600 hover:text-green-900"
                         >
                           Aprobar
                         </button>
                       )}
-                      <button 
-                        onclick={`deleteProvider('${provider.id}', '${provider.company_name}')`}
-                        class="text-red-600 hover:text-red-900"
-                      >
-                        Eliminar
-                      </button>
+                      {user.role === 'super_admin' && (
+                        <button 
+                          onclick={`deleteProvider('${provider.id}', '${provider.company_name}')`}
+                          class="text-red-600 hover:text-red-900"
+                        >
+                          Eliminar
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -225,90 +369,161 @@ if (error) {
             </tbody>
           </table>
         </div>
-      )}
+      )}  
     </div>
+    
+    <!-- Pagination -->
+    {totalPages > 1 && (
+      <div class="mt-6 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+          Mostrando página {page} de {totalPages} ({count || 0} proveedores total)
+        </div>
+        <div class="flex space-x-2">
+          {hasPrevPage && (
+            <a
+              href={`?page=${page - 1}${status ? `&status=${status}` : ''}${tier ? `&tier=${tier}` : ''}${search ? `&search=${search}` : ''}`}
+              class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+            >
+              Anterior
+            </a>
+          )}
+          
+{pageNumbers.map((pageNum) => (
+            <a
+              href={`?page=${pageNum}${status ? `&status=${status}` : ''}${tier ? `&tier=${tier}` : ''}${search ? `&search=${search}` : ''}`}
+              class={`px-3 py-1 text-sm rounded ${
+                pageNum === page
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white border border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              {pageNum}
+            </a>
+          ))}
+          
+          {hasNextPage && (
+            <a
+              href={`?page=${page + 1}${status ? `&status=${status}` : ''}${tier ? `&tier=${tier}` : ''}${search ? `&search=${search}` : ''}`}
+              class="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50"
+            >
+              Siguiente
+            </a>
+          )}
+        </div>
+      </div>
+    )}
   </div>
 </AdminLayout>
 
 <script>
-  function approveProvider(providerId: string): void {
-    if (confirm('¿Confirmas que deseas aprobar este proveedor?')) {
-      // TODO: Implement API call to approve provider
-      alert('Funcionalidad de aprobación pendiente de implementar');
+  async function quickApprove(providerId: string): Promise<void> {
+    if (!confirm('¿Confirmas que deseas aprobar este proveedor?')) return;
+
+    try {
+      const response = await fetch('/api/admin/providers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'approve',
+          provider_ids: [providerId]
+        })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        location.reload();
+      } else {
+        alert('Error al aprobar proveedor: ' + result.message);
+      }
+    } catch (error) {
+      alert('Error de conexión al aprobar proveedor');
     }
   }
 
-  function deleteProvider(providerId: string, providerName: string): void {
-    if (confirm(`¿Estás seguro que deseas eliminar al proveedor "${providerName}"?`)) {
-      // TODO: Implement API call to delete provider
-      alert('Funcionalidad de eliminación pendiente de implementar');
+  async function deleteProvider(providerId: string, providerName: string): Promise<void> {
+    if (!confirm(`¿Estás seguro que deseas eliminar al proveedor "${providerName}"? Esta acción no se puede deshacer.`)) return;
+
+    try {
+      const response = await fetch(`/api/admin/providers/${providerId}`, {
+        method: 'DELETE'
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        location.reload();
+      } else {
+        alert('Error al eliminar proveedor: ' + result.error);
+      }
+    } catch (error) {
+      alert('Error de conexión al eliminar proveedor');
     }
   }
 
-  // Filter functionality
-  const statusFilter = document.getElementById('status_filter') as HTMLSelectElement;
-  const tierFilter = document.getElementById('tier_filter') as HTMLSelectElement;
-  const searchFilter = document.getElementById('search_filter') as HTMLInputElement;
-
-  if (statusFilter) statusFilter.addEventListener('change', filterProviders);
-  if (tierFilter) tierFilter.addEventListener('change', filterProviders);
-  if (searchFilter) searchFilter.addEventListener('input', filterProviders);
-
-  function filterProviders(): void {
-    const statusValue = statusFilter?.value || '';
-    const tierValue = tierFilter?.value || '';
-    const searchValue = searchFilter?.value.toLowerCase() || '';
-    
-    const rows = document.querySelectorAll('tbody tr');
-    
-    rows.forEach((row: Element) => {
-      let show = true;
-      
-      // Status filter
-      if (statusValue) {
-        const statusBadge = row.querySelector('td:nth-child(4) span');
-        if (statusBadge) {
-          const status = statusBadge.textContent?.toLowerCase() || '';
-          if (
-            (statusValue === 'active' && status !== 'activo') ||
-            (statusValue === 'pending_review' && status !== 'pendiente') ||
-            (statusValue === 'inactive' && status !== 'inactivo') ||
-            (statusValue === 'rejected' && status !== 'rechazado')
-          ) {
-            show = false;
-          }
-        }
-      }
-      
-      // Tier filter  
-      if (show && tierValue) {
-        const tierBadge = row.querySelector('td:nth-child(3) span');
-        if (tierBadge) {
-          const tier = tierBadge.textContent?.toLowerCase() || '';
-          if (
-            (tierValue === 'standard' && tier !== 'estándar') ||
-            (tierValue === 'premium' && tier !== 'premium') ||
-            (tierValue === 'destacado' && tier !== 'destacado')
-          ) {
-            show = false;
-          }
-        }
-      }
-      
-      // Search filter
-      if (show && searchValue) {
-        const text = row.textContent?.toLowerCase() || '';
-        if (!text.includes(searchValue)) {
-          show = false;
-        }
-      }
-      
-      const htmlRow = row as HTMLElement;
-      htmlRow.style.display = show ? '' : 'none';
+  function toggleSelectAll(checkbox: HTMLInputElement): void {
+    const providerCheckboxes = document.querySelectorAll('.provider-checkbox') as NodeListOf<HTMLInputElement>;
+    providerCheckboxes.forEach(cb => {
+      cb.checked = checkbox.checked;
     });
+    updateBulkActions();
   }
+
+  function updateBulkActions(): void {
+    const checkedBoxes = document.querySelectorAll('.provider-checkbox:checked');
+    const bulkAction = document.getElementById('bulk_action') as HTMLSelectElement;
+    const applyButton = document.getElementById('apply_bulk') as HTMLButtonElement;
+    
+    const hasSelection = checkedBoxes.length > 0;
+    bulkAction.disabled = !hasSelection;
+    applyButton.disabled = !hasSelection;
+  }
+
+  async function applyBulkAction(): Promise<void> {
+    const checkedBoxes = document.querySelectorAll('.provider-checkbox:checked') as NodeListOf<HTMLInputElement>;
+    const bulkAction = document.getElementById('bulk_action') as HTMLSelectElement;
+    
+    if (checkedBoxes.length === 0 || !bulkAction.value) {
+      alert('Selecciona proveedores y una acción');
+      return;
+    }
+
+    const providerIds = Array.from(checkedBoxes).map(cb => cb.value);
+    const action = bulkAction.value;
+    
+    let confirmMessage = `¿Confirmas aplicar "${bulkAction.selectedOptions[0].textContent}" a ${providerIds.length} proveedores?`;
+    if (!confirm(confirmMessage)) return;
+
+    try {
+      const response = await fetch('/api/admin/providers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: action,
+          provider_ids: providerIds
+        })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        location.reload();
+      } else {
+        alert('Error en operación en lote: ' + result.message);
+      }
+    } catch (error) {
+      alert('Error de conexión en operación en lote');
+    }
+  }
+
+  // Setup bulk actions
+  document.addEventListener('DOMContentLoaded', function() {
+    const applyButton = document.getElementById('apply_bulk');
+    if (applyButton) {
+      applyButton.addEventListener('click', applyBulkAction);
+    }
+  });
 
   // Make functions global so they can be called from onclick attributes
-  (window as any).approveProvider = approveProvider;
+  (window as any).quickApprove = quickApprove;
   (window as any).deleteProvider = deleteProvider;
+  (window as any).toggleSelectAll = toggleSelectAll;
+  (window as any).updateBulkActions = updateBulkActions;
 </script>
