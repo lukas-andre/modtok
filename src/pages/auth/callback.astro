@@ -1,5 +1,6 @@
 ---
 import { createSupabaseClient } from '@/lib/supabase';
+import type { ProfileInsert } from '@/lib/database.types';
 
 const { url } = Astro;
 const requestUrl = new URL(url);
@@ -33,18 +34,20 @@ if (code) {
       
       // If no profile exists, create one
       if (!existingProfile) {
+        const profileData: ProfileInsert = {
+          id: user.id,
+          email: user.email || '',
+          full_name: user.user_metadata?.full_name || '',
+          phone: user.user_metadata?.phone || null,
+          role: user.user_metadata?.role || 'user',
+          status: 'active',
+          email_verified: user.email_confirmed_at ? true : false,
+          phone_verified: false,
+        };
+        
         const { error: profileError } = await supabase
           .from('profiles')
-          .insert({
-            id: user.id,
-            email: user.email,
-            full_name: user.user_metadata?.full_name || '',
-            phone: user.user_metadata?.phone || null,
-            role: user.user_metadata?.role || 'user',
-            status: 'active',
-            email_verified: user.email_confirmed_at ? true : false,
-            phone_verified: false,
-          });
+          .insert(profileData);
         
         if (profileError) {
           console.error('Error creating profile:', profileError);

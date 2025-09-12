@@ -1,82 +1,30 @@
-export type UserRole = 'super_admin' | 'admin' | 'editor' | 'author' | 'provider' | 'user';
-export type UserStatus = 'active' | 'inactive' | 'suspended' | 'pending_verification';
-export type CategoryType = 'casas' | 'fabricantes' | 'habilitacion_servicios' | 'decoracion';
-export type ListingTier = 'premium' | 'destacado' | 'standard';
-export type ListingStatus = 'draft' | 'pending_review' | 'active' | 'inactive' | 'rejected';
+// Re-export database types for convenience
+export type {
+  Database,
+  Json,
+  Profile,
+  ProfileInsert,
+  ProfileUpdate,
+  Provider,
+  ProviderInsert,
+  ProviderUpdate,
+  UserRole,
+  UserStatus,
+  CategoryType,
+  ListingStatus,
+  ListingTier,
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+  Enums
+} from './database.types';
+
+// Import for use in local interfaces
+import type { Profile, UserRole, ListingTier, ListingStatus } from './database.types';
+
+// Additional app-specific types
 export type BlogStatus = 'draft' | 'pending_review' | 'published' | 'archived';
 export type BlogCategory = 'tendencias' | 'guias' | 'casos_exito' | 'noticias' | 'tutoriales';
-
-export interface Profile {
-  id: string;
-  email: string;
-  full_name: string;
-  phone?: string;
-  avatar_url?: string;
-  role: UserRole;
-  status: UserStatus;
-  company_name?: string;
-  rut?: string;
-  bio?: string;
-  website?: string;
-  social_links?: Record<string, any>;
-  preferences?: Record<string, any>;
-  email_verified: boolean;
-  phone_verified: boolean;
-  created_at: string;
-  updated_at: string;
-  last_login_at?: string;
-  metadata?: Record<string, any>;
-}
-
-export interface Provider {
-  id: string;
-  profile_id?: string;
-  category_type: CategoryType;
-  company_name: string;
-  slug: string;
-  logo_url?: string;
-  cover_image_url?: string;
-  description?: string;
-  description_long?: string;
-  tier: ListingTier;
-  status: ListingStatus;
-  email: string;
-  phone: string;
-  whatsapp?: string;
-  website?: string;
-  address?: string;
-  city?: string;
-  region?: string;
-  years_experience?: number;
-  certifications?: any[];
-  specialties?: string[];
-  services_offered?: string[];
-  coverage_areas?: string[];
-  price_range_min?: number;
-  price_range_max?: number;
-  price_per_m2_min?: number;
-  price_per_m2_max?: number;
-  llave_en_mano: boolean;
-  financing_available: boolean;
-  features?: Record<string, any>;
-  gallery_images?: string[];
-  videos?: string[];
-  catalog_pdf_url?: string;
-  meta_title?: string;
-  meta_description?: string;
-  keywords?: string[];
-  approved_by?: string;
-  approved_at?: string;
-  rejection_reason?: string;
-  featured_until?: string;
-  premium_until?: string;
-  views_count: number;
-  clicks_count: number;
-  inquiries_count: number;
-  created_at: string;
-  updated_at: string;
-  metadata?: Record<string, any>;
-}
 
 export interface House {
   id: string;

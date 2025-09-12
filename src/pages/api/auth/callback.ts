@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createServerClient } from '@supabase/ssr';
-import type { Database } from '@/lib/database.types';
+import type { Database, ProfileInsert } from '@/lib/database.types';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   const { access_token, refresh_token } = await request.json();
@@ -58,18 +58,20 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     // If no profile exists, create one
     if (!existingProfile) {
+      const profileData: ProfileInsert = {
+        id: user.id,
+        email: user.email || '',
+        full_name: user.user_metadata?.full_name || '',
+        phone: user.user_metadata?.phone || null,
+        role: user.user_metadata?.role || 'user',
+        status: 'active',
+        email_verified: user.email_confirmed_at ? true : false,
+        phone_verified: false,
+      };
+      
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert({
-          id: user.id,
-          email: user.email,
-          full_name: user.user_metadata?.full_name || '',
-          phone: user.user_metadata?.phone || null,
-          role: user.user_metadata?.role || 'user',
-          status: 'active',
-          email_verified: user.email_confirmed_at ? true : false,
-          phone_verified: false,
-        });
+        .insert(profileData);
 
       if (profileError) {
         console.error('Error creating profile:', profileError);

@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ProviderOnboarding from '@/components/onboarding/ProviderOnboarding';
-import { getUser } from '@/lib/supabase';
+import { getUser, getSession } from '@/lib/supabase';
 
 const user = await getUser(Astro);
+const session = await getSession(Astro);
 
-if (!user) {
+if (!user || !session) {
   return Astro.redirect('/auth/login');
 }
 ---
@@ -22,7 +23,7 @@ if (!user) {
           Completa tu perfil de proveedor para comenzar a publicar
         </p>
       </div>
-      <ProviderOnboarding client:load userId={user.id} />
+      <ProviderOnboarding client:load userId={user.id} session={session} />
     </div>
   </div>
 </BaseLayout>
