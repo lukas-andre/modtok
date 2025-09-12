@@ -30,7 +30,8 @@ Understanding this structure is critical. Before coding, familiarize yourself wi
 * `src/components/`: Reusable Astro/UI Framework components (e.g., `Card.astro`, `FilterSidebar.tsx`).
 * `src/layouts/`: Base page layouts (e.g., `MainLayout.astro`) that define the shell for pages.
 * `src/lib/`: Core application logic, Supabase client, and type definitions.
-    * `src/lib/supabase.ts`: The Supabase client instance. **Use this shared client, do not initialize a new one.**
+    * `src/lib/supabase.ts`: Server-side Supabase client for Astro pages. Uses `@supabase/ssr`.
+    * `src/lib/supabase-browser.ts`: Browser-side client for React components. Uses `@supabase/supabase-js`.
     * `src/lib/types.ts`: Central location for all TypeScript types and interfaces.
 * `supabase/migrations/`: All database schema changes. New migrations are created using the Supabase CLI.
 
@@ -106,3 +107,65 @@ Follow this workflow for most tasks.
 
 * The local Supabase instance sometimes doesn't apply new migrations correctly on the first try. If you encounter strange database errors, run `supabase stop` and then `supabase start` to fully restart the services.
 * Astro's view transitions can sometimes conflict with complex client-side JavaScript. If you see flickering or state-loss issues, consider disabling transitions for that specific page or component.
+* **IMPORTANT**: Supabase SSR cookie handling conflicts with Vite in React components. Always use `@supabase/supabase-js` directly for browser components, NOT `@supabase/ssr`.
+
+***
+
+### 📝 TypeScript & Database Types
+
+**CRITICAL**: Database types are auto-generated and stored in `src/lib/database.types.ts`. This file contains:
+
+* **Database interface**: The complete type structure matching your Supabase schema
+* **Tables types**: Row, Insert, and Update types for each table
+* **Enums**: All database enums (user_role, listing_status, etc.)
+* **Helper types**: `Tables<'profiles'>`, `TablesInsert<'providers'>`, etc.
+
+**Usage Pattern**:
+```typescript
+// Import from database.types.ts
+import type { ProfileInsert, ProviderInsert, ProfileUpdate } from '@/lib/database.types';
+
+// When inserting/updating data
+const profileData: ProfileInsert = { ... };
+const providerData: ProviderInsert = { ... };
+
+// Use with Supabase client
+await supabase.from('profiles').insert(profileData);
+await supabase.from('providers').insert(providerData);
+```
+
+**Important**: 
+* Always import types from `@/lib/database.types.ts` or `@/lib/types.ts`
+* Never use untyped objects with Supabase operations
+* Run `pnpm supabase gen types typescript --local > src/lib/database.types.ts` to regenerate types after schema changes
+
+***
+
+### 🔐 Authentication & Supabase Clients
+
+**CRITICAL**: We use two separate Supabase clients to handle SSR properly:
+
+1. **Server-side** (`src/lib/supabase.ts`):
+   - Uses `@supabase/ssr` with `createServerClient`
+   - For Astro pages and server-side operations
+   - Handles cookies properly for SSR
+   - Use functions like `getUser(Astro)` and `getSession(Astro)`
+
+2. **Browser-side** (`src/lib/supabase-browser.ts`):
+   - Uses `@supabase/supabase-js` with `createClient`
+   - For React/Vue/Svelte components with client directives
+   - Simpler setup without SSR cookie handling (avoids Vite conflicts)
+   - Create once and reuse: `const supabase = createBrowserSupabaseClient()`
+
+**Authentication Flow for React Components**:
+```typescript
+// In Astro page (.astro)
+const session = await getSession(Astro);
+<MyComponent client:load session={session} />
+
+// In React component (.tsx)
+interface Props {
+  session: any; // Use any to avoid serialization issues
+}
+// Use session data directly, don't fetch it again
+```

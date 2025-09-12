@@ -1,97 +1,168 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { createClient } from '@supabase/supabase-js';
-import type { CategoryType } from '@/lib/types';
+import { createBrowserSupabaseClient } from '@/lib/supabase-browser';
+import type { CategoryType, ProfileUpdate, ProviderInsert } from '@/lib/types';
+import type { Session } from '@supabase/supabase-js';
 
 interface Props {
   userId: string;
+  session: any; // Using any to avoid serialization issues
 }
 
-const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
+const ProviderOnboarding: React.FC<Props> = ({ userId, session }) => {
+  const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Form data
-  const [companyName, setCompanyName] = useState('');
-  const [rut, setRut] = useState('');
-  const [categoryType, setCategoryType] = useState<CategoryType>('fabricantes');
-  const [phone, setPhone] = useState('');
-  const [website, setWebsite] = useState('');
-  const [address, setAddress] = useState('');
-  const [city, setCity] = useState('');
-  const [region, setRegion] = useState('');
-  const [description, setDescription] = useState('');
-  const [yearsExperience, setYearsExperience] = useState('');
-  const [specialties, setSpecialties] = useState('');
+  // Form data - using refs to avoid re-render issues
+  const formDataRef = useRef({
+    companyName: '',
+    rut: '',
+    categoryType: 'fabricantes' as CategoryType,
+    phone: '',
+    website: '',
+    address: '',
+    city: '',
+    region: '',
+    description: '',
+    yearsExperience: '',
+    specialties: ''
+  });
   
-  const supabase = createClient(
-    import.meta.env.PUBLIC_SUPABASE_URL,
-    import.meta.env.PUBLIC_SUPABASE_ANON_KEY
-  );
+  // State for form display values
+  const [formValues, setFormValues] = useState(formDataRef.current);
+  
+  // Track which fields have been touched
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
+  
+  // Create Supabase client once
+  const supabase = useRef(createBrowserSupabaseClient()).current;
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const updateFormField = (field: keyof typeof formDataRef.current, value: string) => {
+    formDataRef.current[field] = value;
+    setFormValues(prev => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
     setError(null);
 
     try {
+      const formData = formDataRef.current;
+      
+      // Get the current user's profile to fetch email
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', userId)
+        .single();
+
       // Update profile
+      const profileUpdate: ProfileUpdate = {
+        company_name: formData.companyName,
+        rut: formData.rut,
+        phone: formData.phone,
+        website: formData.website,
+        phone_verified: true,
+      };
+      
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({
-          company_name: companyName,
-          rut: rut,
-          phone: phone,
-          website: website,
-          phone_verified: true,
-        })
+        .update(profileUpdate)
         .eq('id', userId);
 
       if (profileError) throw profileError;
 
       // Create provider entry
-      const slug = companyName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      const slug = formData.companyName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+      
+      const providerData: ProviderInsert = {
+        profile_id: userId,
+        category_type: formData.categoryType,
+        company_name: formData.companyName,
+        slug: slug,
+        email: profile?.email || session?.user?.email || '',
+        phone: formData.phone,
+        website: formData.website || null,
+        address: formData.address || null,
+        city: formData.city || null,
+        region: formData.region || null,
+        description: formData.description || null,
+        years_experience: formData.yearsExperience ? parseInt(formData.yearsExperience) : null,
+        specialties: formData.specialties ? formData.specialties.split(',').map(s => s.trim()).filter(s => s) : null,
+        status: 'pending_review',
+        tier: 'standard',
+      };
       
       const { error: providerError } = await supabase
         .from('providers')
-        .insert({
-          profile_id: userId,
-          category_type: categoryType,
-          company_name: companyName,
-          slug: slug,
-          email: (await supabase.auth.getUser()).data.user?.email,
-          phone: phone,
-          website: website,
-          address: address,
-          city: city,
-          region: region,
-          description: description,
-          years_experience: yearsExperience ? parseInt(yearsExperience) : null,
-          specialties: specialties.split(',').map(s => s.trim()).filter(s => s),
-          status: 'pending_review',
-          tier: 'standard',
-        });
+        .insert(providerData);
 
       if (providerError) throw providerError;
 
       window.location.href = '/dashboard';
     } catch (err: any) {
+      console.error('Error during provider onboarding:', err);
       setError(err.message || 'Error al guardar la información');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleFieldBlur = (fieldName: string) => {
+    setTouchedFields(prev => new Set(prev).add(fieldName));
+  };
+
+  const shouldShowError = (fieldName: string): boolean => {
+    const value = formValues[fieldName as keyof typeof formValues];
+    return touchedFields.has(fieldName) && (value === undefined || value === '' || value.toString().trim() === '');
+  };
+
+  const validateStep = (currentStep: number): boolean => {
+    const data = formDataRef.current;
+    if (currentStep === 1) {
+      return data.companyName.trim() !== '';
+    }
+    if (currentStep === 2) {
+      return data.phone.trim() !== '' && data.city.trim() !== '' && data.region.trim() !== '';
+    }
+    if (currentStep === 3) {
+      return data.description.trim() !== '';
+    }
+    return true;
+  };
+
   const nextStep = () => {
+    if (!validateStep(step)) {
+      setError(`Por favor completa todos los campos obligatorios del paso ${step}`);
+      return;
+    }
+    setError(null);
     if (step < 3) setStep(step + 1);
   };
 
   const prevStep = () => {
+    setError(null);
     if (step > 1) setStep(step - 1);
   };
+
+  if (!mounted) {
+    return (
+      <Card className="mt-8">
+        <CardContent className="pt-6">
+          <div className="text-center">Cargando...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="mt-8">
@@ -117,11 +188,16 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
               <Input
                 id="companyName"
                 type="text"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
+                value={formValues.companyName}
+                onChange={(e) => updateFormField('companyName', e.target.value)}
+                onBlur={() => handleFieldBlur('companyName')}
                 required
                 disabled={loading}
+                className={shouldShowError('companyName') ? 'border-red-300 focus:border-red-500' : ''}
               />
+              {shouldShowError('companyName') && (
+                <p className="text-sm text-red-600">Este campo es obligatorio</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="rut">RUT de la empresa</Label>
@@ -129,8 +205,8 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
                 id="rut"
                 type="text"
                 placeholder="12.345.678-9"
-                value={rut}
-                onChange={(e) => setRut(e.target.value)}
+                value={formValues.rut}
+                onChange={(e) => updateFormField('rut', e.target.value)}
                 disabled={loading}
               />
             </div>
@@ -139,8 +215,8 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
               <select
                 id="categoryType"
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={categoryType}
-                onChange={(e) => setCategoryType(e.target.value as CategoryType)}
+                value={formValues.categoryType}
+                onChange={(e) => updateFormField('categoryType', e.target.value)}
                 disabled={loading}
               >
                 <option value="fabricantes">Fabricante de Casas</option>
@@ -159,11 +235,16 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
                 id="phone"
                 type="tel"
                 placeholder="+56 9 1234 5678"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                value={formValues.phone}
+                onChange={(e) => updateFormField('phone', e.target.value)}
+                onBlur={() => handleFieldBlur('phone')}
                 required
                 disabled={loading}
+                className={shouldShowError('phone') ? 'border-red-300 focus:border-red-500' : ''}
               />
+              {shouldShowError('phone') && (
+                <p className="text-sm text-red-600">Este campo es obligatorio</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="website">Sitio web</Label>
@@ -171,8 +252,8 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
                 id="website"
                 type="url"
                 placeholder="https://www.tuempresa.cl"
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
+                value={formValues.website}
+                onChange={(e) => updateFormField('website', e.target.value)}
                 disabled={loading}
               />
             </div>
@@ -181,8 +262,8 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
               <Input
                 id="address"
                 type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                value={formValues.address}
+                onChange={(e) => updateFormField('address', e.target.value)}
                 disabled={loading}
               />
             </div>
@@ -192,22 +273,32 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
                 <Input
                   id="city"
                   type="text"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
+                  value={formValues.city}
+                  onChange={(e) => updateFormField('city', e.target.value)}
+                  onBlur={() => handleFieldBlur('city')}
                   required
                   disabled={loading}
+                  className={shouldShowError('city') ? 'border-red-300 focus:border-red-500' : ''}
                 />
+                {shouldShowError('city') && (
+                  <p className="text-sm text-red-600">Este campo es obligatorio</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="region">Región *</Label>
                 <Input
                   id="region"
                   type="text"
-                  value={region}
-                  onChange={(e) => setRegion(e.target.value)}
+                  value={formValues.region}
+                  onChange={(e) => updateFormField('region', e.target.value)}
+                  onBlur={() => handleFieldBlur('region')}
                   required
                   disabled={loading}
+                  className={shouldShowError('region') ? 'border-red-300 focus:border-red-500' : ''}
                 />
+                {shouldShowError('region') && (
+                  <p className="text-sm text-red-600">Este campo es obligatorio</p>
+                )}
               </div>
             </div>
           </div>
@@ -219,12 +310,18 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
               <Label htmlFor="description">Descripción de la empresa *</Label>
               <textarea
                 id="description"
-                className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                className={`flex min-h-[100px] w-full rounded-md border bg-background px-3 py-2 text-sm ${
+                  shouldShowError('description') ? 'border-red-300 focus:border-red-500' : 'border-input'
+                }`}
+                value={formValues.description}
+                onChange={(e) => updateFormField('description', e.target.value)}
+                onBlur={() => handleFieldBlur('description')}
                 required
                 disabled={loading}
               />
+              {shouldShowError('description') && (
+                <p className="text-sm text-red-600">Este campo es obligatorio</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="yearsExperience">Años de experiencia</Label>
@@ -232,8 +329,8 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
                 id="yearsExperience"
                 type="number"
                 min="0"
-                value={yearsExperience}
-                onChange={(e) => setYearsExperience(e.target.value)}
+                value={formValues.yearsExperience}
+                onChange={(e) => updateFormField('yearsExperience', e.target.value)}
                 disabled={loading}
               />
             </div>
@@ -243,8 +340,8 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
                 id="specialties"
                 type="text"
                 placeholder="Casas modulares, Construcción sustentable, Llave en mano"
-                value={specialties}
-                onChange={(e) => setSpecialties(e.target.value)}
+                value={formValues.specialties}
+                onChange={(e) => updateFormField('specialties', e.target.value)}
                 disabled={loading}
               />
             </div>
@@ -266,7 +363,7 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
             <Button
               type="button"
               onClick={nextStep}
-              disabled={loading}
+              disabled={loading || !validateStep(step)}
               className="ml-auto"
             >
               Siguiente
@@ -275,7 +372,7 @@ const ProviderOnboarding: React.FC<Props> = ({ userId }) => {
             <Button
               type="button"
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || !validateStep(step)}
               className="ml-auto"
             >
               {loading ? 'Guardando...' : 'Completar Registro'}
