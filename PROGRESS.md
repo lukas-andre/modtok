@@ -282,6 +282,8 @@ import { createSupabaseClient } from '@/lib/supabase';
 - `experience_years` → `years_experience`
 - `commune` → `city`
 - `internal_notes` → `admin_notes`
+- `sku` → `service_type` (for services table)
+- `sku` → `model_code` (for houses table)
 
 ### 3. Metadata Fields Handling
 **Problem**: TypeScript can't infer types for JSON/JSONB columns
@@ -311,6 +313,48 @@ import { createSupabaseClient } from '@/lib/supabase';
 ### 9. Script Tag TypeScript Syntax
 **Problem**: Using TypeScript syntax (imports, JSX, type annotations) in `<script>` tags
 **Solution**: Remove TypeScript syntax or use `is:inline` directive for plain JavaScript
+
+### 10. Non-Existent Database Tables
+**Problem**: Referencing tables that don't exist in the database schema
+**Common Fixes**:
+- `import_logs` → `admin_actions`
+- `decorations` → `services`
+
+### 11. Invalid Database Fields
+**Problem**: Using fields that don't exist in specific table schemas
+**Common Fixes**:
+- Remove `sales_count`, `stock_quantity`, `stock_status` from services table
+- Replace `sku` with appropriate fields per table
+- Use `price_from`/`price_to` instead of `price` for services
+
+### 12. Admin Action Logging Safety
+**Problem**: Passing undefined values to required string fields
+**Solution**: Always check `auth?.user?.id` exists before logging
+```typescript
+if (auth?.user?.id) {
+  await supabase.from('admin_actions').insert({
+    admin_id: auth.user.id, // Now guaranteed to be string
+    // ... other fields
+  });
+}
+```
+
+### 13. Dynamic Object Access
+**Problem**: String index access on typed objects
+**Solution**: Use type casting for dynamic property access
+```typescript
+const currentValue = (currentData as any)[key];
+const newValue = (body as any)[key];
+```
+
+### 14. API Route Parameter Validation
+**Problem**: Missing required parameters in API route destructuring
+**Solution**: Always include `request` parameter for Supabase client creation
+```typescript
+export const GET: APIRoute = async ({ request, cookies }) => {
+  const supabase = createSupabaseClient({ request, cookies });
+}
+```
 
 ---
 
@@ -375,13 +419,113 @@ data.metadata = metadata;
 
 ---
 
+### 6. API Routes TypeScript Fixes (houses/services)
+**Status**: ✅ COMPLETED - All major API TypeScript errors resolved
+
+**Major Issues Fixed:**
+- Non-existent table references (import_logs, decorations)
+- Invalid field references (sales_count, sku, imported_by)
+- Parameter validation issues
+- Incorrect Supabase client usage
+- Index access errors for dynamic object properties
+
+**Code Samples:**
+
+#### Table Reference Corrections
+```typescript
+// ❌ WRONG - Non-existent tables
+await supabase.from('import_logs').insert(...)
+await supabase.from('decorations').select(...)
+
+// ✅ CORRECT - Use existing tables
+await supabase.from('admin_actions').insert(...)
+await supabase.from('services').select(...)
+```
+
+#### Field Mapping Fixes
+```typescript
+// ❌ WRONG - Non-existent fields
+const { sales_count, sku, imported_by } = data;
+query = query.order('stock_quantity');
+
+// ✅ CORRECT - Use existing schema fields
+const { service_type, model_code } = data;
+query = query.order('price_from');
+```
+
+#### Admin Action Logging Pattern
+```typescript
+// ❌ WRONG - Can cause undefined error
+await supabase.from('admin_actions').insert({
+  admin_id: auth?.user?.id, // This can be undefined
+  action_type: 'create'
+});
+
+// ✅ CORRECT - Check existence first
+if (auth?.user?.id) {
+  await supabase.from('admin_actions').insert({
+    admin_id: auth.user.id, // Now guaranteed to be string
+    action_type: 'create',
+    target_type: 'houses',
+    target_id: null,
+    changes: { import_type: 'houses', total_rows: importData.length }
+  });
+}
+```
+
+#### Dynamic Object Access
+```typescript
+// ❌ WRONG - Index access without type safety
+const changes: any = {};
+changes[key] = {
+  old: currentData[key], // Error: string can't index type
+  new: body[key]
+};
+
+// ✅ CORRECT - Use type casting for dynamic access
+const changes: Record<string, any> = {};
+const currentValue = (currentData as any)[key];
+const newValue = (body as any)[key];
+changes[key] = {
+  old: currentValue,
+  new: newValue
+};
+```
+
+#### API Route Parameter Validation
+```typescript
+// ❌ WRONG - Missing request parameter
+export const GET: APIRoute = async ({ cookies }) => {
+  const supabase = createSupabaseClient({ cookies }); // Missing request
+}
+
+// ✅ CORRECT - Include all required parameters
+export const GET: APIRoute = async ({ request, cookies }) => {
+  const supabase = createSupabaseClient({ request, cookies });
+}
+```
+
+#### Table Schema Alignment
+```typescript
+// ❌ WRONG - Using non-existent fields for services table
+const numericFields = ['stock_quantity', 'price', 'discount_percentage'];
+query = query.or('sku.ilike.%${search}%');
+
+// ✅ CORRECT - Use actual services table fields
+const numericFields = ['price_from', 'price_to', 'delivery_time_days'];
+query = query.or('service_type.ilike.%${search}%');
+```
+
+---
+
 ## Next Steps 🎯
 
 ### Immediate Actions
 1. ✅ Complete fabricantes/index.astro fixes
 2. ✅ Complete houses/create.astro fixes
-3. ✅ Document all patterns and code samples
-4. 📝 Apply patterns to remaining admin files
+3. ✅ Complete API routes TypeScript fixes
+4. ✅ Document all patterns and code samples
+5. 📝 Apply patterns to remaining admin files
 
 ### Files Requiring Similar Fixes
 - `/admin/catalog/houses/[id]/edit.astro`
@@ -394,6 +538,7 @@ data.metadata = metadata;
 - Metadata handling implementation
 - React component removal/replacement
 - Script tag cleanup
+- API table and field mapping corrections
 
 ---
 
