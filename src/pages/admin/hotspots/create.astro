@@ -1,0 +1,964 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '@/lib/auth';
+
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/hotspots/create');
+}
+
+// Chilean regions
+const chileanRegions = [
+  'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo',
+  'Valparaíso', 'Metropolitana', 'O\'Higgins', 'Maule', 'Ñuble', 'Biobío',
+  'Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 'Magallanes'
+];
+---
+
+<AdminLayout title="Nuevo Hotspot" user={user}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Nuevo Hotspot</h1>
+          <p class="mt-1 text-sm text-gray-500">
+            Crear una nueva ubicación destacada de construcción modular
+          </p>
+        </div>
+        <a
+          href="/admin/hotspots"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Volver al listado
+        </a>
+      </div>
+    </div>
+
+    <form id="hotspotForm" class="space-y-8">
+      <!-- Basic Information -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Información Básica</h2>
+        </div>
+        <div class="px-6 py-4 space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Nombre del Hotspot <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                id="name"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Ej: Valle de Casablanca"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Slug URL
+              </label>
+              <input
+                type="text"
+                name="slug"
+                id="slug"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="valle-casablanca (se genera automáticamente)"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Descripción Corta
+            </label>
+            <textarea
+              name="description"
+              rows="3"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Breve descripción del hotspot..."
+            ></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Descripción Completa
+            </label>
+            <textarea
+              name="description_long"
+              rows="6"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Descripción detallada del hotspot, sus características, ventajas, etc..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location Information -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Información de Ubicación</h2>
+        </div>
+        <div class="px-6 py-4 space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Región <span class="text-red-500">*</span>
+              </label>
+              <select
+                name="region"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="">Seleccionar región...</option>
+                {chileanRegions.map(region => (
+                  <option value={region}>{region}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Ciudad <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="city"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Ej: Casablanca"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Comuna
+              </label>
+              <input
+                type="text"
+                name="commune"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Ej: Casablanca"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Latitud <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                step="0.000001"
+                name="latitude"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="-33.4489"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Longitud <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                step="0.000001"
+                name="longitude"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="-70.6693"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Altitud (metros)
+              </label>
+              <input
+                type="number"
+                name="altitude_m"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Distancia a Santiago (km)
+              </label>
+              <input
+                type="number"
+                name="distance_santiago_km"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="100"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Aeropuerto más cercano
+              </label>
+              <input
+                type="text"
+                name="nearest_airport"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Aeropuerto SCL"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Climate & Demographics Placeholder -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Datos Demográficos</h2>
+        </div>
+        <div class="px-6 py-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Población
+              </label>
+              <input
+                type="number"
+                name="population"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="50000"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Datos climáticos (JSON)
+              </label>
+              <textarea
+                name="climate_data"
+                rows="3"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm font-mono text-sm"
+                placeholder='{"temp_promedio": 18, "precipitaciones": 500}'
+              ></textarea>
+              <p class="mt-1 text-xs text-gray-500">Formato JSON con datos climáticos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cost Estimations -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Estimaciones de Costos</h2>
+          <p class="mt-1 text-sm text-gray-500">Gestiona los costos estimados por categoría</p>
+        </div>
+        <div class="px-6 py-4">
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+              <path d="M8 14v20c0 4.418 7.163 8 16 8 1.381 0 2.721-.087 4-.252M8 14c0 4.418 7.163 8 16 8s16-3.582 16-8M8 14c0-4.418 7.163-8 16-8s16 3.582 16 8m0 0v14m0-4c0 4.418-7.163 8-16 8S8 28.418 8 24m32 10v6m0 0v6m0-6h6m-6 0h-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <div class="mt-4">
+              <p class="text-sm text-gray-600">Calculadora de costos por región</p>
+              <p class="text-xs text-gray-500 mt-1">Funcionalidad próximamente</p>
+            </div>
+          </div>
+
+          <!-- Basic cost fields for now -->
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Costo terreno mínimo (CLP/m²)
+              </label>
+              <input
+                type="number"
+                name="terrain_cost_min"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="50000"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Costo terreno máximo (CLP/m²)
+              </label>
+              <input
+                type="number"
+                name="terrain_cost_max"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="150000"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Costo construcción promedio (CLP/m²)
+              </label>
+              <input
+                type="number"
+                name="construction_cost_m2_avg"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="800000"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Images & Media -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Imágenes y Media</h2>
+          <p class="mt-1 text-sm text-gray-500">Gestiona las imágenes del hotspot</p>
+        </div>
+        <div class="px-6 py-4">
+          <div class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Imagen principal (URL)
+              </label>
+              <input
+                type="url"
+                name="hero_image_url"
+                id="hero_image_url"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="https://ejemplo.com/imagen.jpg"
+              />
+            </div>
+
+            <!-- Gallery Images Manager -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-4">
+                Galería de Imágenes
+              </label>
+
+              <!-- Image Upload Area -->
+              <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                <div class="text-center">
+                  <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <div class="mt-4">
+                    <label for="gallery_images" class="cursor-pointer">
+                      <span class="mt-2 block text-sm font-medium text-gray-900">
+                        Seleccionar imágenes
+                      </span>
+                      <span class="mt-1 block text-sm text-gray-500">
+                        JPG, PNG, WebP hasta 5MB cada una
+                      </span>
+                    </label>
+                    <input
+                      id="gallery_images"
+                      name="gallery_images"
+                      type="file"
+                      class="sr-only"
+                      multiple
+                      accept="image/jpeg,image/png,image/webp"
+                    />
+                  </div>
+                  <p class="mt-2">
+                    <button
+                      type="button"
+                      id="addUrlImage"
+                      class="font-medium text-blue-600 hover:text-blue-500"
+                    >
+                      O añadir URL de imagen
+                    </button>
+                  </p>
+                </div>
+              </div>
+
+              <!-- URL Input (Hidden by default) -->
+              <div id="urlInputSection" class="hidden mt-4">
+                <div class="flex gap-2">
+                  <input
+                    type="url"
+                    id="imageUrl"
+                    class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                    placeholder="https://ejemplo.com/imagen.jpg"
+                  />
+                  <button
+                    type="button"
+                    id="addUrlBtn"
+                    class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Añadir
+                  </button>
+                  <button
+                    type="button"
+                    id="cancelUrlBtn"
+                    class="px-4 py-2 bg-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+
+              <!-- Image Grid -->
+              <div id="imageGrid" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEO -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">SEO</h2>
+        </div>
+        <div class="px-6 py-4 space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Meta Título
+            </label>
+            <input
+              type="text"
+              name="meta_title"
+              maxlength="60"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Título para SEO (máx. 60 caracteres)"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Meta Descripción
+            </label>
+            <textarea
+              name="meta_description"
+              rows="3"
+              maxlength="160"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Descripción para SEO (máx. 160 caracteres)"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Related Providers -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Proveedores Relacionados</h2>
+          <p class="mt-1 text-sm text-gray-500">Selecciona los proveedores que operan en esta zona</p>
+        </div>
+        <div class="px-6 py-4 space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-3">
+              Buscar Proveedores
+            </label>
+            <div class="relative">
+              <input
+                type="text"
+                id="providerSearch"
+                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Buscar por nombre de empresa..."
+              />
+              <div id="providerDropdown" class="hidden absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                <!-- Search results will appear here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Providers -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-3">
+              Proveedores Seleccionados
+            </label>
+            <div id="selectedProviders" class="space-y-2">
+              <!-- Selected providers will appear here -->
+            </div>
+            <div id="noProvidersMessage" class="text-sm text-gray-500 py-4 text-center border-2 border-dashed border-gray-200 rounded-lg">
+              No hay proveedores seleccionados
+            </div>
+          </div>
+
+          <!-- Coverage Options -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-3">
+              Opciones de Cobertura
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex items-center">
+                <input
+                  id="coverage_local"
+                  name="coverage_options"
+                  type="checkbox"
+                  value="local"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  checked
+                />
+                <label for="coverage_local" class="ml-2 block text-sm text-gray-900">
+                  Cobertura local (ciudad)
+                </label>
+              </div>
+              <div class="flex items-center">
+                <input
+                  id="coverage_regional"
+                  name="coverage_options"
+                  type="checkbox"
+                  value="regional"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label for="coverage_regional" class="ml-2 block text-sm text-gray-900">
+                  Cobertura regional
+                </label>
+              </div>
+              <div class="flex items-center">
+                <input
+                  id="coverage_national"
+                  name="coverage_options"
+                  type="checkbox"
+                  value="national"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label for="coverage_national" class="ml-2 block text-sm text-gray-900">
+                  Cobertura nacional
+                </label>
+              </div>
+              <div class="flex items-center">
+                <input
+                  id="coverage_premium"
+                  name="coverage_options"
+                  type="checkbox"
+                  value="premium"
+                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label for="coverage_premium" class="ml-2 block text-sm text-gray-900">
+                  Solo proveedores premium
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Information -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Información Adicional</h2>
+        </div>
+        <div class="px-6 py-4 space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              ¿Por qué construir aquí?
+            </label>
+            <textarea
+              name="why_build_here"
+              rows="4"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Razones para elegir esta ubicación..."
+            ></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Información de regulaciones
+              </label>
+              <textarea
+                name="regulations_info"
+                rows="3"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Regulaciones locales..."
+              ></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Información de permisos
+              </label>
+              <textarea
+                name="permits_info"
+                rows="3"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Proceso de permisos..."
+              ></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Restricciones
+              </label>
+              <textarea
+                name="restrictions"
+                rows="3"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Restricciones conocidas..."
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex justify-end space-x-4">
+        <a
+          href="/admin/hotspots"
+          class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Cancelar
+        </a>
+        <button
+          type="submit"
+          class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Crear Hotspot
+        </button>
+      </div>
+    </form>
+  </div>
+</AdminLayout>
+
+<script>
+  // Gallery management
+  let galleryImages = [];
+
+  // Provider management
+  let selectedProviders = [];
+  let allProviders = [];
+
+  // Auto-generate slug from name
+  const nameInput = document.getElementById('name');
+  const slugInput = document.getElementById('slug');
+
+  nameInput?.addEventListener('input', function() {
+    if (!slugInput.value || slugInput.value === generateSlug(nameInput.dataset.lastValue || '')) {
+      slugInput.value = generateSlug(this.value);
+    }
+    nameInput.dataset.lastValue = this.value;
+  });
+
+  function generateSlug(text) {
+    return text
+      .toLowerCase()
+      .replace(/[áàäâã]/g, 'a')
+      .replace(/[éèëê]/g, 'e')
+      .replace(/[íìïî]/g, 'i')
+      .replace(/[óòöôõ]/g, 'o')
+      .replace(/[úùüû]/g, 'u')
+      .replace(/[ñ]/g, 'n')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  // Gallery management functions
+  function renderImageGrid() {
+    const grid = document.getElementById('imageGrid');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+
+    galleryImages.forEach((imageUrl, index) => {
+      const imageDiv = document.createElement('div');
+      imageDiv.className = 'relative group bg-gray-100 rounded-lg overflow-hidden aspect-square';
+
+      imageDiv.innerHTML = `
+        <img
+          src="${imageUrl}"
+          alt="Gallery image ${index + 1}"
+          class="w-full h-full object-cover"
+          onerror="this.parentElement.innerHTML='<div class=\\'flex items-center justify-center h-full text-gray-400\\'>❌ Error</div>'"
+        />
+        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <button
+            type="button"
+            onclick="removeImage(${index})"
+            class="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      `;
+
+      grid.appendChild(imageDiv);
+    });
+
+    if (galleryImages.length === 0) {
+      grid.innerHTML = '<p class="text-sm text-gray-500 col-span-full text-center py-8">No hay imágenes en la galería</p>';
+    }
+  }
+
+  function addImage(url) {
+    if (url && !galleryImages.includes(url)) {
+      galleryImages.push(url);
+      renderImageGrid();
+    }
+  }
+
+  function removeImage(index) {
+    galleryImages.splice(index, 1);
+    renderImageGrid();
+  }
+
+  // Make removeImage global for onclick
+  window.removeImage = removeImage;
+
+  // File upload handling
+  document.getElementById('gallery_images')?.addEventListener('change', function(e) {
+    const files = e.target.files;
+    if (!files) return;
+
+    // For now, we'll just show a placeholder since file upload would need server handling
+    Array.from(files).forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        addImage(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Clear input
+    e.target.value = '';
+  });
+
+  // URL input handling
+  document.getElementById('addUrlImage')?.addEventListener('click', function() {
+    document.getElementById('urlInputSection').classList.remove('hidden');
+    document.getElementById('imageUrl').focus();
+  });
+
+  document.getElementById('cancelUrlBtn')?.addEventListener('click', function() {
+    document.getElementById('urlInputSection').classList.add('hidden');
+    document.getElementById('imageUrl').value = '';
+  });
+
+  document.getElementById('addUrlBtn')?.addEventListener('click', function() {
+    const url = document.getElementById('imageUrl').value.trim();
+    if (url) {
+      addImage(url);
+      document.getElementById('imageUrl').value = '';
+      document.getElementById('urlInputSection').classList.add('hidden');
+    }
+  });
+
+  document.getElementById('imageUrl')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('addUrlBtn').click();
+    }
+  });
+
+  // Handle form submission
+  document.getElementById('hotspotForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+
+    // Add gallery images
+    data.gallery_images = galleryImages;
+
+    // Add selected providers
+    data.related_providers = selectedProviders.map(p => p.id);
+
+    // Add coverage options
+    const coverageOptions = [];
+    document.querySelectorAll('input[name="coverage_options"]:checked').forEach(checkbox => {
+      coverageOptions.push(checkbox.value);
+    });
+    data.coverage_options = coverageOptions;
+
+    // Parse JSON fields
+    if (data.climate_data) {
+      try {
+        data.climate_data = JSON.parse(data.climate_data);
+      } catch (e) {
+        alert('Error en formato JSON de datos climáticos');
+        return;
+      }
+    }
+
+    // Convert numeric fields
+    ['latitude', 'longitude', 'altitude_m', 'distance_santiago_km', 'population',
+     'terrain_cost_min', 'terrain_cost_max', 'construction_cost_m2_avg'].forEach(field => {
+      if (data[field]) {
+        data[field] = parseFloat(data[field]);
+      }
+    });
+
+    try {
+      const response = await fetch('/api/admin/hotspots', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        window.location.href = `/admin/hotspots/${result.hotspot.id}`;
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al crear el hotspot');
+    }
+  });
+
+  // Provider management functions
+  async function loadProviders() {
+    try {
+      const response = await fetch('/api/admin/providers');
+      if (response.ok) {
+        const result = await response.json();
+        allProviders = result.providers || [];
+      }
+    } catch (error) {
+      console.error('Error loading providers:', error);
+    }
+  }
+
+  function renderSelectedProviders() {
+    const container = document.getElementById('selectedProviders');
+    const noMessage = document.getElementById('noProvidersMessage');
+
+    if (!container || !noMessage) return;
+
+    if (selectedProviders.length === 0) {
+      container.innerHTML = '';
+      noMessage.style.display = 'block';
+      return;
+    }
+
+    noMessage.style.display = 'none';
+    container.innerHTML = selectedProviders.map(provider => `
+      <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+        <div class="flex items-center space-x-3">
+          <div class="flex-shrink-0">
+            ${provider.logo_url ?
+              `<img src="${provider.logo_url}" alt="${provider.company_name}" class="h-8 w-8 rounded-full object-cover" />` :
+              `<div class="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium text-gray-600">${provider.company_name.charAt(0)}</div>`
+            }
+          </div>
+          <div>
+            <div class="text-sm font-medium text-gray-900">${provider.company_name}</div>
+            <div class="text-xs text-gray-500">${provider.city || 'Sin ubicación'}</div>
+          </div>
+        </div>
+        <button
+          type="button"
+          onclick="removeProvider('${provider.id}')"
+          class="text-red-600 hover:text-red-800 focus:outline-none"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  function addProvider(provider) {
+    if (!selectedProviders.find(p => p.id === provider.id)) {
+      selectedProviders.push(provider);
+      renderSelectedProviders();
+      hideProviderDropdown();
+    }
+  }
+
+  function removeProvider(providerId) {
+    selectedProviders = selectedProviders.filter(p => p.id !== providerId);
+    renderSelectedProviders();
+  }
+
+  function showProviderDropdown(providers) {
+    const dropdown = document.getElementById('providerDropdown');
+    if (!dropdown) return;
+
+    if (providers.length === 0) {
+      dropdown.innerHTML = '<div class="p-3 text-sm text-gray-500">No se encontraron proveedores</div>';
+    } else {
+      dropdown.innerHTML = providers.map(provider => `
+        <div
+          class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-0"
+          onclick="addProvider(${JSON.stringify(provider).replace(/"/g, '&quot;')})"
+        >
+          <div class="flex items-center space-x-3">
+            <div class="flex-shrink-0">
+              ${provider.logo_url ?
+                `<img src="${provider.logo_url}" alt="${provider.company_name}" class="h-6 w-6 rounded-full object-cover" />` :
+                `<div class="h-6 w-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium text-gray-600">${provider.company_name.charAt(0)}</div>`
+              }
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-900">${provider.company_name}</div>
+              <div class="text-xs text-gray-500">${provider.city || 'Sin ubicación'} • ${provider.tier || 'standard'}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    dropdown.classList.remove('hidden');
+  }
+
+  function hideProviderDropdown() {
+    const dropdown = document.getElementById('providerDropdown');
+    if (dropdown) {
+      dropdown.classList.add('hidden');
+    }
+  }
+
+  function searchProviders(query) {
+    const filtered = allProviders.filter(provider => {
+      const searchText = query.toLowerCase();
+      return provider.company_name.toLowerCase().includes(searchText) ||
+             (provider.city && provider.city.toLowerCase().includes(searchText));
+    });
+
+    return filtered.slice(0, 10); // Limit to 10 results
+  }
+
+  // Make global functions for onclick handlers
+  window.addProvider = addProvider;
+  window.removeProvider = removeProvider;
+
+  // Provider search handling
+  let searchTimeout;
+  document.getElementById('providerSearch')?.addEventListener('input', function(e) {
+    const query = e.target.value.trim();
+
+    clearTimeout(searchTimeout);
+
+    if (query.length < 2) {
+      hideProviderDropdown();
+      return;
+    }
+
+    searchTimeout = setTimeout(() => {
+      const results = searchProviders(query);
+      showProviderDropdown(results);
+    }, 300);
+  });
+
+  // Hide dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    const searchInput = document.getElementById('providerSearch');
+    const dropdown = document.getElementById('providerDropdown');
+
+    if (searchInput && dropdown &&
+        !searchInput.contains(e.target) &&
+        !dropdown.contains(e.target)) {
+      hideProviderDropdown();
+    }
+  });
+
+  // Initialize empty gallery and load providers
+  renderImageGrid();
+  renderSelectedProviders();
+  loadProviders();
+</script>

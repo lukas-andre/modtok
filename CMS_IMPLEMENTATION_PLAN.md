@@ -188,13 +188,13 @@ CREATE TABLE admin_actions (
 - [X] Author attribution (admin name)
 
 ### 5.2 House/Product Catalog Management
-- [ ] Bulk import from CSV/Excel
-- [ ] Image gallery per house
-- [ ] Specification builder
-- [ ] Pricing management
-- [ ] Feature comparison tools
-- [ ] Variant management
-- [ ] Stock/availability tracking
+- [X] Bulk import from CSV/Excel
+- [X] Image gallery per house
+- [X] Specification builder
+- [X] Pricing management
+- [X] Feature comparison tools
+- [X] Variant management
+- [X] Stock/availability tracking
 
 ### 5.3 Hotspots Management
 - [ ] Interactive map editor
