@@ -1,0 +1,362 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '@/lib/auth';
+import { createSupabaseClient } from '@/lib/supabase';
+
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/pages');
+}
+
+const supabase = createSupabaseClient(Astro);
+
+// Fetch static pages
+const { data: pages, error } = await supabase
+  .from('static_pages')
+  .select('*')
+  .order('type', { ascending: true });
+
+if (error) {
+  console.error('Error fetching pages:', error);
+}
+
+const pagesByType = {
+  about_us: pages?.find(p => p.type === 'about_us'),
+  terms_conditions: pages?.find(p => p.type === 'terms_conditions'),
+  privacy_policy: pages?.find(p => p.type === 'privacy_policy'),
+  faq: pages?.find(p => p.type === 'faq'),
+  contact: pages?.find(p => p.type === 'contact'),
+  landing_section: pages?.filter(p => p.type === 'landing_section') || []
+};
+
+const statusColors = {
+  draft: 'bg-yellow-100 text-yellow-800',
+  published: 'bg-green-100 text-green-800',
+  archived: 'bg-gray-100 text-gray-800'
+};
+---
+
+<AdminLayout title="Gestión de Páginas" user={user}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Gestión de Páginas</h1>
+          <p class="mt-1 text-sm text-gray-500">
+            Administra el contenido de las páginas estáticas del sitio web
+          </p>
+        </div>
+        <div class="flex space-x-2">
+          <a
+            href="/admin/pages/create"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Nueva Página
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- System Pages -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Páginas del Sistema</h2>
+          <p class="mt-1 text-sm text-gray-500">Páginas principales del sitio web</p>
+        </div>
+        <div class="divide-y divide-gray-200">
+          <!-- About Us -->
+          <div class="px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <span class="text-2xl">ℹ️</span>
+              </div>
+              <div class="ml-4">
+                <h3 class="text-sm font-medium text-gray-900">Acerca de Nosotros</h3>
+                <p class="text-sm text-gray-500">Información sobre la empresa</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              {pagesByType.about_us ? (
+                <>
+                  <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[pagesByType.about_us.status]}`}>
+                    {pagesByType.about_us.status === 'draft' ? 'Borrador' :
+                     pagesByType.about_us.status === 'published' ? 'Publicado' : 'Archivado'}
+                  </span>
+                  <a
+                    href={`/admin/pages/${pagesByType.about_us.id}/edit`}
+                    class="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                  >
+                    Editar
+                  </a>
+                </>
+              ) : (
+                <a
+                  href="/admin/pages/create?type=about_us"
+                  class="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                >
+                  Crear
+                </a>
+              )}
+            </div>
+          </div>
+
+          <!-- Terms & Conditions -->
+          <div class="px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <span class="text-2xl">📋</span>
+              </div>
+              <div class="ml-4">
+                <h3 class="text-sm font-medium text-gray-900">Términos y Condiciones</h3>
+                <p class="text-sm text-gray-500">Términos legales de uso</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              {pagesByType.terms_conditions ? (
+                <>
+                  <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[pagesByType.terms_conditions.status]}`}>
+                    {pagesByType.terms_conditions.status === 'draft' ? 'Borrador' :
+                     pagesByType.terms_conditions.status === 'published' ? 'Publicado' : 'Archivado'}
+                  </span>
+                  <a
+                    href={`/admin/pages/${pagesByType.terms_conditions.id}/edit`}
+                    class="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                  >
+                    Editar
+                  </a>
+                </>
+              ) : (
+                <a
+                  href="/admin/pages/create?type=terms_conditions"
+                  class="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                >
+                  Crear
+                </a>
+              )}
+            </div>
+          </div>
+
+          <!-- Privacy Policy -->
+          <div class="px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <span class="text-2xl">🔒</span>
+              </div>
+              <div class="ml-4">
+                <h3 class="text-sm font-medium text-gray-900">Política de Privacidad</h3>
+                <p class="text-sm text-gray-500">Política de protección de datos</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              {pagesByType.privacy_policy ? (
+                <>
+                  <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[pagesByType.privacy_policy.status]}`}>
+                    {pagesByType.privacy_policy.status === 'draft' ? 'Borrador' :
+                     pagesByType.privacy_policy.status === 'published' ? 'Publicado' : 'Archivado'}
+                  </span>
+                  <a
+                    href={`/admin/pages/${pagesByType.privacy_policy.id}/edit`}
+                    class="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                  >
+                    Editar
+                  </a>
+                </>
+              ) : (
+                <a
+                  href="/admin/pages/create?type=privacy_policy"
+                  class="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                >
+                  Crear
+                </a>
+              )}
+            </div>
+          </div>
+
+          <!-- FAQ -->
+          <div class="px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <span class="text-2xl">❓</span>
+              </div>
+              <div class="ml-4">
+                <h3 class="text-sm font-medium text-gray-900">Preguntas Frecuentes</h3>
+                <p class="text-sm text-gray-500">FAQ y respuestas comunes</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              {pagesByType.faq ? (
+                <>
+                  <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[pagesByType.faq.status]}`}>
+                    {pagesByType.faq.status === 'draft' ? 'Borrador' :
+                     pagesByType.faq.status === 'published' ? 'Publicado' : 'Archivado'}
+                  </span>
+                  <a
+                    href={`/admin/pages/faq`}
+                    class="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                  >
+                    Gestionar
+                  </a>
+                </>
+              ) : (
+                <a
+                  href="/admin/pages/create?type=faq"
+                  class="text-blue-600 hover:text-blue-500 text-sm font-medium"
+                >
+                  Crear
+                </a>
+              )}
+            </div>
+          </div>
+
+          <!-- Contact -->
+          <div class="px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <span class="text-2xl">📞</span>
+              </div>
+              <div class="ml-4">
+                <h3 class="text-sm font-medium text-gray-900">Contacto</h3>
+                <p class="text-sm text-gray-500">Información de contacto</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <a
+                href="/admin/pages/contact"
+                class="text-blue-600 hover:text-blue-500 text-sm font-medium"
+              >
+                Configurar
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Landing Page Sections -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-medium text-gray-900 flex items-center">
+              Secciones Landing
+              <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                TBD
+              </span>
+            </h2>
+            <p class="mt-1 text-sm text-gray-500">Editor de secciones dinámicas - Por implementar</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="text-sm text-gray-400">PRÓXIMAMENTE</span>
+            <button
+              disabled
+              class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-400 bg-gray-100 cursor-not-allowed"
+            >
+              <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Gestionar
+            </button>
+          </div>
+        </div>
+        <div class="px-6 py-4">
+          <div class="text-center py-8">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-4">
+              <svg class="h-8 w-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.415-3.414l5-5A2 2 0 009 11.172V5L8 4z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Editor de Landing Page</h3>
+            <p class="text-sm text-gray-500 mb-1">Funcionalidad planificada para futuras versiones</p>
+            <p class="text-xs text-gray-400 mb-4">
+              Incluirá: Secciones Hero, Features, Testimonios, Call-to-Action, y más
+            </p>
+            <div class="inline-flex items-center px-3 py-2 border border-gray-200 rounded-md bg-gray-50">
+              <svg class="mr-2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-sm text-gray-600 font-medium">Estado: Por Definir (TBD)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <span class="text-2xl">📄</span>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Total Páginas</dt>
+                <dd class="text-lg font-medium text-gray-900">{pages?.length || 0}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <span class="text-2xl">✅</span>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Publicadas</dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  {pages?.filter(p => p.status === 'published').length || 0}
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <span class="text-2xl">📝</span>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Borradores</dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  {pages?.filter(p => p.status === 'draft').length || 0}
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <span class="text-2xl">📦</span>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">Archivadas</dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  {pages?.filter(p => p.status === 'archived').length || 0}
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</AdminLayout>

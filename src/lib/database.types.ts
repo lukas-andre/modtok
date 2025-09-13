@@ -431,6 +431,86 @@ export type Database = {
           },
         ]
       }
+      comparison_lists: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          item_ids: string[] | null
+          item_type: string
+          name: string | null
+          share_token: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          item_ids?: string[] | null
+          item_type: string
+          name?: string | null
+          share_token?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          item_ids?: string[] | null
+          item_type?: string
+          name?: string | null
+          share_token?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comparison_lists_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contact_settings: {
+        Row: {
+          created_at: string | null
+          display_order: number | null
+          extra_data: Json | null
+          id: string
+          is_active: boolean | null
+          setting_type: string
+          title: string | null
+          updated_at: string | null
+          value: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_order?: number | null
+          extra_data?: Json | null
+          id?: string
+          is_active?: boolean | null
+          setting_type: string
+          title?: string | null
+          updated_at?: string | null
+          value?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_order?: number | null
+          extra_data?: Json | null
+          id?: string
+          is_active?: boolean | null
+          setting_type?: string
+          title?: string | null
+          updated_at?: string | null
+          value?: string | null
+        }
+        Relationships: []
+      }
       content_reviews: {
         Row: {
           content_id: string
@@ -468,6 +548,251 @@ export type Database = {
             columns: ["reviewed_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      decorations: {
+        Row: {
+          availability_date: string | null
+          brand: string | null
+          category_id: string | null
+          clicks_count: number | null
+          colors: string[] | null
+          created_at: string | null
+          currency: string | null
+          delivery_time_days: number | null
+          description: string | null
+          description_long: string | null
+          dimensions: Json | null
+          discount_percentage: number | null
+          features: Json | null
+          gallery_images: string[] | null
+          has_variants: boolean | null
+          id: string
+          inquiries_count: number | null
+          installation_guide_url: string | null
+          installation_price: number | null
+          installation_required: boolean | null
+          is_available: boolean | null
+          keywords: string[] | null
+          main_image_url: string | null
+          materials: string[] | null
+          meta_description: string | null
+          meta_title: string | null
+          metadata: Json | null
+          model: string | null
+          name: string
+          parent_product_id: string | null
+          price: number | null
+          price_wholesale: number | null
+          product_type: string
+          provider_id: string | null
+          sales_count: number | null
+          saves_count: number | null
+          sizes: string[] | null
+          sku: string | null
+          slug: string
+          status: Database["public"]["Enums"]["listing_status"] | null
+          stock_quantity: number | null
+          stock_status: string | null
+          technical_sheet_url: string | null
+          tier: Database["public"]["Enums"]["listing_tier"] | null
+          updated_at: string | null
+          variant_attributes: Json | null
+          videos: string[] | null
+          views_count: number | null
+          warranty_months: number | null
+        }
+        Insert: {
+          availability_date?: string | null
+          brand?: string | null
+          category_id?: string | null
+          clicks_count?: number | null
+          colors?: string[] | null
+          created_at?: string | null
+          currency?: string | null
+          delivery_time_days?: number | null
+          description?: string | null
+          description_long?: string | null
+          dimensions?: Json | null
+          discount_percentage?: number | null
+          features?: Json | null
+          gallery_images?: string[] | null
+          has_variants?: boolean | null
+          id?: string
+          inquiries_count?: number | null
+          installation_guide_url?: string | null
+          installation_price?: number | null
+          installation_required?: boolean | null
+          is_available?: boolean | null
+          keywords?: string[] | null
+          main_image_url?: string | null
+          materials?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          metadata?: Json | null
+          model?: string | null
+          name: string
+          parent_product_id?: string | null
+          price?: number | null
+          price_wholesale?: number | null
+          product_type: string
+          provider_id?: string | null
+          sales_count?: number | null
+          saves_count?: number | null
+          sizes?: string[] | null
+          sku?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          stock_quantity?: number | null
+          stock_status?: string | null
+          technical_sheet_url?: string | null
+          tier?: Database["public"]["Enums"]["listing_tier"] | null
+          updated_at?: string | null
+          variant_attributes?: Json | null
+          videos?: string[] | null
+          views_count?: number | null
+          warranty_months?: number | null
+        }
+        Update: {
+          availability_date?: string | null
+          brand?: string | null
+          category_id?: string | null
+          clicks_count?: number | null
+          colors?: string[] | null
+          created_at?: string | null
+          currency?: string | null
+          delivery_time_days?: number | null
+          description?: string | null
+          description_long?: string | null
+          dimensions?: Json | null
+          discount_percentage?: number | null
+          features?: Json | null
+          gallery_images?: string[] | null
+          has_variants?: boolean | null
+          id?: string
+          inquiries_count?: number | null
+          installation_guide_url?: string | null
+          installation_price?: number | null
+          installation_required?: boolean | null
+          is_available?: boolean | null
+          keywords?: string[] | null
+          main_image_url?: string | null
+          materials?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          metadata?: Json | null
+          model?: string | null
+          name?: string
+          parent_product_id?: string | null
+          price?: number | null
+          price_wholesale?: number | null
+          product_type?: string
+          provider_id?: string | null
+          sales_count?: number | null
+          saves_count?: number | null
+          sizes?: string[] | null
+          sku?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          stock_quantity?: number | null
+          stock_status?: string | null
+          technical_sheet_url?: string | null
+          tier?: Database["public"]["Enums"]["listing_tier"] | null
+          updated_at?: string | null
+          variant_attributes?: Json | null
+          videos?: string[] | null
+          views_count?: number | null
+          warranty_months?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decorations_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decorations_parent_product_id_fkey"
+            columns: ["parent_product_id"]
+            isOneToOne: false
+            referencedRelation: "decorations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decorations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_admin_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decorations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_public_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decorations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      faq_items: {
+        Row: {
+          answer: string
+          category: string | null
+          created_at: string | null
+          display_order: number | null
+          helpful_count: number | null
+          id: string
+          is_featured: boolean | null
+          page_id: string | null
+          question: string
+          tags: string[] | null
+          updated_at: string | null
+          views_count: number | null
+        }
+        Insert: {
+          answer: string
+          category?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          helpful_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          page_id?: string | null
+          question: string
+          tags?: string[] | null
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          answer?: string
+          category?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          helpful_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          page_id?: string | null
+          question?: string
+          tags?: string[] | null
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "faq_items_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "static_pages"
             referencedColumns: ["id"]
           },
         ]
@@ -527,6 +852,215 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotspot_cost_estimates: {
+        Row: {
+          avg_cost: number | null
+          category: string
+          created_at: string | null
+          currency: string | null
+          estimate_type: string
+          hotspot_id: string | null
+          id: string
+          last_updated: string | null
+          max_cost: number | null
+          min_cost: number | null
+          notes: string | null
+          source: string | null
+          unit: string | null
+        }
+        Insert: {
+          avg_cost?: number | null
+          category: string
+          created_at?: string | null
+          currency?: string | null
+          estimate_type: string
+          hotspot_id?: string | null
+          id?: string
+          last_updated?: string | null
+          max_cost?: number | null
+          min_cost?: number | null
+          notes?: string | null
+          source?: string | null
+          unit?: string | null
+        }
+        Update: {
+          avg_cost?: number | null
+          category?: string
+          created_at?: string | null
+          currency?: string | null
+          estimate_type?: string
+          hotspot_id?: string | null
+          id?: string
+          last_updated?: string | null
+          max_cost?: number | null
+          min_cost?: number | null
+          notes?: string | null
+          source?: string | null
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotspot_cost_estimates_hotspot_id_fkey"
+            columns: ["hotspot_id"]
+            isOneToOne: false
+            referencedRelation: "hotspots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotspot_demographics: {
+        Row: {
+          age_distribution: Json | null
+          created_at: string | null
+          economic_indicators: Json | null
+          education_index: number | null
+          hotspot_id: string | null
+          id: string
+          median_income: number | null
+          population: number | null
+          population_density: number | null
+          year: number
+        }
+        Insert: {
+          age_distribution?: Json | null
+          created_at?: string | null
+          economic_indicators?: Json | null
+          education_index?: number | null
+          hotspot_id?: string | null
+          id?: string
+          median_income?: number | null
+          population?: number | null
+          population_density?: number | null
+          year: number
+        }
+        Update: {
+          age_distribution?: Json | null
+          created_at?: string | null
+          economic_indicators?: Json | null
+          education_index?: number | null
+          hotspot_id?: string | null
+          id?: string
+          median_income?: number | null
+          population?: number | null
+          population_density?: number | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotspot_demographics_hotspot_id_fkey"
+            columns: ["hotspot_id"]
+            isOneToOne: false
+            referencedRelation: "hotspots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotspot_features: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          distance_km: number | null
+          feature_type: string
+          hotspot_id: string | null
+          icon: string | null
+          id: string
+          name: string
+          rating: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          distance_km?: number | null
+          feature_type: string
+          hotspot_id?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          rating?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          distance_km?: number | null
+          feature_type?: string
+          hotspot_id?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          rating?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotspot_features_hotspot_id_fkey"
+            columns: ["hotspot_id"]
+            isOneToOne: false
+            referencedRelation: "hotspots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotspot_providers: {
+        Row: {
+          coverage_type: string | null
+          created_at: string | null
+          hotspot_id: string | null
+          id: string
+          notes: string | null
+          priority_order: number | null
+          provider_id: string | null
+          service_radius_km: number | null
+        }
+        Insert: {
+          coverage_type?: string | null
+          created_at?: string | null
+          hotspot_id?: string | null
+          id?: string
+          notes?: string | null
+          priority_order?: number | null
+          provider_id?: string | null
+          service_radius_km?: number | null
+        }
+        Update: {
+          coverage_type?: string | null
+          created_at?: string | null
+          hotspot_id?: string | null
+          id?: string
+          notes?: string | null
+          priority_order?: number | null
+          provider_id?: string | null
+          service_radius_km?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotspot_providers_hotspot_id_fkey"
+            columns: ["hotspot_id"]
+            isOneToOne: false
+            referencedRelation: "hotspots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotspot_providers_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_admin_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotspot_providers_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_public_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotspot_providers_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
             referencedColumns: ["id"]
           },
         ]
@@ -681,8 +1215,10 @@ export type Database = {
           floor_plans: string[] | null
           floors: number | null
           gallery_images: string[] | null
+          has_variants: boolean | null
           id: string
           inquiries_count: number | null
+          is_available: boolean | null
           keywords: string[] | null
           latitude: number | null
           llave_en_mano: boolean | null
@@ -698,20 +1234,26 @@ export type Database = {
           model_code: string | null
           name: string
           off_grid_ready: boolean | null
+          parent_house_id: string | null
           price: number | null
           price_opportunity: number | null
           price_per_m2: number | null
           provider_id: string | null
+          sales_count: number | null
           saves_count: number | null
           services_included: string[] | null
+          sku: string | null
           slug: string
           smart_home: boolean | null
           status: Database["public"]["Enums"]["listing_status"] | null
+          stock_quantity: number | null
+          stock_status: string | null
           sustainable: boolean | null
           technology_materials: string[] | null
           tier: Database["public"]["Enums"]["listing_tier"] | null
           topology_id: string | null
           updated_at: string | null
+          variant_attributes: Json | null
           videos: string[] | null
           views_count: number | null
           virtual_tour_url: string | null
@@ -738,8 +1280,10 @@ export type Database = {
           floor_plans?: string[] | null
           floors?: number | null
           gallery_images?: string[] | null
+          has_variants?: boolean | null
           id?: string
           inquiries_count?: number | null
+          is_available?: boolean | null
           keywords?: string[] | null
           latitude?: number | null
           llave_en_mano?: boolean | null
@@ -755,20 +1299,26 @@ export type Database = {
           model_code?: string | null
           name: string
           off_grid_ready?: boolean | null
+          parent_house_id?: string | null
           price?: number | null
           price_opportunity?: number | null
           price_per_m2?: number | null
           provider_id?: string | null
+          sales_count?: number | null
           saves_count?: number | null
           services_included?: string[] | null
+          sku?: string | null
           slug: string
           smart_home?: boolean | null
           status?: Database["public"]["Enums"]["listing_status"] | null
+          stock_quantity?: number | null
+          stock_status?: string | null
           sustainable?: boolean | null
           technology_materials?: string[] | null
           tier?: Database["public"]["Enums"]["listing_tier"] | null
           topology_id?: string | null
           updated_at?: string | null
+          variant_attributes?: Json | null
           videos?: string[] | null
           views_count?: number | null
           virtual_tour_url?: string | null
@@ -795,8 +1345,10 @@ export type Database = {
           floor_plans?: string[] | null
           floors?: number | null
           gallery_images?: string[] | null
+          has_variants?: boolean | null
           id?: string
           inquiries_count?: number | null
+          is_available?: boolean | null
           keywords?: string[] | null
           latitude?: number | null
           llave_en_mano?: boolean | null
@@ -812,20 +1364,26 @@ export type Database = {
           model_code?: string | null
           name?: string
           off_grid_ready?: boolean | null
+          parent_house_id?: string | null
           price?: number | null
           price_opportunity?: number | null
           price_per_m2?: number | null
           provider_id?: string | null
+          sales_count?: number | null
           saves_count?: number | null
           services_included?: string[] | null
+          sku?: string | null
           slug?: string
           smart_home?: boolean | null
           status?: Database["public"]["Enums"]["listing_status"] | null
+          stock_quantity?: number | null
+          stock_status?: string | null
           sustainable?: boolean | null
           technology_materials?: string[] | null
           tier?: Database["public"]["Enums"]["listing_tier"] | null
           topology_id?: string | null
           updated_at?: string | null
+          variant_attributes?: Json | null
           videos?: string[] | null
           views_count?: number | null
           virtual_tour_url?: string | null
@@ -833,6 +1391,13 @@ export type Database = {
           windows_type?: string[] | null
         }
         Relationships: [
+          {
+            foreignKeyName: "houses_parent_house_id_fkey"
+            columns: ["parent_house_id"]
+            isOneToOne: false
+            referencedRelation: "houses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "houses_provider_id_fkey"
             columns: ["provider_id"]
@@ -859,6 +1424,59 @@ export type Database = {
             columns: ["topology_id"]
             isOneToOne: false
             referencedRelation: "house_topologies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_logs: {
+        Row: {
+          completed_at: string | null
+          errors: Json | null
+          failed_rows: number | null
+          file_name: string
+          id: string
+          import_type: string
+          imported_by: string | null
+          metadata: Json | null
+          started_at: string | null
+          status: string | null
+          successful_rows: number | null
+          total_rows: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          errors?: Json | null
+          failed_rows?: number | null
+          file_name: string
+          id?: string
+          import_type: string
+          imported_by?: string | null
+          metadata?: Json | null
+          started_at?: string | null
+          status?: string | null
+          successful_rows?: number | null
+          total_rows?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          errors?: Json | null
+          failed_rows?: number | null
+          file_name?: string
+          id?: string
+          import_type?: string
+          imported_by?: string | null
+          metadata?: Json | null
+          started_at?: string | null
+          status?: string | null
+          successful_rows?: number | null
+          total_rows?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_logs_imported_by_fkey"
+            columns: ["imported_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -951,6 +1569,104 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      landing_sections: {
+        Row: {
+          background_image_url: string | null
+          content: string | null
+          created_at: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          page_id: string | null
+          section_type: string
+          settings: Json | null
+          subtitle: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          background_image_url?: string | null
+          content?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          page_id?: string | null
+          section_type: string
+          settings?: Json | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          background_image_url?: string | null
+          content?: string | null
+          created_at?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          page_id?: string | null
+          section_type?: string
+          settings?: Json | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landing_sections_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "static_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_variants: {
+        Row: {
+          attributes: Json
+          created_at: string | null
+          id: string
+          images: string[] | null
+          is_available: boolean | null
+          price: number | null
+          product_id: string
+          product_type: string
+          sku: string | null
+          stock_quantity: number | null
+          updated_at: string | null
+          variant_name: string
+        }
+        Insert: {
+          attributes: Json
+          created_at?: string | null
+          id?: string
+          images?: string[] | null
+          is_available?: boolean | null
+          price?: number | null
+          product_id: string
+          product_type: string
+          sku?: string | null
+          stock_quantity?: number | null
+          updated_at?: string | null
+          variant_name: string
+        }
+        Update: {
+          attributes?: Json
+          created_at?: string | null
+          id?: string
+          images?: string[] | null
+          is_available?: boolean | null
+          price?: number | null
+          product_id?: string
+          product_type?: string
+          sku?: string | null
+          stock_quantity?: number | null
+          updated_at?: string | null
+          variant_name?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -1210,18 +1926,22 @@ export type Database = {
       }
       services: {
         Row: {
+          booking_calendar: Json | null
           category_id: string | null
           clicks_count: number | null
           coverage_areas: string[] | null
           created_at: string | null
+          current_bookings: number | null
           description: string | null
           description_long: string | null
           features: Json | null
           gallery_images: string[] | null
           id: string
           inquiries_count: number | null
+          is_available: boolean | null
           keywords: string[] | null
           main_image_url: string | null
+          max_bookings: number | null
           meta_description: string | null
           meta_title: string | null
           name: string
@@ -1229,7 +1949,9 @@ export type Database = {
           price_to: number | null
           price_unit: string | null
           provider_id: string | null
+          sales_count: number | null
           service_type: string
+          sku: string | null
           slug: string
           status: Database["public"]["Enums"]["listing_status"] | null
           tier: Database["public"]["Enums"]["listing_tier"] | null
@@ -1237,18 +1959,22 @@ export type Database = {
           views_count: number | null
         }
         Insert: {
+          booking_calendar?: Json | null
           category_id?: string | null
           clicks_count?: number | null
           coverage_areas?: string[] | null
           created_at?: string | null
+          current_bookings?: number | null
           description?: string | null
           description_long?: string | null
           features?: Json | null
           gallery_images?: string[] | null
           id?: string
           inquiries_count?: number | null
+          is_available?: boolean | null
           keywords?: string[] | null
           main_image_url?: string | null
+          max_bookings?: number | null
           meta_description?: string | null
           meta_title?: string | null
           name: string
@@ -1256,7 +1982,9 @@ export type Database = {
           price_to?: number | null
           price_unit?: string | null
           provider_id?: string | null
+          sales_count?: number | null
           service_type: string
+          sku?: string | null
           slug: string
           status?: Database["public"]["Enums"]["listing_status"] | null
           tier?: Database["public"]["Enums"]["listing_tier"] | null
@@ -1264,18 +1992,22 @@ export type Database = {
           views_count?: number | null
         }
         Update: {
+          booking_calendar?: Json | null
           category_id?: string | null
           clicks_count?: number | null
           coverage_areas?: string[] | null
           created_at?: string | null
+          current_bookings?: number | null
           description?: string | null
           description_long?: string | null
           features?: Json | null
           gallery_images?: string[] | null
           id?: string
           inquiries_count?: number | null
+          is_available?: boolean | null
           keywords?: string[] | null
           main_image_url?: string | null
+          max_bookings?: number | null
           meta_description?: string | null
           meta_title?: string | null
           name?: string
@@ -1283,7 +2015,9 @@ export type Database = {
           price_to?: number | null
           price_unit?: string | null
           provider_id?: string | null
+          sales_count?: number | null
           service_type?: string
+          sku?: string | null
           slug?: string
           status?: Database["public"]["Enums"]["listing_status"] | null
           tier?: Database["public"]["Enums"]["listing_tier"] | null
@@ -1317,6 +2051,87 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      static_pages: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          created_by: string | null
+          display_order: number | null
+          excerpt: string | null
+          featured_image_url: string | null
+          id: string
+          is_system_page: boolean | null
+          keywords: string[] | null
+          meta_description: string | null
+          meta_title: string | null
+          published_at: string | null
+          settings: Json | null
+          slug: string
+          status: Database["public"]["Enums"]["page_status"]
+          title: string
+          type: Database["public"]["Enums"]["page_type"]
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_order?: number | null
+          excerpt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          is_system_page?: boolean | null
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          settings?: Json | null
+          slug: string
+          status?: Database["public"]["Enums"]["page_status"]
+          title: string
+          type: Database["public"]["Enums"]["page_type"]
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_order?: number | null
+          excerpt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          is_system_page?: boolean | null
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          published_at?: string | null
+          settings?: Json | null
+          slug?: string
+          status?: Database["public"]["Enums"]["page_status"]
+          title?: string
+          type?: Database["public"]["Enums"]["page_type"]
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "static_pages_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "static_pages_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1808,6 +2623,14 @@ export type Database = {
         | "inactive"
         | "rejected"
       listing_tier: "premium" | "destacado" | "standard"
+      page_status: "draft" | "published" | "archived"
+      page_type:
+        | "about_us"
+        | "terms_conditions"
+        | "privacy_policy"
+        | "faq"
+        | "contact"
+        | "landing_section"
       user_role: "super_admin" | "admin" | "provider" | "user"
       user_status: "active" | "inactive" | "suspended" | "pending_verification"
     }
@@ -1959,11 +2782,21 @@ export const Constants = {
         "rejected",
       ],
       listing_tier: ["premium", "destacado", "standard"],
+      page_status: ["draft", "published", "archived"],
+      page_type: [
+        "about_us",
+        "terms_conditions",
+        "privacy_policy",
+        "faq",
+        "contact",
+        "landing_section",
+      ],
       user_role: ["super_admin", "admin", "provider", "user"],
       user_status: ["active", "inactive", "suspended", "pending_verification"],
     },
   },
 } as const
+
 
 // Type aliases for easier use
 export type Profile = Tables<"profiles">

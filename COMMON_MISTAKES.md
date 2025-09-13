@@ -136,6 +136,91 @@ export const GET: APIRoute = async ({ cookies }) => {
 </script>
 ```
 
+### ✅ Complex JavaScript - Always Use is:inline
+
+**For any non-trivial JavaScript logic, always use `is:inline`:**
+
+```astro
+<script is:inline>
+  // DOM element access with null checks
+  const titleInput = document.getElementById('title');
+  const slugInput = document.getElementById('slug');
+
+  if (titleInput && slugInput) {
+    titleInput.addEventListener('input', function() {
+      const title = this.value;
+      const slug = title
+        .toLowerCase()
+        .replace(/[áàäâã]/g, 'a')
+        .replace(/[éèëê]/g, 'e')
+        .replace(/[íìïî]/g, 'i')
+        .replace(/[óòöôõ]/g, 'o')
+        .replace(/[úùüû]/g, 'u')
+        .replace(/[ñ]/g, 'n')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      slugInput.value = slug;
+    });
+  }
+
+  // Form submission with proper error handling
+  const form = document.getElementById('myForm');
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const data = {};
+
+      // Manual FormData conversion to avoid type issues
+      for (const entry of formData.entries()) {
+        data[entry[0]] = entry[1];
+      }
+
+      try {
+        const response = await fetch('/api/endpoint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          alert('Success!');
+        } else {
+          const error = await response.json();
+          alert('Error: ' + error.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Network error occurred');
+      }
+    });
+  }
+
+  // Window function assignment
+  window.editItem = async function(id) {
+    try {
+      const response = await fetch('/api/item/' + id);
+      if (response.ok) {
+        const result = await response.json();
+        const item = result.item;
+
+        // Populate form with null checks
+        const nameInput = document.getElementById('nameInput');
+        const statusSelect = document.getElementById('statusSelect');
+
+        if (nameInput) nameInput.value = item.name;
+        if (statusSelect) statusSelect.value = item.status;
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error loading item');
+    }
+  };
+</script>
+```
+
 ### ❌ Script Tag Mistakes
 
 **NEVER use TypeScript syntax in regular script tags:**
@@ -152,6 +237,130 @@ export const GET: APIRoute = async ({ cookies }) => {
 <script src="https://cdn.tailwindcss.com"></script> <!-- ❌ Will be processed as ES module -->
 <script>
   tailwind.config = { ... }; // ❌ Will fail
+</script>
+
+<!-- WRONG - HTMLElement type issues -->
+<script>
+  const titleInput = document.getElementById('title');
+  titleInput.value = 'test'; // ❌ Property 'value' does not exist on type 'HTMLElement'
+
+  const form = document.getElementById('pageForm');
+  const formData = new FormData(form); // ❌ HTMLElement not assignable to HTMLFormElement
+
+  const data = Object.fromEntries(formData.entries());
+  data.keywords = ['tag1', 'tag2']; // ❌ string[] not assignable to FormDataEntryValue
+</script>
+
+<!-- WRONG - Using optional chaining or template literals -->
+<script>
+  const value = contact.extra_data?.label || ''; // ❌ Optional chaining not supported
+  const url = `/api/endpoint/${id}`; // ❌ Template literals can cause issues
+
+  // Arrow functions can cause issues in some contexts
+  button.addEventListener('click', () => doSomething()); // ❌ Prefer function expressions
+</script>
+
+<!-- WRONG - Missing null checks -->
+<script>
+  document.getElementById('form').reset(); // ❌ Object is possibly 'null'
+  window.editFunction = function() { ... }; // ❌ Property doesn't exist on Window type
+</script>
+```
+
+## 🎯 DOM Element Access and Type Safety
+
+### ✅ Proper DOM Element Handling
+
+**Always check for element existence and avoid type casting:**
+
+```astro
+<script is:inline>
+  // ✅ CORRECT - Check existence before accessing properties
+  const titleInput = document.getElementById('title');
+  if (titleInput) {
+    titleInput.value = 'New title'; // Safe access
+  }
+
+  // ✅ CORRECT - Form handling with null checks
+  const form = document.getElementById('pageForm');
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this); // 'this' refers to the form
+      const data = {};
+
+      // Manual conversion to avoid type issues
+      for (const [key, value] of formData.entries()) {
+        data[key] = value;
+      }
+
+      // Handle specific data transformations
+      if (data.keywords && typeof data.keywords === 'string') {
+        data.keywords = data.keywords.split(',').map(function(k) {
+          return k.trim();
+        }).filter(function(k) {
+          return k;
+        });
+      }
+    });
+  }
+
+  // ✅ CORRECT - Multiple element handling
+  const settingTypeSelect = document.getElementById('settingTypeSelect');
+  const labelInput = document.getElementById('labelInput');
+  const titleInput = document.getElementById('titleInput');
+  const valueInput = document.getElementById('valueInput');
+  const isActiveInput = document.getElementById('isActive');
+
+  if (settingTypeSelect) settingTypeSelect.value = contact.setting_type;
+  if (labelInput) labelInput.value = (contact.extra_data && contact.extra_data.label) ?
+    contact.extra_data.label : '';
+  if (titleInput) titleInput.value = contact.title;
+  if (valueInput) valueInput.value = contact.value;
+  if (isActiveInput) isActiveInput.checked = contact.is_active;
+
+  // ✅ CORRECT - Window function assignment
+  window.editContact = async function(id) {
+    try {
+      const response = await fetch('/api/admin/pages/contact/' + id);
+      if (response.ok) {
+        const result = await response.json();
+        const contact = result.contact;
+        // ... handle response
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+</script>
+```
+
+### ❌ DOM Element Access Mistakes
+
+```astro
+<script>
+  // ❌ WRONG - No null check
+  document.getElementById('title').value = 'test'; // Object is possibly 'null'
+
+  // ❌ WRONG - Type casting in script tag
+  const element = document.getElementById('id') as HTMLInputElement;
+
+  // ❌ WRONG - Direct FormData with Object.fromEntries
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries()); // Type issues
+
+  // ❌ WRONG - Optional chaining in script tag
+  const value = contact.extra_data?.label || '';
+
+  // ❌ WRONG - Template literals in URLs
+  const response = await fetch(`/api/endpoint/${id}`);
+
+  // ❌ WRONG - Arrow functions in event handlers
+  form.addEventListener('submit', (e) => { ... });
+
+  // ❌ WRONG - Direct property assignment to FormData object
+  data.keywords = ['tag1', 'tag2']; // string[] not assignable to FormDataEntryValue
 </script>
 ```
 
@@ -612,6 +821,14 @@ data.experience_years = formData.get('experience_years'); // Wrong field name
 10. **Array field handling** - Always check `Array.isArray()` before using array methods
 11. **String literals with apostrophes** - Use double quotes for strings like "O'Higgins"
 12. **Metadata in forms** - Extract and structure metadata fields separately before API calls
+13. **DOM element null checks** - Always check `if (element)` before accessing properties
+14. **HTMLElement type issues** - Use `is:inline` and null checks instead of type assertions
+15. **FormData type errors** - Convert manually with `for...of` loop instead of `Object.fromEntries`
+16. **Optional chaining in scripts** - Use explicit null checks: `contact.extra_data && contact.extra_data.label`
+17. **Template literals in scripts** - Use string concatenation: `'/api/endpoint/' + id`
+18. **Arrow functions in scripts** - Use `function()` expressions for better compatibility
+19. **Window property errors** - Assign functions directly: `window.functionName = function() { ... }`
+20. **Form reset errors** - Check element exists before calling `.reset()`: `if (form) form.reset()`
 
 ## 🚀 Performance Tips
 

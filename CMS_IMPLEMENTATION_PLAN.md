@@ -197,12 +197,12 @@ CREATE TABLE admin_actions (
 - [X] Stock/availability tracking
 
 ### 5.3 Hotspots Management
-- [ ] Interactive map editor
-- [ ] Location data management
-- [ ] Climate and demographics data
-- [ ] Cost estimations per region
-- [ ] Photo galleries per location
-- [ ] Related providers linking
+- [X] Interactive map editor
+- [X] Location data management
+- [X] Climate and demographics data
+- [X] Cost estimations per region
+- [X] Photo galleries per location
+- [X] Related providers linking
 
 ### 5.4 Static Page Management
 - [ ] About Us page editor
