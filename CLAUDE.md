@@ -244,6 +244,39 @@ await supabase.from('providers').insert(providerData);
    - Simpler setup without SSR cookie handling (avoids Vite conflicts)
    - Create once and reuse: `const supabase = createBrowserSupabaseClient()`
 
+**STANDARD ADMIN AUTHENTICATION PATTERN**:
+**CRITICAL**: ALL admin pages MUST use this exact pattern at the top of the frontmatter:
+
+```astro
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '@/lib/auth';
+import { createSupabaseClient } from '@/lib/supabase';
+
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/current/path');
+}
+
+const supabase = createSupabaseClient(Astro);
+
+// Your page logic here...
+---
+
+<AdminLayout title="Page Title" user={user}>
+  <!-- Your content here -->
+</AdminLayout>
+```
+
+**Key Requirements**:
+- Always use `getAdminAuth(Astro)` and `requireAdmin(auth)` 
+- Always pass `user={user}` to AdminLayout
+- Always use `createSupabaseClient(Astro)` (NOT createServerSupabaseClient)
+- Set correct redirect path in the login redirect
+- Never use getSession() for admin pages - use getAdminAuth/requireAdmin pattern
+
 **Authentication Flow for React Components**:
 ```typescript
 // In Astro page (.astro)
@@ -256,3 +289,85 @@ interface Props {
 }
 // Use session data directly, don't fetch it again
 ```
+
+***
+
+### 📦 Catalog Management System
+
+**CRITICAL**: The catalog system follows a consistent pattern for all entity types (houses, services, decorations).
+
+#### Reusable Components Location
+- `src/components/admin/catalog/DataTable.tsx` - Advanced data grid
+- `src/components/admin/catalog/ImageGalleryManager.tsx` - Image management
+- `src/components/admin/catalog/SpecificationBuilder.tsx` - Dynamic specifications
+- `src/components/admin/catalog/BulkImport.tsx` - CSV/Excel import
+
+#### Page Structure Pattern
+For each catalog type, create:
+1. **List Page**: `/admin/catalog/{entity}/index.astro`
+2. **Create Page**: `/admin/catalog/{entity}/create.astro`
+3. **Edit Page**: `/admin/catalog/{entity}/[id]/edit.astro`
+
+#### API Endpoint Pattern
+Standard CRUD operations:
+```typescript
+// src/pages/api/admin/{entity}/index.ts
+GET    - List with filters & pagination
+POST   - Create new entity
+PUT    - Bulk update
+DELETE - Bulk delete
+
+// src/pages/api/admin/{entity}/[id].ts
+GET    - Get single entity
+PUT    - Update entity
+DELETE - Delete entity
+
+// src/pages/api/admin/{entity}/[id]/duplicate.ts
+POST   - Duplicate entity
+
+// src/pages/api/admin/{entity}/import.ts
+POST   - Bulk import from CSV
+GET    - Download CSV template
+```
+
+#### Quick Implementation for New Catalog
+1. **Copy existing structure** (e.g., houses)
+2. **Update table references** in queries
+3. **Modify form fields** for entity-specific data
+4. **Adjust validation rules**
+5. **Update navigation** in admin layout
+
+#### Database Pattern
+Each catalog table should include:
+```sql
+-- Required fields
+id UUID PRIMARY KEY
+provider_id UUID REFERENCES providers(id)
+name TEXT NOT NULL
+slug TEXT UNIQUE NOT NULL
+status listing_status
+tier listing_tier
+created_at TIMESTAMPTZ
+updated_at TIMESTAMPTZ
+
+-- Common fields
+sku TEXT
+description TEXT
+price DECIMAL
+stock_quantity INTEGER
+main_image_url TEXT
+gallery_images TEXT[]
+meta_title TEXT
+meta_description TEXT
+keywords TEXT[]
+features JSONB
+```
+
+#### Import/Export Pattern
+Always provide:
+1. CSV template download
+2. Column mapping interface
+3. Validation & error reporting
+4. Import logs for audit trail
+
+See `CATALOG_MANAGEMENT.md` for complete implementation guide.

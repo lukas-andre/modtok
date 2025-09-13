@@ -1,0 +1,740 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '@/lib/auth';
+import { createSupabaseClient } from '@/lib/supabase';
+import ImageGalleryManager from '@/components/admin/catalog/ImageGalleryManager';
+
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/catalog/fabricantes');
+}
+
+const { id } = Astro.params;
+if (!id) {
+  return Astro.redirect('/admin/catalog/fabricantes');
+}
+
+const supabase = createSupabaseClient(Astro);
+
+// Get fabricante data
+const { data: fabricante, error } = await supabase
+  .from('providers')
+  .select('*')
+  .eq('id', id)
+  .eq('category_type', 'fabricantes')
+  .single();
+
+if (error || !fabricante) {
+  return Astro.redirect('/admin/catalog/fabricantes');
+}
+
+// Get Chilean regions for dropdown
+const chileanRegions = [
+  'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo',
+  'Valparaíso', 'Región Metropolitana', "O'Higgins", 'Maule', 'Ñuble',
+  'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 
+  'Magallanes y Antártica Chilena'
+];
+
+// Common specialties for fabricantes
+const fabricanteSpecialties = [
+  'Casas Modulares', 'Casas Prefabricadas', 'Paneles SIP', 'Construcción en Seco',
+  'Casas Sustentables', 'Tiny Houses', 'Containers', 'Casas Tradicionales',
+  'Cabañas', 'Domos', 'Estructuras Metálicas', 'Construcción en Madera'
+];
+---
+
+<AdminLayout title={`Editar Fabricante - ${fabricante.company_name}`} user={user}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Editar Fabricante</h1>
+          <p class="mt-1 text-sm text-gray-500">
+            {fabricante.company_name}
+          </p>
+        </div>
+        <div class="flex space-x-3">
+          <a
+            href={`/fabricantes/${fabricante.slug}`}
+            target="_blank"
+            class="inline-flex items-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100"
+          >
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+            Ver Público
+          </a>
+          <a
+            href="/admin/catalog/fabricantes"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Volver al listado
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <form id="fabricanteForm" class="space-y-8">
+      <input type="hidden" name="id" value={fabricante.id} />
+      
+      <!-- Basic Information -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Información Básica</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Nombre de la Empresa <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="company_name"
+                required
+                value={fabricante.company_name || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Ej: Construcciones ModTech SPA"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Slug URL
+              </label>
+              <input
+                type="text"
+                name="slug"
+                value={fabricante.slug || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="construcciones-modtech-spa"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                RUT Empresa
+              </label>
+              <input
+                type="text"
+                name="tax_id"
+                value={(fabricante.metadata as any)?.tax_id || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="12.345.678-9"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Años de Experiencia
+              </label>
+              <input
+                type="number"
+                name="years_experience"
+                min="0"
+                value={fabricante.years_experience || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="10"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Descripción de la Empresa
+            </label>
+            <textarea
+              name="description"
+              rows="3"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Descripción de la empresa, su experiencia y especialidades"
+            >{fabricante.description || ''}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Información de Contacto</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Email Principal <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                required
+                value={fabricante.email || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="contacto@empresa.com"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Teléfono Principal
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={fabricante.phone || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="+56 9 1234 5678"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                WhatsApp
+              </label>
+              <input
+                type="tel"
+                name="whatsapp"
+                value={fabricante.whatsapp || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="+56 9 1234 5678"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Sitio Web
+              </label>
+              <input
+                type="url"
+                name="website"
+                value={fabricante.website || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="https://www.empresa.com"
+              />
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Persona de Contacto
+              </label>
+              <input
+                type="text"
+                name="contact_person"
+                value={(fabricante.metadata as any)?.contact_person || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Nombre del contacto principal"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Cargo del Contacto
+              </label>
+              <input
+                type="text"
+                name="contact_position"
+                value={(fabricante.metadata as any)?.contact_position || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Gerente Comercial"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Ubicación</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Región Principal
+              </label>
+              <select
+                name="region"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="">Seleccionar región</option>
+                {chileanRegions.map(region => (
+                  <option value={region} selected={fabricante.region === region}>{region}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Ciudad
+              </label>
+              <input
+                type="text"
+                name="city"
+                value={fabricante.city || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Ciudad donde opera"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Dirección Completa
+            </label>
+            <textarea
+              name="address"
+              rows="2"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Dirección completa de las oficinas principales"
+            >{fabricante.address || ''}</textarea>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Zonas de Cobertura
+            </label>
+            <textarea
+              name="coverage_areas"
+              rows="2"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Regiones o comunas donde prestan servicios (separadas por comas)"
+            >{fabricante.coverage_areas ? fabricante.coverage_areas.join(', ') : ''}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business Information -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Información Comercial</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Precio Desde (CLP)
+              </label>
+              <input
+                type="number"
+                name="price_range_min"
+                min="0"
+                value={fabricante.price_range_min || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="15000000"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Precio Hasta (CLP)
+              </label>
+              <input
+                type="number"
+                name="price_range_max"
+                min="0"
+                value={fabricante.price_range_max || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="50000000"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Moneda
+              </label>
+              <select
+                name="currency"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="CLP" selected={(fabricante.metadata as any)?.currency === 'CLP'}>CLP - Peso Chileno</option>
+                <option value="USD" selected={(fabricante.metadata as any)?.currency === 'USD'}>USD - Dólar</option>
+                <option value="UF" selected={(fabricante.metadata as any)?.currency === 'UF'}>UF - Unidad de Fomento</option>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Especialidades
+            </label>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {fabricanteSpecialties.map(specialty => {
+                const isChecked = fabricante.specialties?.includes(specialty);
+                return (
+                  <div class="flex items-center">
+                    <input
+                      type="checkbox"
+                      name={`specialty_${specialty.toLowerCase().replace(/\s+/g, '_')}`}
+                      id={`specialty_${specialty.toLowerCase().replace(/\s+/g, '_')}`}
+                      checked={isChecked}
+                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label for={`specialty_${specialty.toLowerCase().replace(/\s+/g, '_')}`} class="ml-2 block text-sm text-gray-900">
+                      {specialty}
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Certificaciones
+            </label>
+            <textarea
+              name="certifications"
+              rows="2"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Certificaciones, licencias o acreditaciones (separadas por comas)"
+            >{Array.isArray(fabricante.certifications) ? (fabricante.certifications as string[]).join(', ') : ''}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Images & Media -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Imágenes y Media</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                URL del Logo
+              </label>
+              <input
+                type="url"
+                name="logo_url"
+                value={fabricante.logo_url || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="https://ejemplo.com/logo.png"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                URL Imagen de Portada
+              </label>
+              <input
+                type="url"
+                name="cover_image_url"
+                value={fabricante.cover_image_url || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="https://ejemplo.com/portada.jpg"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Galería de Imágenes
+            </label>
+            <ImageGalleryManager
+              images={fabricante.gallery_images || []}
+              onImagesChange={() => {}}
+              client:load
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Internal Management -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Gestión Interna</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Calificación Interna
+              </label>
+              <select
+                name="internal_rating"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="" selected={!fabricante.internal_rating}>Sin calificar</option>
+                <option value="1" selected={fabricante.internal_rating === 1}>★☆☆☆☆ (1)</option>
+                <option value="2" selected={fabricante.internal_rating === 2}>★★☆☆☆ (2)</option>
+                <option value="3" selected={fabricante.internal_rating === 3}>★★★☆☆ (3)</option>
+                <option value="4" selected={fabricante.internal_rating === 4}>★★★★☆ (4)</option>
+                <option value="5" selected={fabricante.internal_rating === 5}>★★★★★ (5)</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Verificación KYC
+              </label>
+              <select
+                name="kyc_status"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="pending" selected={(fabricante.metadata as any)?.kyc_status === 'pending'}>Pendiente</option>
+                <option value="verified" selected={(fabricante.metadata as any)?.kyc_status === 'verified'}>Verificado</option>
+                <option value="rejected" selected={(fabricante.metadata as any)?.kyc_status === 'rejected'}>Rechazado</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Comisión (%)
+              </label>
+              <input
+                type="number"
+                name="commission_rate"
+                min="0"
+                max="100"
+                step="0.1"
+                value={(fabricante.metadata as any)?.commission_rate || ''}
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="5.0"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Notas Internas
+            </label>
+            <textarea
+              name="admin_notes"
+              rows="3"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Notas internas sobre el fabricante (no visible al público)"
+            >{fabricante.admin_notes || ''}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEO & Status -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">SEO y Estado</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Estado <span class="text-red-500">*</span>
+              </label>
+              <select
+                name="status"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="draft" selected={fabricante.status === 'draft'}>Borrador</option>
+                <option value="pending_review" selected={fabricante.status === 'pending_review'}>Pendiente Revisión</option>
+                <option value="active" selected={fabricante.status === 'active'}>Activo</option>
+                <option value="inactive" selected={fabricante.status === 'inactive'}>Inactivo</option>
+                <option value="rejected" selected={fabricante.status === 'rejected'}>Rechazado</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Tier
+              </label>
+              <select
+                name="tier"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="standard" selected={fabricante.tier === 'standard'}>Standard</option>
+                <option value="destacado" selected={fabricante.tier === 'destacado'}>Destacado</option>
+                <option value="premium" selected={fabricante.tier === 'premium'}>Premium</option>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Meta Title
+            </label>
+            <input
+              type="text"
+              name="meta_title"
+              maxlength="60"
+              value={fabricante.meta_title || ''}
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            />
+            <p class="mt-1 text-sm text-gray-500">Máximo 60 caracteres</p>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Meta Description
+            </label>
+            <textarea
+              name="meta_description"
+              rows="2"
+              maxlength="160"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            >{fabricante.meta_description || ''}</textarea>
+            <p class="mt-1 text-sm text-gray-500">Máximo 160 caracteres</p>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Keywords
+            </label>
+            <input
+              type="text"
+              name="keywords"
+              value={fabricante.keywords ? fabricante.keywords.join(', ') : ''}
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="fabricante casas, modular, prefabricada (separadas por comas)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex justify-end space-x-3">
+        <button
+          type="button"
+          onclick="saveDraft()"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+        >
+          Guardar Borrador
+        </button>
+        <button
+          type="submit"
+          class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+        >
+          Actualizar Fabricante
+        </button>
+      </div>
+    </form>
+  </div>
+
+
+  <script is:inline>
+    // Auto-generate slug from company name (only if slug is empty)
+    document.querySelector('input[name="company_name"]')?.addEventListener('input', (e) => {
+      const slugInput = document.querySelector('input[name="slug"]');
+      const generatedSlug = e.target.value
+        .toLowerCase()
+        .replace(/[áàäâã]/g, 'a')
+        .replace(/[éèëê]/g, 'e')
+        .replace(/[íìïî]/g, 'i')
+        .replace(/[óòöôõ]/g, 'o')
+        .replace(/[úùüû]/g, 'u')
+        .replace(/[ñ]/g, 'n')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      
+      // Only update if slug is empty
+      if (slugInput && !slugInput.value) {
+        slugInput.value = generatedSlug;
+      }
+    });
+
+    // Form submission
+    document.getElementById('fabricanteForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+      
+      // Get fabricante ID
+      const fabricanteId = data.id;
+      delete data.id; // Remove from update data
+      
+      // Set category_type for fabricantes
+      data.category_type = 'fabricantes';
+      
+      // Collect specialties
+      const specialties = [];
+      formData.forEach((_, key) => {
+        if (key.startsWith('specialty_')) {
+          specialties.push(key.replace('specialty_', '').replace(/_/g, ' '));
+        }
+      });
+      data.specialties = specialties;
+      
+      // Parse arrays
+      if (data.coverage_areas) {
+        data.coverage_areas = data.coverage_areas.split(',').map(area => area.trim());
+      }
+      if (data.certifications) {
+        data.certifications = data.certifications.split(',').map(cert => cert.trim());
+      }
+      if (data.keywords) {
+        data.keywords = data.keywords.split(',').map(keyword => keyword.trim());
+      }
+      
+      // Parse numeric fields
+      ['price_range_min', 'price_range_max', 'years_experience', 'internal_rating'].forEach(field => {
+        if (data[field] && data[field] !== '') {
+          data[field] = parseFloat(data[field]);
+        }
+      });
+      
+      // Gallery images will be handled separately if needed
+      // For now, preserve existing gallery images
+      data.gallery_images = [];
+      
+      // Handle metadata fields
+      const metadata = {
+        tax_id: data.tax_id,
+        contact_person: data.contact_person,
+        contact_position: data.contact_position,
+        currency: data.currency || 'CLP',
+        kyc_status: data.kyc_status || 'pending',
+        commission_rate: data.commission_rate ? parseFloat(data.commission_rate) : null
+      };
+      
+      // Remove metadata fields from main data object
+      delete data.tax_id;
+      delete data.contact_person;
+      delete data.contact_position;
+      delete data.currency;
+      delete data.kyc_status;
+      delete data.commission_rate;
+      
+      // Add metadata to data
+      data.metadata = metadata;
+      
+      try {
+        const response = await fetch(`/api/admin/fabricantes/${fabricanteId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+          // Show success message and optionally redirect
+          alert('Fabricante actualizado exitosamente');
+          // Optionally reload the page to show updated data
+          // window.location.reload();
+        } else {
+          const error = await response.json();
+          alert(`Error al actualizar el fabricante: ${error.error}`);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al actualizar el fabricante');
+      }
+    });
+
+    function saveDraft() {
+      const form = document.getElementById('fabricanteForm');
+      const statusSelect = form.querySelector('select[name="status"]');
+      statusSelect.value = 'draft';
+      form.dispatchEvent(new Event('submit'));
+    }
+  </script>
+</AdminLayout>
