@@ -1,0 +1,755 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '@/lib/auth';
+import { createSupabaseClient } from '@/lib/supabase';
+
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/catalog/houses/create');
+}
+
+const supabase = createSupabaseClient(Astro);
+
+// Get providers for dropdown
+const { data: providers } = await supabase
+  .from('providers')
+  .select('id, company_name')
+  .eq('category_type', 'fabricantes')
+  .eq('status', 'active')
+  .order('company_name');
+
+// Get topologies for dropdown
+const { data: topologies } = await supabase
+  .from('house_topologies')
+  .select('*')
+  .eq('is_active', true)
+  .order('display_order');
+
+// Get features for the category
+const { data: features } = await supabase
+  .from('features')
+  .select('*')
+  .eq('is_active', true)
+  .order('display_order');
+---
+
+<AdminLayout title="Nueva Casa" user={user}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Nueva Casa</h1>
+          <p class="mt-1 text-sm text-gray-500">
+            Agregue una nueva casa al catálogo
+          </p>
+        </div>
+        <a
+          href="/admin/catalog/houses"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Volver al listado
+        </a>
+      </div>
+    </div>
+
+    <form id="houseForm" class="space-y-8">
+      <!-- Basic Information -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Información Básica</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Nombre de la Casa <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Ej: Casa Lago Premium"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Slug URL
+              </label>
+              <input
+                type="text"
+                name="slug"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="casa-lago-premium (se genera automáticamente)"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                SKU / Código
+              </label>
+              <input
+                type="text"
+                name="sku"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="SKU-001"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Código del Modelo
+              </label>
+              <input
+                type="text"
+                name="model_code"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="MOD-2024-001"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Fabricante <span class="text-red-500">*</span>
+              </label>
+              <select
+                name="provider_id"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="">Seleccionar fabricante</option>
+                {providers?.map(provider => (
+                  <option value={provider.id}>{provider.company_name}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Topología
+              </label>
+              <select
+                name="topology_id"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="">Seleccionar topología</option>
+                {topologies?.map(topology => (
+                  <option value={topology.id}>
+                    {topology.code} - {topology.description}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Descripción Corta
+            </label>
+            <textarea
+              name="description"
+              rows="2"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Descripción breve para cards y listados"
+            ></textarea>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Descripción Completa
+            </label>
+            <textarea
+              name="description_long"
+              rows="4"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Descripción detallada para la página del producto"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dimensions & Specifications -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Dimensiones y Especificaciones</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Habitaciones
+              </label>
+              <input
+                type="number"
+                name="bedrooms"
+                min="0"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Baños
+              </label>
+              <input
+                type="number"
+                name="bathrooms"
+                min="0"
+                step="0.5"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Área Total (m²)
+              </label>
+              <input
+                type="number"
+                name="area_m2"
+                min="0"
+                step="0.01"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Área Construida (m²)
+              </label>
+              <input
+                type="number"
+                name="area_built_m2"
+                min="0"
+                step="0.01"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Pisos
+              </label>
+              <input
+                type="number"
+                name="floors"
+                min="1"
+                value="1"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Material Principal
+              </label>
+              <input
+                type="text"
+                name="main_material"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="Ej: Paneles SIP"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Calificación Energética
+              </label>
+              <select
+                name="energy_rating"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="">Seleccionar</option>
+                <option value="A+">A+</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Garantía (años)
+              </label>
+              <input
+                type="number"
+                name="warranty_years"
+                min="0"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+          </div>
+          
+          <!-- Specifications Builder Component -->
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <p class="text-sm text-gray-500">Constructor de especificaciones (funcionalidad próximamente)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing & Stock -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Precio y Stock</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Precio (CLP)
+              </label>
+              <input
+                type="number"
+                name="price"
+                min="0"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Precio Oportunidad (CLP)
+              </label>
+              <input
+                type="number"
+                name="price_opportunity"
+                min="0"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Precio por m² (CLP)
+              </label>
+              <input
+                type="number"
+                name="price_per_m2"
+                min="0"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Stock Disponible
+              </label>
+              <input
+                type="number"
+                name="stock_quantity"
+                min="0"
+                value="0"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Estado del Stock
+              </label>
+              <select
+                name="stock_status"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="available">Disponible</option>
+                <option value="low_stock">Stock Bajo</option>
+                <option value="out_of_stock">Sin Stock</option>
+                <option value="pre_order">Pre-orden</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Moneda
+              </label>
+              <select
+                name="currency"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="CLP">CLP - Peso Chileno</option>
+                <option value="USD">USD - Dólar</option>
+                <option value="UF">UF - Unidad de Fomento</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features & Characteristics -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Características</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                name="llave_en_mano"
+                id="llave_en_mano"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label for="llave_en_mano" class="ml-2 block text-sm text-gray-900">
+                Llave en Mano
+              </label>
+            </div>
+            
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                name="expandable"
+                id="expandable"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label for="expandable" class="ml-2 block text-sm text-gray-900">
+                Expandible
+              </label>
+            </div>
+            
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                name="mobile"
+                id="mobile"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label for="mobile" class="ml-2 block text-sm text-gray-900">
+                Móvil / Transportable
+              </label>
+            </div>
+            
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                name="off_grid_ready"
+                id="off_grid_ready"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label for="off_grid_ready" class="ml-2 block text-sm text-gray-900">
+                Off-Grid Ready
+              </label>
+            </div>
+            
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                name="sustainable"
+                id="sustainable"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label for="sustainable" class="ml-2 block text-sm text-gray-900">
+                Sustentable
+              </label>
+            </div>
+            
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                name="smart_home"
+                id="smart_home"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label for="smart_home" class="ml-2 block text-sm text-gray-900">
+                Smart Home
+              </label>
+            </div>
+            
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                name="is_available"
+                id="is_available"
+                checked
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label for="is_available" class="ml-2 block text-sm text-gray-900">
+                Disponible para Venta
+              </label>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Características Adicionales
+            </label>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {features?.map(feature => (
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    name={`feature_${feature.slug}`}
+                    id={`feature_${feature.slug}`}
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label for={`feature_${feature.slug}`} class="ml-2 block text-sm text-gray-900">
+                    {feature.name}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Images Gallery -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Galería de Imágenes</h2>
+        </div>
+        <div class="px-6 py-4">
+          <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <p class="text-sm text-gray-500">Galería de imágenes (funcionalidad próximamente)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delivery & Location -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">Entrega y Ubicación</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Tiempo de Entrega (días)
+              </label>
+              <input
+                type="number"
+                name="delivery_time_days"
+                min="0"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Tiempo de Montaje (días)
+              </label>
+              <input
+                type="number"
+                name="assembly_time_days"
+                min="0"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Región
+              </label>
+              <select
+                name="location_region"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="">Sin ubicación específica</option>
+                <option value="Región Metropolitana">Región Metropolitana</option>
+                <option value="Valparaíso">Valparaíso</option>
+                <option value="Biobío">Biobío</option>
+                <option value="La Araucanía">La Araucanía</option>
+                <option value="Los Lagos">Los Lagos</option>
+                <option value="Los Ríos">Los Ríos</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEO & Status -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-medium text-gray-900">SEO y Estado</h2>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Estado <span class="text-red-500">*</span>
+              </label>
+              <select
+                name="status"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="draft">Borrador</option>
+                <option value="pending_review">Pendiente Revisión</option>
+                <option value="active">Activo</option>
+                <option value="inactive">Inactivo</option>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Tier
+              </label>
+              <select
+                name="tier"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="standard">Standard</option>
+                <option value="destacado">Destacado</option>
+                <option value="premium">Premium</option>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Meta Title
+            </label>
+            <input
+              type="text"
+              name="meta_title"
+              maxlength="60"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            />
+            <p class="mt-1 text-sm text-gray-500">Máximo 60 caracteres</p>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Meta Description
+            </label>
+            <textarea
+              name="meta_description"
+              rows="2"
+              maxlength="160"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            ></textarea>
+            <p class="mt-1 text-sm text-gray-500">Máximo 160 caracteres</p>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">
+              Keywords
+            </label>
+            <input
+              type="text"
+              name="keywords"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="casa modular, prefabricada, sustentable (separadas por comas)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex justify-end space-x-3">
+        <button
+          type="button"
+          onclick="saveDraft()"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+        >
+          Guardar Borrador
+        </button>
+        <button
+          type="submit"
+          class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+        >
+          Crear Casa
+        </button>
+      </div>
+    </form>
+  </div>
+
+
+  <script is:inline>
+    // Auto-generate slug from name
+    document.querySelector('input[name="name"]')?.addEventListener('input', (e) => {
+      const slugInput = document.querySelector('input[name="slug"]');
+      if (slugInput && !slugInput.value) {
+        const slug = e.target.value
+          .toLowerCase()
+          .replace(/[áàäâã]/g, 'a')
+          .replace(/[éèëê]/g, 'e')
+          .replace(/[íìïî]/g, 'i')
+          .replace(/[óòöôõ]/g, 'o')
+          .replace(/[úùüû]/g, 'u')
+          .replace(/[ñ]/g, 'n')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+        slugInput.value = slug;
+      }
+    });
+
+    // Auto-calculate price per m2
+    document.querySelector('input[name="price"]')?.addEventListener('input', calculatePricePerM2);
+    document.querySelector('input[name="area_m2"]')?.addEventListener('input', calculatePricePerM2);
+    
+    function calculatePricePerM2() {
+      const price = parseFloat(document.querySelector('input[name="price"]')?.value) || 0;
+      const area = parseFloat(document.querySelector('input[name="area_m2"]')?.value) || 0;
+      const pricePerM2Input = document.querySelector('input[name="price_per_m2"]');
+      
+      if (price > 0 && area > 0 && pricePerM2Input) {
+        pricePerM2Input.value = Math.round(price / area);
+      }
+    }
+
+    // Form submission
+    document.getElementById('houseForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+      
+      // Convert checkboxes to boolean
+      data.llave_en_mano = formData.has('llave_en_mano');
+      data.expandable = formData.has('expandable');
+      data.mobile = formData.has('mobile');
+      data.off_grid_ready = formData.has('off_grid_ready');
+      data.sustainable = formData.has('sustainable');
+      data.smart_home = formData.has('smart_home');
+      data.is_available = formData.has('is_available');
+      
+      // Collect features
+      const features = {};
+      formData.forEach((_, key) => {
+        if (key.startsWith('feature_')) {
+          features[key.replace('feature_', '')] = true;
+        }
+      });
+      data.features = features;
+      
+      // Add images and specifications from React components
+      // These would be collected from the React component state
+      
+      try {
+        const response = await fetch('/api/admin/houses', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          window.location.href = `/admin/catalog/houses/${result.id}/edit`;
+        } else {
+          alert('Error al crear la casa');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al crear la casa');
+      }
+    });
+
+    function saveDraft() {
+      const form = document.getElementById('houseForm');
+      const statusSelect = form.querySelector('select[name="status"]');
+      statusSelect.value = 'draft';
+      form.dispatchEvent(new Event('submit'));
+    }
+  </script>
+</AdminLayout>
