@@ -7,8 +7,18 @@ RUN npm install -g pnpm
 # Install dependencies
 FROM base AS deps
 WORKDIR /app
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile
+
+# Copy package files
+COPY package.json ./
+# Handle optional pnpm-lock.yaml
+COPY pnpm-lock.yaml* ./
+
+# Install dependencies with fallback for missing lockfile
+RUN if [ -f pnpm-lock.yaml ]; then \
+      pnpm install --frozen-lockfile; \
+    else \
+      pnpm install; \
+    fi
 
 # Build the application
 FROM base AS builder
