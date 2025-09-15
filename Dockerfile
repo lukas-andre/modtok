@@ -50,6 +50,7 @@ EXPOSE $PORT
 # Environment variables
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
+ENV PORT=3000
 
 # Start the application
-CMD ["node", "./dist/server/entry.mjs"]
+CMD ["sh", "-c", "HOST=0.0.0.0 PORT=${PORT:-3000} node ./dist/server/entry.mjs"]
