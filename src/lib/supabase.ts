@@ -1,18 +1,13 @@
 import { createServerClient, parseCookieHeader, type CookieOptions } from '@supabase/ssr';
 import type { Database } from './database.types';
 import type { AstroCookies } from 'astro';
+import { getSupabaseEnv } from './env';
 
 export function createSupabaseClient(Astro: {
   request: Request;
   cookies: AstroCookies;
 }) {
-  // Try runtime env first (for production), then build-time env (for development)
-  const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.PUBLIC_SUPABASE_ANON_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error('Missing Supabase environment variables');
-  }
+  const { supabaseUrl, supabaseAnonKey } = getSupabaseEnv();
   
   return createServerClient<Database>(
     supabaseUrl,
