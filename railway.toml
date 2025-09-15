@@ -2,7 +2,7 @@
 builder = "dockerfile"
 
 [deploy]
-startCommand = "HOST=0.0.0.0 PORT=$PORT node ./dist/server/entry.mjs"
+startCommand = "node ./dist/server/entry.mjs"
 healthcheckPath = "/"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
