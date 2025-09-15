@@ -1,0 +1,19 @@
+---
+// Simple page without external dependencies for testing
+---
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MODTOK - Simple Test</title>
+</head>
+<body>
+    <h1>MODTOK is Running!</h1>
+    <p>Timestamp: {new Date().toISOString()}</p>
+    <p>Environment: {import.meta.env.MODE}</p>
+    <p><a href="/api/status">Check API Status</a></p>
+    <p><a href="/health">Check Health</a></p>
+</body>
+</html>

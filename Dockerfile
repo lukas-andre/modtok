@@ -51,5 +51,5 @@ EXPOSE $PORT
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 
-# Start the application
-CMD ["node", "./dist/server/entry.mjs"]
+# Add debugging and start the application
+CMD ["sh", "-c", "echo 'Starting MODTOK on HOST=$HOST PORT=$PORT' && echo 'Node version:' && node --version && echo 'Starting server...' && node ./dist/server/entry.mjs"]
