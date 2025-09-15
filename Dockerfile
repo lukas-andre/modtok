@@ -1,49 +1,35 @@
-# Use Node.js LTS alpine image
+# Optimized Dockerfile for Railway deployment with Astro + pnpm
 FROM node:20-alpine AS base
 
-# Install pnpm globally
-RUN npm install -g pnpm
+# Install pnpm
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
 
-# Install dependencies
+# Dependencies stage
 FROM base AS deps
 WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
-# Copy package files
-COPY package.json ./
-# Handle optional pnpm-lock.yaml
-COPY pnpm-lock.yaml* ./
-
-# Install dependencies with fallback for missing lockfile
-RUN if [ -f pnpm-lock.yaml ]; then \
-      pnpm install --frozen-lockfile; \
-    else \
-      pnpm install; \
-    fi
-
-# Build the application
+# Build stage
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Build the Astro app
 RUN pnpm run build
 
-# Production image
+# Production stage
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Copy built application and startup script
+# Copy only necessary files
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./package.json
-COPY start.sh ./
 
-# Make startup script executable
-RUN chmod +x start.sh
-
-# Environment variables
+# Set production environment
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 
-# Use the startup script
-CMD ["./start.sh"]
+# Railway will provide PORT dynamically
+# The app should read PORT from environment
+CMD ["node", "./dist/server/entry.mjs"]
