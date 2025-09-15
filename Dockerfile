@@ -10,10 +10,15 @@ RUN corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 # Copy the files to the container image
-COPY package.json pnpm-lock.yaml ./
+COPY package*.json ./
+COPY pnpm-lock.yaml* ./
 
 # Install packages
-RUN pnpm install --frozen-lockfile
+RUN if [ -f pnpm-lock.yaml ]; then \
+      pnpm install --frozen-lockfile; \
+    else \
+      pnpm install; \
+    fi
 
 # Copy local code to the container image.
 COPY . ./

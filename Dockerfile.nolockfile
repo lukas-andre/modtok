@@ -1,0 +1,24 @@
+# Simple Dockerfile for Railway when pnpm-lock.yaml is missing
+FROM node:lts-alpine
+
+# Install pnpm
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
+
+# Create and change to the app directory
+WORKDIR /app
+
+# Copy package.json first
+COPY package.json ./
+
+# Install packages (will generate lockfile)
+RUN pnpm install
+
+# Copy all application code
+COPY . ./
+
+# Build the app
+RUN pnpm run build
+
+# Serve the app
+CMD ["pnpm", "run", "start"]
