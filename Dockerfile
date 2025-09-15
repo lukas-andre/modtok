@@ -33,23 +33,17 @@ RUN pnpm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# Create a non-root user first
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 astro
+# Copy built application and startup script
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./package.json
+COPY start.sh ./
 
-# Copy built application and package.json
-COPY --from=builder --chown=astro:nodejs /app/dist ./dist
-COPY --from=builder --chown=astro:nodejs /app/package.json ./package.json
-
-# Switch to non-root user
-USER astro
-
-# Expose the port that Railway expects
-EXPOSE $PORT
+# Make startup script executable
+RUN chmod +x start.sh
 
 # Environment variables
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 
-# Add debugging and start the application
-CMD ["sh", "-c", "echo 'Starting MODTOK on HOST=$HOST PORT=$PORT' && echo 'Node version:' && node --version && echo 'Starting server...' && node ./dist/server/entry.mjs"]
+# Use the startup script
+CMD ["./start.sh"]
