@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createServerClient } from '@supabase/ssr';
 import type { Database, ProfileInsert } from '@/lib/database.types';
+import { getSupabaseEnv } from '@/lib/env';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   const { access_token, refresh_token } = await request.json();
@@ -12,8 +13,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
   }
 
-  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  const { supabaseUrl, supabaseAnonKey } = getSupabaseEnv();
 
   const supabase = createServerClient<Database>(
     supabaseUrl,
