@@ -6,9 +6,10 @@ export function createSupabaseClient(Astro: {
   request: Request;
   cookies: AstroCookies;
 }) {
-  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
-  
+  // Try runtime env first (for production), then build-time env (for development)
+  const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.PUBLIC_SUPABASE_ANON_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Missing Supabase environment variables');
   }

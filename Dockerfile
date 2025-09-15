@@ -23,7 +23,7 @@ RUN if [ -f pnpm-lock.yaml ]; then \
 # Copy local code to the container image.
 COPY . ./
 
-# Build the app.
+# Build the app
 RUN pnpm run build
 
 # Serve the app
