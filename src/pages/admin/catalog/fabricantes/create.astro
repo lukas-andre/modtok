@@ -44,7 +44,7 @@ const { data: fabricantesCategory } = await supabase
 const { data: fabricanteFeatures } = await supabase
   .from('features')
   .select('*')
-  .eq('category_id', fabricantesCategory?.id)
+  .eq('category_id', fabricantesCategory?.id!)
   .eq('is_active', true)
   .order('name');
 ---
