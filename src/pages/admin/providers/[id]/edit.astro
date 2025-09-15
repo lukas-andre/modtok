@@ -29,6 +29,14 @@ if (error || !provider) {
   return Astro.redirect('/admin/providers?error=Provider not found');
 }
 
+// Fetch provider categories separately
+const { data: providerCategoriesData } = await supabase
+  .from('provider_categories')
+  .select('category_type')
+  .eq('provider_id', id);
+
+const providerCategories = providerCategoriesData?.map(pc => pc.category_type) || [];
+
 // Fetch features data based on CSV structure
 const { data: features } = await supabase
   .from('features')
@@ -367,24 +375,52 @@ const featuresByCategory = features?.reduce((acc, feature) => {
       <!-- Category Type -->
       <div class="bg-white rounded-lg border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">Categoría de Proveedor</h3>
+          <h3 class="text-lg font-medium text-gray-900">Categorías del Proveedor</h3>
+          <p class="text-sm text-gray-600 mt-1">Selecciona todas las categorías de servicios que ofrece este proveedor</p>
         </div>
         <div class="p-6">
-          <label for="category_type" class="block text-sm font-medium text-gray-700 mb-2">
-            Tipo de Proveedor *
-          </label>
-          <select
-            id="category_type"
-            name="category_type"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">Seleccionar categoría...</option>
-            <option value="casas" selected={provider.category_type === 'casas'}>Casas Prefabricadas</option>
-            <option value="fabricantes" selected={provider.category_type === 'fabricantes'}>Fabricantes de Casas</option>
-            <option value="habilitacion_servicios" selected={provider.category_type === 'habilitacion_servicios'}>Habilitación y Servicios</option>
-            <option value="decoracion" selected={provider.category_type === 'decoracion'}>Decoración y Mejoras</option>
-          </select>
+          <div class="space-y-3">
+            <label class="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                name="categories"
+                value="casas"
+                checked={providerCategories.includes('casas')}
+                class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+              />
+              <span class="text-sm font-medium text-gray-700">Casas Prefabricadas</span>
+            </label>
+            <label class="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                name="categories"
+                value="fabricantes"
+                checked={providerCategories.includes('fabricantes')}
+                class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+              />
+              <span class="text-sm font-medium text-gray-700">Fabricantes de Casas</span>
+            </label>
+            <label class="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                name="categories"
+                value="habilitacion_servicios"
+                checked={providerCategories.includes('habilitacion_servicios')}
+                class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+              />
+              <span class="text-sm font-medium text-gray-700">Habilitación y Servicios</span>
+            </label>
+            <label class="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                name="categories"
+                value="decoracion"
+                checked={providerCategories.includes('decoracion')}
+                class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
+              />
+              <span class="text-sm font-medium text-gray-700">Decoración y Mejoras</span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -560,7 +596,7 @@ const featuresByCategory = features?.reduce((acc, feature) => {
   </div>
 </AdminLayout>
 
-<script is:inline define:vars={{ features, categories, featuresByCategory, provider, id }}>
+<script is:inline define:vars={{ features, categories, featuresByCategory, provider, providerCategories, id }}>
   function showMessage(type, message) {
     const successDiv = document.getElementById('successMessage');
     const errorDiv = document.getElementById('errorMessage');
@@ -617,11 +653,17 @@ const featuresByCategory = features?.reduce((acc, feature) => {
           return value.split(',').map(s => s.trim()).filter(s => s.length > 0);
         };
 
+        // Get selected categories
+        const selectedCategories = [];
+        formData.getAll('categories').forEach(cat => {
+          if (cat) selectedCategories.push(cat);
+        });
+
         const providerData = {
           company_name: formData.get('company_name'),
           email: formData.get('email'),
           phone: formData.get('phone'),
-          category_type: formData.get('category_type'),
+          categories: selectedCategories,
           description: formData.get('description'),
           website: formData.get('website'),
           whatsapp: formData.get('whatsapp'),

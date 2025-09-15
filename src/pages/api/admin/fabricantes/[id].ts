@@ -23,15 +23,14 @@ export const GET: APIRoute = async ({ request, cookies, params }) => {
     const supabase = createSupabaseClient({ request, cookies });
     
     const { data: fabricante, error } = await supabase
-      .from('providers')
+      .from('fabricantes')
       .select(`
         *,
-        profile:profiles(id, full_name, email, avatar_url),
-        approved_by_profile:profiles!providers_approved_by_fkey(full_name),
-        created_by_profile:profiles!providers_created_by_fkey(full_name)
+        provider:providers(id, company_name, tier, slug, status, logo_url),
+        approved_by_profile:profiles!fabricantes_approved_by_fkey(full_name),
+        created_by_profile:profiles!fabricantes_created_by_fkey(full_name)
       `)
       .eq('id', id)
-      .eq('category_type', 'fabricantes')
       .single();
 
     if (error) {
@@ -79,10 +78,9 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
 
     // Get current fabricante for comparison
     const { data: currentFabricante } = await supabase
-      .from('providers')
+      .from('fabricantes')
       .select('*')
       .eq('id', id)
-      .eq('category_type', 'fabricantes')
       .single();
 
     if (!currentFabricante) {
@@ -92,10 +90,10 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
       );
     }
 
-    // Handle slug regeneration if company_name changed
+    // Handle slug regeneration if name changed
     let slug = currentFabricante.slug;
-    if (body.company_name && body.company_name !== currentFabricante.company_name) {
-      slug = body.company_name
+    if (body.name && body.name !== currentFabricante.name) {
+      slug = body.name
         .toLowerCase()
         .replace(/[áàäâã]/g, 'a')
         .replace(/[éèëê]/g, 'e')
@@ -110,7 +108,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
       let counter = 1;
       while (true) {
         const { data: existing } = await supabase
-          .from('providers')
+          .from('fabricantes')
           .select('id')
           .eq('slug', finalSlug)
           .neq('id', id)
@@ -124,7 +122,7 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
     }
 
     // Convert numeric fields
-    const numericFields = ['price_range_min', 'price_range_max', 'price_per_m2_min', 'price_per_m2_max', 'years_experience', 'internal_rating'];
+    const numericFields = ['price_range_min', 'price_range_max', 'price_per_unit', 'lead_time_days', 'warranty_years', 'internal_rating'];
     numericFields.forEach(field => {
       if (body[field] !== undefined && body[field] !== '') {
         body[field] = parseFloat(body[field]) || null;
@@ -135,20 +133,18 @@ export const PUT: APIRoute = async ({ request, cookies, params }) => {
     const updateData = {
       ...body,
       slug,
-      category_type: 'fabricantes', // Ensure category_type remains fabricantes
       updated_at: new Date().toISOString()
     };
 
     const { data: updatedFabricante, error } = await supabase
-      .from('providers')
+      .from('fabricantes')
       .update(updateData)
       .eq('id', id)
-      .eq('category_type', 'fabricantes')
       .select(`
         *,
-        profile:profiles(id, full_name, email, avatar_url),
-        approved_by_profile:profiles!providers_approved_by_fkey(full_name),
-        created_by_profile:profiles!providers_created_by_fkey(full_name)
+        provider:providers(id, company_name, tier, slug, status, logo_url),
+        approved_by_profile:profiles!fabricantes_approved_by_fkey(full_name),
+        created_by_profile:profiles!fabricantes_created_by_fkey(full_name)
       `)
       .single();
 
@@ -212,10 +208,9 @@ export const DELETE: APIRoute = async ({ request, cookies, params }) => {
 
     // Get fabricante data before deletion for logging
     const { data: fabricante } = await supabase
-      .from('providers')
-      .select('company_name, slug')
+      .from('fabricantes')
+      .select('name, slug')
       .eq('id', id)
-      .eq('category_type', 'fabricantes')
       .single();
 
     if (!fabricante) {
@@ -226,10 +221,9 @@ export const DELETE: APIRoute = async ({ request, cookies, params }) => {
     }
 
     const { error } = await supabase
-      .from('providers')
+      .from('fabricantes')
       .delete()
-      .eq('id', id)
-      .eq('category_type', 'fabricantes');
+      .eq('id', id);
 
     if (error) {
       console.error('Error deleting fabricante:', error);

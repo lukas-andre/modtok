@@ -3,8 +3,8 @@ import {
   CloudIcon,
   SunIcon,
   EyeDropperIcon,
-  WindIcon,
-  TemperatureIcon,
+  FlagIcon,
+  FireIcon,
   ChartBarIcon,
   PlusIcon,
   TrashIcon,
@@ -336,7 +336,7 @@ export default function ClimateDataManager({
 
                 <div className="bg-indigo-50 rounded-lg p-4">
                   <div className="flex items-center">
-                    <TemperatureIcon className="h-8 w-8 text-indigo-500 mr-3" />
+                    <FireIcon className="h-8 w-8 text-indigo-500 mr-3" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">Temperatura Invierno</p>
                       <p className="text-2xl font-bold text-indigo-600">
@@ -372,7 +372,7 @@ export default function ClimateDataManager({
 
                 <div className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center">
-                    <WindIcon className="h-8 w-8 text-gray-500 mr-3" />
+                    <FlagIcon className="h-8 w-8 text-gray-500 mr-3" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">Velocidad Viento</p>
                       <p className="text-2xl font-bold text-gray-600">

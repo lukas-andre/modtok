@@ -37,6 +37,14 @@ if (error || !provider) {
   return Astro.redirect('/admin/providers?error=Provider not found');
 }
 
+// Fetch provider categories
+const { data: providerCategoriesData } = await supabase
+  .from('provider_categories')
+  .select('category_type')
+  .eq('provider_id', id);
+
+const providerCategories = providerCategoriesData?.map(pc => pc.category_type) || [];
+
 // Helper function to format date
 const formatDate = (dateString: string | null) => {
   if (!dateString) return 'No establecido';
@@ -78,6 +86,17 @@ const getTierBadge = (tier: string | null) => {
     'standard': 'bg-gray-100 text-gray-800'
   };
   return badges[tier || ''] || 'bg-gray-100 text-gray-800';
+};
+
+// Helper function to format category names
+const formatCategoryName = (categoryType: string) => {
+  const categoryNames: Record<string, string> = {
+    'casas': 'Casas Prefabricadas',
+    'fabricantes': 'Fabricantes de Casas',
+    'habilitacion_servicios': 'Habilitación y Servicios',
+    'decoracion': 'Decoración y Mejoras'
+  };
+  return categoryNames[categoryType] || categoryType;
 };
 ---
 
@@ -194,11 +213,19 @@ const getTierBadge = (tier: string | null) => {
                 </div>
               )}
               <div>
-                <dt class="text-sm font-medium text-gray-500">Categoría</dt>
-                <dd class="mt-1 text-sm text-gray-900">
-                  {provider.category_type === 'fabricantes' ? 'Fabricantes de Casas' :
-                   provider.category_type === 'habilitacion_servicios' ? 'Habilitación y Servicios' :
-                   provider.category_type === 'decoracion' ? 'Decoración y Mejoras' : provider.category_type}
+                <dt class="text-sm font-medium text-gray-500">Categorías</dt>
+                <dd class="mt-1">
+                  {providerCategories.length > 0 ? (
+                    <div class="flex flex-wrap gap-2">
+                      {providerCategories.map(category => (
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {formatCategoryName(category)}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span class="text-sm text-gray-500">No hay categorías asignadas</span>
+                  )}
                 </dd>
               </div>
             </dl>

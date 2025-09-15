@@ -281,9 +281,11 @@ const featuresByCategory = features?.reduce((acc, feature) => {
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             >
+              <option value="draft">Borrador</option>
+              <option value="pending_review">Pendiente de Revisión</option>
               <option value="active">Activo</option>
-              <option value="pending">Pendiente</option>
-              <option value="suspended">Suspendido</option>
+              <option value="inactive">Inactivo</option>
+              <option value="rejected">Rechazado</option>
             </select>
           </div>
 
@@ -327,30 +329,82 @@ const featuresByCategory = features?.reduce((acc, feature) => {
         </div>
       </div>
 
-      <!-- Category Type -->
+      <!-- Categories -->
       <div class="bg-white rounded-lg border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">Categoría de Proveedor</h3>
+          <h3 class="text-lg font-medium text-gray-900">Categorías del Proveedor</h3>
         </div>
         <div class="p-6">
-          <label for="category_type" class="block text-sm font-medium text-gray-700 mb-2">
-            Tipo de Proveedor *
+          <label class="block text-sm font-medium text-gray-700 mb-3">
+            Seleccione las categorías que ofrece este proveedor * (puede seleccionar múltiples)
           </label>
-          <select
-            id="category_type"
-            name="category_type"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">Seleccionar categoría...</option>
-            <option value="fabricantes">Fabricantes de Casas</option>
-            <option value="habilitacion_servicios">Habilitación y Servicios</option>
-            <option value="decoracion">Decoración y Mejoras</option>
-          </select>
-          <p class="mt-2 text-sm text-gray-600">
-            <strong>Fabricantes:</strong> Empresas que construyen casas modulares/prefabricadas<br/>
-            <strong>Habilitación y Servicios:</strong> Contratistas especialistas en servicios básicos<br/>
-            <strong>Decoración y Mejoras:</strong> Productos y servicios para mejorar espacios
+          <div class="space-y-3">
+            <div class="flex items-start">
+              <input
+                type="checkbox"
+                id="category_casas"
+                name="categories[]"
+                value="casas"
+                class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <div class="ml-3">
+                <label for="category_casas" class="text-sm font-medium text-gray-900">
+                  Casas Modulares
+                </label>
+                <p class="text-sm text-gray-500">Modelos de casas modulares/prefabricadas para venta</p>
+              </div>
+            </div>
+
+            <div class="flex items-start">
+              <input
+                type="checkbox"
+                id="category_fabricantes"
+                name="categories[]"
+                value="fabricantes"
+                class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <div class="ml-3">
+                <label for="category_fabricantes" class="text-sm font-medium text-gray-900">
+                  Fabricante
+                </label>
+                <p class="text-sm text-gray-500">Empresa que construye casas modulares/prefabricadas</p>
+              </div>
+            </div>
+
+            <div class="flex items-start">
+              <input
+                type="checkbox"
+                id="category_servicios"
+                name="categories[]"
+                value="habilitacion_servicios"
+                class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <div class="ml-3">
+                <label for="category_servicios" class="text-sm font-medium text-gray-900">
+                  Habilitación y Servicios
+                </label>
+                <p class="text-sm text-gray-500">Contratistas especialistas en servicios básicos e instalación</p>
+              </div>
+            </div>
+
+            <div class="flex items-start">
+              <input
+                type="checkbox"
+                id="category_decoracion"
+                name="categories[]"
+                value="decoracion"
+                class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <div class="ml-3">
+                <label for="category_decoracion" class="text-sm font-medium text-gray-900">
+                  Decoración y Mejoras
+                </label>
+                <p class="text-sm text-gray-500">Productos y servicios para mejorar espacios</p>
+              </div>
+            </div>
+          </div>
+          <p class="mt-4 text-sm text-gray-600">
+            <strong>Nota:</strong> Un proveedor puede ofrecer múltiples categorías. La primera seleccionada será la categoría principal.
           </p>
         </div>
       </div>
@@ -621,11 +675,24 @@ const featuresByCategory = features?.reduce((acc, feature) => {
           return value.split(',').map(s => s.trim()).filter(s => s.length > 0);
         };
 
+        // Collect selected categories
+        const selectedCategories = [];
+        const categoryCheckboxes = target.querySelectorAll('input[name="categories[]"]:checked');
+        categoryCheckboxes.forEach(checkbox => {
+          selectedCategories.push(checkbox.value);
+        });
+
+        if (selectedCategories.length === 0) {
+          showMessage('error', 'Por favor seleccione al menos una categoría');
+          return;
+        }
+
         const providerData = {
           company_name: formData.get('company_name'),
           email: formData.get('email'),
           phone: formData.get('phone'),
-          category_type: formData.get('category_type'),
+          categories: selectedCategories, // Array of categories
+          category_type: selectedCategories[0], // Primary category for backward compatibility
           description: formData.get('description'),
           website: formData.get('website'),
           whatsapp: formData.get('whatsapp'),
@@ -672,6 +739,7 @@ const featuresByCategory = features?.reduce((acc, feature) => {
         }
 
       } catch (error) {
+        console.log({error})
         showMessage('error', 'Error de conexión. Inténtalo de nuevo.');
       } finally {
         if (submitButton) {
@@ -687,14 +755,31 @@ const featuresByCategory = features?.reduce((acc, feature) => {
   const categoriesData = categories || [];
   const featuresByCategoryData = featuresByCategory || {};
 
-  // Handle category type change to show relevant features
-  const categorySelect = document.getElementById('category_type');
+  // Handle category checkboxes change to show relevant features
+  const categoryCheckboxes = document.querySelectorAll('input[name="categories[]"]');
   const featuresContainer = document.getElementById('features-container');
-  
-  if (categorySelect && featuresContainer) {
-    categorySelect.addEventListener('change', function() {
-      updateFeatures(this.value);
+
+  if (categoryCheckboxes && featuresContainer) {
+    categoryCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        updateFeaturesForCategories();
+      });
     });
+  }
+
+  function updateFeaturesForCategories() {
+    const selectedCategories = [];
+    categoryCheckboxes.forEach(checkbox => {
+      if (checkbox.checked) {
+        selectedCategories.push(checkbox.value);
+      }
+    });
+    // Show features for first selected category
+    if (selectedCategories.length > 0) {
+      updateFeatures(selectedCategories[0]);
+    } else {
+      updateFeatures('');
+    }
   }
 
   function updateFeatures(categoryType) {
@@ -702,16 +787,14 @@ const featuresByCategory = features?.reduce((acc, feature) => {
     if (!container) return;
 
     // Find the category ID
-    const categories = JSON.parse(categoriesData);
-    const category = categories.find((cat) => cat.type === categoryType);
+    const category = categoriesData.find((cat) => cat.type === categoryType);
     
     if (!category) {
       container.innerHTML = '<p class="text-gray-500 text-sm">Selecciona una categoría válida.</p>';
       return;
     }
 
-    const featuresByCategory = JSON.parse(featuresByCategoryData);
-    const categoryFeatures = featuresByCategory[category.id] || [];
+    const categoryFeatures = featuresByCategoryData[category.id] || [];
 
     if (categoryFeatures.length === 0) {
       container.innerHTML = '<p class="text-gray-500 text-sm">No hay características específicas para esta categoría.</p>';

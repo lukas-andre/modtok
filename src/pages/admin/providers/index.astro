@@ -26,7 +26,8 @@ let query = supabase
     *,
     profile:profiles!providers_profile_id_fkey(full_name, email, avatar_url),
     approved_by_profile:profiles!providers_approved_by_fkey(full_name, email),
-    created_by_profile:profiles!providers_created_by_fkey(full_name, email)
+    created_by_profile:profiles!providers_created_by_fkey(full_name, email),
+    provider_categories(category_type)
   `, { count: 'exact' });
 
 // Apply filters
@@ -73,6 +74,28 @@ for (let i = 0; i < maxVisiblePages; i++) {
   }
   pageNumbers.push(pageNum);
 }
+
+// Helper function to format category names
+const formatCategoryName = (categoryType: string) => {
+  const categoryNames: Record<string, string> = {
+    'casas': 'Casas',
+    'fabricantes': 'Fabricantes',
+    'habilitacion_servicios': 'Servicios',
+    'decoracion': 'Decoración'
+  };
+  return categoryNames[categoryType] || categoryType;
+};
+
+// Helper function to get category color
+const getCategoryColor = (categoryType: string) => {
+  const colors: Record<string, string> = {
+    'casas': 'bg-purple-100 text-purple-800',
+    'fabricantes': 'bg-blue-100 text-blue-800',
+    'habilitacion_servicios': 'bg-green-100 text-green-800',
+    'decoracion': 'bg-orange-100 text-orange-800'
+  };
+  return colors[categoryType] || 'bg-gray-100 text-gray-800';
+};
 ---
 
 <AdminLayout title="Gestión de Proveedores" user={user} currentPage="/admin/providers">
@@ -264,18 +287,18 @@ for (let i = 0; i < maxVisiblePages; i++) {
                       </div>
                     </div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <span class={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      provider.category_type === 'fabricantes' 
-                        ? 'bg-blue-100 text-blue-800' 
-                        : provider.category_type === 'habilitacion_servicios'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-purple-100 text-purple-800'
-                    }`}>
-                      {provider.category_type === 'fabricantes' ? 'Fabricantes' : 
-                       provider.category_type === 'habilitacion_servicios' ? 'Servicios' : 
-                       'Decoración'}
-                    </span>
+                  <td class="px-6 py-4">
+                    <div class="flex flex-wrap gap-1">
+                      {provider.provider_categories?.length > 0 ? (
+                        provider.provider_categories.map((pc: any) => (
+                          <span class={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryColor(pc.category_type)}`}>
+                            {formatCategoryName(pc.category_type)}
+                          </span>
+                        ))
+                      ) : (
+                        <span class="text-xs text-gray-500">Sin categorías</span>
+                      )}
+                    </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm text-gray-900">{provider.email}</div>

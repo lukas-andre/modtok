@@ -23,7 +23,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       company_name,
       email,
       phone,
-      category_type,
+      category_type, // Single category for backward compatibility
+      categories, // New: array of categories
       description,
       description_long,
       
@@ -73,24 +74,44 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     } = formData;
 
     // Validation
-    if (!company_name || !email || !phone || !category_type) {
+    if (!company_name || !email || !phone) {
       return new Response(
-        JSON.stringify({ error: 'Company name, email, phone, and category are required' }),
-        { 
+        JSON.stringify({ error: 'Company name, email, and phone are required' }),
+        {
           status: 400,
           headers: { 'Content-Type': 'application/json' }
         }
       );
     }
 
-    if (!['casas', 'fabricantes', 'habilitacion_servicios', 'decoracion'].includes(category_type)) {
+    // Handle categories - support both old single category and new multiple categories
+    let providerCategories = categories || [];
+    if (category_type && !categories) {
+      providerCategories = [category_type];
+    }
+
+    if (providerCategories.length === 0) {
       return new Response(
-        JSON.stringify({ error: 'Invalid category type' }),
-        { 
+        JSON.stringify({ error: 'At least one category is required' }),
+        {
           status: 400,
           headers: { 'Content-Type': 'application/json' }
         }
       );
+    }
+
+    // Validate all categories
+    const validCategories = ['casas', 'fabricantes', 'habilitacion_servicios', 'decoracion'];
+    for (const cat of providerCategories) {
+      if (!validCategories.includes(cat)) {
+        return new Response(
+          JSON.stringify({ error: `Invalid category type: ${cat}` }),
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' }
+          }
+        );
+      }
     }
 
     if (!['premium', 'destacado', 'standard'].includes(tier)) {
@@ -146,7 +167,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       slug,
       email,
       phone,
-      category_type: category_type as 'casas' | 'fabricantes' | 'habilitacion_servicios' | 'decoracion',
+      category_type: providerCategories[0] as 'casas' | 'fabricantes' | 'habilitacion_servicios' | 'decoracion', // Primary category for backward compatibility
       description,
       description_long,
       whatsapp,
@@ -205,6 +226,24 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
+    // Add categories to junction table
+    if (providerCategories.length > 0) {
+      const categoryInserts = providerCategories.map((cat: string, index: number) => ({
+        provider_id: provider.id,
+        category_type: cat as 'casas' | 'fabricantes' | 'habilitacion_servicios' | 'decoracion',
+        is_primary: index === 0 // First category is primary
+      }));
+
+      const { error: categoryError } = await supabase
+        .from('provider_categories')
+        .insert(categoryInserts);
+
+      if (categoryError) {
+        console.error('Error adding provider categories:', categoryError);
+        // Don't fail the whole operation, categories were synced by trigger
+      }
+    }
+
     // Log admin action
     if (auth?.user?.id) {
       await supabase
@@ -215,7 +254,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           target_type: 'provider',
           target_id: provider.id,
           changes: {
-            created: providerData
+            created: { ...providerData, categories: providerCategories }
           }
         });
     }

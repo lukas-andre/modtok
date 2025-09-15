@@ -12,43 +12,36 @@ if (!user) {
 
 const supabase = createSupabaseClient(Astro);
 
-// Get providers for dropdown
+// Get providers that offer services (have "habilitacion_servicios" category)
 const { data: providers } = await supabase
   .from('providers')
-  .select('id, company_name')
-  .eq('category_type', 'habilitacion_servicios')
+  .select(`
+    id,
+    company_name,
+    tier,
+    provider_categories!inner(category_type)
+  `)
   .eq('status', 'active')
+  .eq('provider_categories.category_type', 'habilitacion_servicios')
   .order('company_name');
 
-// Get categories for services
-const { data: categories } = await supabase
+// Get sub-categories for services
+const { data: subCategories } = await supabase
   .from('categories')
   .select('*')
   .eq('type', 'habilitacion_servicios')
+  .not('parent_id', 'is', null)
+  .eq('is_active', true)
   .order('display_order');
 
 // Get features for services
 const { data: features } = await supabase
   .from('features')
   .select('*')
-  .in('category_id', categories?.map(c => c.id) || [])
   .eq('is_active', true)
   .order('display_order');
 
-// Service types
-const serviceTypes = [
-  { value: 'Agua y Saneamiento', label: 'Agua y Saneamiento' },
-  { value: 'Energía Solar', label: 'Energía Solar' },
-  { value: 'Energía Eléctrica', label: 'Energía Eléctrica' },
-  { value: 'Construcción', label: 'Construcción' },
-  { value: 'Calefacción', label: 'Calefacción' },
-  { value: 'Aislamiento', label: 'Aislamiento' },
-  { value: 'Pisos y Revestimientos', label: 'Pisos y Revestimientos' },
-  { value: 'Seguridad', label: 'Seguridad' },
-  { value: 'Telecomunicaciones', label: 'Telecomunicaciones' },
-  { value: 'Paisajismo', label: 'Paisajismo' },
-  { value: 'Otros', label: 'Otros' }
-];
+// Removed serviceTypes - now using category-specific features from database
 
 // Coverage areas (Chilean regions)
 const regions = [
@@ -157,34 +150,21 @@ const regions = [
             
             <div>
               <label class="block text-sm font-medium text-gray-700">
-                Tipo de Servicio <span class="text-red-500">*</span>
-              </label>
-              <select
-                name="service_type"
-                required
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-              >
-                <option value="">Seleccionar tipo</option>
-                {serviceTypes.map(type => (
-                  <option value={type.value}>{type.label}</option>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700">
-                Categoría
+                Categoría <span class="text-red-500">*</span>
               </label>
               <select
                 name="category_id"
+                required
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
               >
                 <option value="">Seleccionar categoría</option>
-                {categories?.map(category => (
+                {subCategories?.map(category => (
                   <option value={category.id}>{category.name}</option>
                 ))}
               </select>
             </div>
+
+            
           </div>
           
           <div>
@@ -351,26 +331,12 @@ const regions = [
       <!-- Features & Characteristics -->
       <div class="bg-white shadow rounded-lg">
         <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-medium text-gray-900">Características</h2>
+          <h2 class="text-lg font-medium text-gray-900">Características del Servicio</h2>
+          <p class="mt-1 text-sm text-gray-500">Seleccione primero una categoría para ver las características disponibles</p>
         </div>
         <div class="px-6 py-4">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Características del Servicio
-          </label>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {features?.map((feature: any) => (
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  name={`feature_${feature.slug}`}
-                  id={`feature_${feature.slug}`}
-                  class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label for={`feature_${feature.slug}`} class="ml-2 block text-sm text-gray-900">
-                  {feature.name}
-                </label>
-              </div>
-            ))}
+          <div id="featuresContainer" class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <p class="text-sm text-gray-500 col-span-full">Seleccione una categoría para cargar las características</p>
           </div>
         </div>
       </div>
@@ -504,6 +470,44 @@ const regions = [
       }
     });
 
+    // Load features when category changes
+    document.querySelector('select[name="category_id"]')?.addEventListener('change', async (e) => {
+      const categoryId = e.target.value;
+      const featuresContainer = document.getElementById('featuresContainer');
+
+      if (!categoryId) {
+        featuresContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-full">Seleccione una categoría para cargar las características</p>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/admin/categories/${categoryId}/features`);
+        const features = await response.json();
+
+        if (features && features.length > 0) {
+          featuresContainer.innerHTML = features.map(feature => `
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                name="feature_${feature.slug}"
+                id="feature_${feature.slug}"
+                value="${feature.name}"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label for="feature_${feature.slug}" class="ml-2 block text-sm text-gray-900">
+                ${feature.name}
+              </label>
+            </div>
+          `).join('');
+        } else {
+          featuresContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-full">No hay características disponibles para esta categoría</p>';
+        }
+      } catch (error) {
+        console.error('Error loading features:', error);
+        featuresContainer.innerHTML = '<p class="text-sm text-red-500 col-span-full">Error al cargar las características</p>';
+      }
+    });
+
     // Form submission
     document.getElementById('serviceForm')?.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -523,14 +527,14 @@ const regions = [
       });
       data.coverage_areas = coverageAreas;
       
-      // Collect features
-      const features = {};
-      formData.forEach((_, key) => {
+      // Collect selected features
+      const selectedFeatures = [];
+      formData.forEach((value, key) => {
         if (key.startsWith('feature_')) {
-          features[key.replace('feature_', '')] = true;
+          selectedFeatures.push(value);
         }
       });
-      data.features = features;
+      data.features = selectedFeatures;
       
       // Clean up data object
       Object.keys(data).forEach(key => {

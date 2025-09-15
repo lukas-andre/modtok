@@ -161,7 +161,7 @@ if (error) {
 </AdminLayout>
 
 <script>
-  function confirmDelete(adminId, adminName) {
+  function confirmDelete(adminId: string, adminName: string) {
     if (confirm(`¿Estás seguro que deseas eliminar al administrador "${adminName}"?`)) {
       // This would normally make an API call to delete the admin
       // For now, we'll just show an alert

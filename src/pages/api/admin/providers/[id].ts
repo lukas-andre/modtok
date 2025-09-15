@@ -95,7 +95,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       company_name,
       email,
       phone,
-      category_type,
+      categories,
       description,
       description_long,
       whatsapp,
@@ -161,7 +161,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       ...(slug !== currentProvider.slug && { slug }),
       ...(email !== undefined && { email }),
       ...(phone !== undefined && { phone }),
-      ...(category_type !== undefined && { category_type }),
+      // Note: category_type is deprecated - use provider_categories table instead
       ...(description !== undefined && { description }),
       ...(description_long !== undefined && { description_long }),
       ...(whatsapp !== undefined && { whatsapp }),
@@ -221,6 +221,40 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
         JSON.stringify({ error: 'Failed to update provider: ' + error.message }),
         { status: 500, headers: { 'Content-Type': 'application/json' }}
       );
+    }
+
+    // Update categories if provided
+    if (categories !== undefined && Array.isArray(categories)) {
+      // First, delete existing categories
+      await supabase
+        .from('provider_categories')
+        .delete()
+        .eq('provider_id', id);
+
+      // Then insert new categories
+      if (categories.length > 0) {
+        const categoryInserts = categories.map((category, index) => ({
+          provider_id: id,
+          category_type: category,
+          is_primary: index === 0 // First category is primary
+        }));
+
+        const { error: categoryError } = await supabase
+          .from('provider_categories')
+          .insert(categoryInserts);
+
+        if (categoryError) {
+          console.error('Error updating provider categories:', categoryError);
+        }
+
+        // Update the primary category_type field for backward compatibility
+        if (categories[0]) {
+          await supabase
+            .from('providers')
+            .update({ category_type: categories[0] })
+            .eq('id', id);
+        }
+      }
     }
 
     // Log admin action
