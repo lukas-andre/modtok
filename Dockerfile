@@ -1,35 +1,25 @@
-# Optimized Dockerfile for Railway deployment with Astro + pnpm
-FROM node:20-alpine AS base
+# Use the Node alpine official image
+# https://hub.docker.com/_/node
+FROM node:lts-alpine
 
 # Install pnpm
 RUN corepack enable
 RUN corepack prepare pnpm@latest --activate
 
-# Dependencies stage
-FROM base AS deps
+# Create and change to the app directory.
 WORKDIR /app
+
+# Copy the files to the container image
 COPY package.json pnpm-lock.yaml ./
+
+# Install packages
 RUN pnpm install --frozen-lockfile
 
-# Build stage
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+# Copy local code to the container image.
+COPY . ./
+
+# Build the app.
 RUN pnpm run build
 
-# Production stage
-FROM node:20-alpine AS runner
-WORKDIR /app
-
-# Copy only necessary files
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./package.json
-
-# Set production environment
-ENV NODE_ENV=production
-ENV HOST=0.0.0.0
-
-# Railway will provide PORT dynamically
-# The app should read PORT from environment
-CMD ["node", "./dist/server/entry.mjs"]
+# Serve the app
+CMD ["pnpm", "run", "start"]
