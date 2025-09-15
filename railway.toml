@@ -2,7 +2,6 @@
 builder = "dockerfile"
 
 [deploy]
-startCommand = "node ./dist/server/entry.mjs"
 healthcheckPath = "/api/status"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
