@@ -12,12 +12,17 @@ if (!user) {
 
 const supabase = createSupabaseClient(Astro);
 
-// Get providers for dropdown
+// Get providers that offer houses (have "casas" category)
 const { data: providers } = await supabase
   .from('providers')
-  .select('id, company_name')
-  .eq('category_type', 'fabricantes')
+  .select(`
+    id,
+    company_name,
+    tier,
+    provider_categories!inner(category_type)
+  `)
   .eq('status', 'active')
+  .eq('provider_categories.category_type', 'casas')
   .order('company_name');
 
 // Get topologies for dropdown
@@ -27,12 +32,20 @@ const { data: topologies } = await supabase
   .eq('is_active', true)
   .order('display_order');
 
-// Get features for the category
-const { data: features } = await supabase
+// Get house features grouped by business logic
+// First get the fabricantes category ID
+const { data: fabricantesCategory } = await supabase
+  .from('categories')
+  .select('id')
+  .eq('slug', 'fabricantes')
+  .single();
+
+const { data: houseFeatures } = await supabase
   .from('features')
   .select('*')
+  .eq('category_id', fabricantesCategory?.id)
   .eq('is_active', true)
-  .order('display_order');
+  .order('name');
 ---
 
 <AdminLayout title="Nueva Casa" user={user}>
@@ -117,14 +130,14 @@ const { data: features } = await supabase
             
             <div>
               <label class="block text-sm font-medium text-gray-700">
-                Fabricante <span class="text-red-500">*</span>
+                Proveedor de Casas <span class="text-red-500">*</span>
               </label>
               <select
                 name="provider_id"
                 required
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
               >
-                <option value="">Seleccionar fabricante</option>
+                <option value="">Seleccionar proveedor</option>
                 {providers?.map(provider => (
                   <option value={provider.id}>{provider.company_name}</option>
                 ))}
@@ -391,79 +404,8 @@ const { data: features } = await supabase
           <h2 class="text-lg font-medium text-gray-900">Características</h2>
         </div>
         <div class="px-6 py-4 space-y-4">
+          <!-- Basic house features -->
           <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div class="flex items-center">
-              <input
-                type="checkbox"
-                name="llave_en_mano"
-                id="llave_en_mano"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label for="llave_en_mano" class="ml-2 block text-sm text-gray-900">
-                Llave en Mano
-              </label>
-            </div>
-            
-            <div class="flex items-center">
-              <input
-                type="checkbox"
-                name="expandable"
-                id="expandable"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label for="expandable" class="ml-2 block text-sm text-gray-900">
-                Expandible
-              </label>
-            </div>
-            
-            <div class="flex items-center">
-              <input
-                type="checkbox"
-                name="mobile"
-                id="mobile"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label for="mobile" class="ml-2 block text-sm text-gray-900">
-                Móvil / Transportable
-              </label>
-            </div>
-            
-            <div class="flex items-center">
-              <input
-                type="checkbox"
-                name="off_grid_ready"
-                id="off_grid_ready"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label for="off_grid_ready" class="ml-2 block text-sm text-gray-900">
-                Off-Grid Ready
-              </label>
-            </div>
-            
-            <div class="flex items-center">
-              <input
-                type="checkbox"
-                name="sustainable"
-                id="sustainable"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label for="sustainable" class="ml-2 block text-sm text-gray-900">
-                Sustentable
-              </label>
-            </div>
-            
-            <div class="flex items-center">
-              <input
-                type="checkbox"
-                name="smart_home"
-                id="smart_home"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label for="smart_home" class="ml-2 block text-sm text-gray-900">
-                Smart Home
-              </label>
-            </div>
-            
             <div class="flex items-center">
               <input
                 type="checkbox"
@@ -478,17 +420,93 @@ const { data: features } = await supabase
             </div>
           </div>
           
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Características Adicionales
-            </label>
+          <!-- Grouped House Features from Business Model -->
+
+          <!-- Servicios Disponibles -->
+          <div class="mb-6">
+            <h4 class="text-md font-medium text-gray-900 mb-3">Servicios Disponibles</h4>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {features?.map(feature => (
+              {houseFeatures?.filter(f =>
+                ['diseno-standard', 'diseno-personalizado', 'instalacion-premontada',
+                 'construccion-terreno', 'instalacion', 'kits-autoconstruccion',
+                 'construccion-personalizada', 'logistica-transporte', 'financiamiento'].includes(f.slug)
+              ).map(feature => (
                 <div class="flex items-center">
                   <input
                     type="checkbox"
                     name={`feature_${feature.slug}`}
                     id={`feature_${feature.slug}`}
+                    value={feature.name}
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label for={`feature_${feature.slug}`} class="ml-2 block text-sm text-gray-900">
+                    {feature.name}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Ventanas -->
+          <div class="mb-6">
+            <h4 class="text-md font-medium text-gray-900 mb-3">Ventanas</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {houseFeatures?.filter(f =>
+                ['ventanas-termopanel', 'ventanas-pvc', 'ventanas-aluminio', 'ventanas-madera'].includes(f.slug)
+              ).map(feature => (
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    name={`feature_${feature.slug}`}
+                    id={`feature_${feature.slug}`}
+                    value={feature.name}
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label for={`feature_${feature.slug}`} class="ml-2 block text-sm text-gray-900">
+                    {feature.name}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Tecnología de Materiales -->
+          <div class="mb-6">
+            <h4 class="text-md font-medium text-gray-900 mb-3">Tecnología de Materiales</h4>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {houseFeatures?.filter(f =>
+                ['paneles-sip', 'estructura-contenedor', 'losa-radiante', 'losa-hormigon-liviano',
+                 'jaula-acero', 'madera', 'carton', 'lana', 'materiales-eco', 'acero-reciclado',
+                 'acero-galvanizado', 'paneles-poliuretano', 'zinc', 'fibrocemento', 'osb',
+                 'poliestireno-expandido', 'contenedor-maritimo', 'vulcometal', 'metalcon'].includes(f.slug)
+              ).map(feature => (
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    name={`feature_${feature.slug}`}
+                    id={`feature_${feature.slug}`}
+                    value={feature.name}
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label for={`feature_${feature.slug}`} class="ml-2 block text-sm text-gray-900">
+                    {feature.name}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Llave en Mano (Special Category) -->
+          <div class="mb-6">
+            <h4 class="text-md font-medium text-gray-900 mb-3">Modalidad</h4>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {houseFeatures?.filter(f => f.slug === 'llave-en-mano').map(feature => (
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    name={`feature_${feature.slug}`}
+                    id={`feature_${feature.slug}`}
+                    value={feature.name}
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label for={`feature_${feature.slug}`} class="ml-2 block text-sm text-gray-900">
@@ -704,22 +722,23 @@ const { data: features } = await supabase
       const data = Object.fromEntries(formData);
       
       // Convert checkboxes to boolean
-      data.llave_en_mano = formData.has('llave_en_mano');
-      data.expandable = formData.has('expandable');
-      data.mobile = formData.has('mobile');
-      data.off_grid_ready = formData.has('off_grid_ready');
-      data.sustainable = formData.has('sustainable');
-      data.smart_home = formData.has('smart_home');
       data.is_available = formData.has('is_available');
-      
-      // Collect features
-      const features = {};
-      formData.forEach((_, key) => {
+
+      // Collect selected features
+      const selectedFeatures = [];
+      formData.forEach((value, key) => {
         if (key.startsWith('feature_')) {
-          features[key.replace('feature_', '')] = true;
+          selectedFeatures.push(value);
         }
       });
-      data.features = features;
+      data.features = selectedFeatures;
+
+      // Clean up feature fields from data
+      Object.keys(data).forEach(key => {
+        if (key.startsWith('feature_')) {
+          delete data[key];
+        }
+      });
       
       // Add images and specifications from React components
       // These would be collected from the React component state

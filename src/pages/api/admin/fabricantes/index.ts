@@ -30,16 +30,15 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     const sortBy = searchParams.get('sort_by') || 'created_at';
     const sortOrder = searchParams.get('sort_order') === 'asc' ? 'asc' : 'desc';
 
-    // Build query - filter specifically for fabricantes
+    // Build query for fabricantes table
     let query = supabase
-      .from('providers')
+      .from('fabricantes')
       .select(`
         *,
-        profile:profiles(id, full_name, email, avatar_url),
-        approved_by_profile:profiles!providers_approved_by_fkey(full_name),
-        created_by_profile:profiles!providers_created_by_fkey(full_name)
-      `, { count: 'exact' })
-      .eq('category_type', 'fabricantes'); // Filter for fabricantes only
+        provider:providers(id, company_name, tier, slug, status, logo_url),
+        approved_by_profile:profiles!fabricantes_approved_by_fkey(full_name),
+        created_by_profile:profiles!fabricantes_created_by_fkey(full_name)
+      `, { count: 'exact' });
 
     // Apply filters
     if (status && ['draft', 'pending_review', 'active', 'inactive', 'rejected'].includes(status)) {
@@ -137,8 +136,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const supabase = createSupabaseClient({ request, cookies });
     const body = await request.json();
     
-    // Generate slug from company name
-    const slug = body.company_name
+    // Generate slug from service name
+    const slug = body.name
       .toLowerCase()
       .replace(/[áàäâã]/g, 'a')
       .replace(/[éèëê]/g, 'e')
@@ -153,7 +152,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     let counter = 1;
     while (true) {
       const { data: existing } = await supabase
-        .from('providers')
+        .from('fabricantes')
         .select('id')
         .eq('slug', finalSlug)
         .single();
@@ -175,14 +174,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const fabricanteData = {
       ...body,
       slug: finalSlug,
-      category_type: 'fabricantes', // Force fabricantes category
       created_by: auth?.user?.id || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
 
     const { data: fabricante, error } = await supabase
-      .from('providers')
+      .from('fabricantes')
       .insert(fabricanteData)
       .select()
       .single();
@@ -194,6 +192,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         { status: 500, headers: { 'Content-Type': 'application/json' }}
       );
     }
+
+    // No need to add category - provider already has fabricantes category
 
     // Log admin action
     if (auth?.user?.id) {
@@ -291,11 +291,27 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
             throw new Error('Invalid action');
         }
 
+        // First verify the provider has the fabricantes category
+        const { data: categoryCheck } = await supabase
+          .from('provider_categories')
+          .select('provider_id')
+          .eq('provider_id', fabricanteId)
+          .eq('category_type', 'fabricantes')
+          .single();
+
+        if (!categoryCheck) {
+          results.push({
+            id: fabricanteId,
+            success: false,
+            error: 'Provider is not a fabricante'
+          });
+          continue;
+        }
+
         const { data: updatedFabricante, error } = await supabase
           .from('providers')
           .update(updateData)
           .eq('id', fabricanteId)
-          .eq('category_type', 'fabricantes') // Ensure we only update fabricantes
           .select('id, company_name, status, tier')
           .single();
 
@@ -376,12 +392,27 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
     }
 
     const supabase = createSupabaseClient({ request, cookies });
-    
+
+    // First verify all providers are fabricantes
+    const { data: categoryChecks } = await supabase
+      .from('provider_categories')
+      .select('provider_id')
+      .in('provider_id', fabricante_ids)
+      .eq('category_type', 'fabricantes');
+
+    const validFabricanteIds = categoryChecks?.map(c => c.provider_id) || [];
+
+    if (validFabricanteIds.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'No valid fabricantes found to delete' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' }}
+      );
+    }
+
     const { error } = await supabase
       .from('providers')
       .delete()
-      .in('id', fabricante_ids)
-      .eq('category_type', 'fabricantes'); // Ensure we only delete fabricantes
+      .in('id', validFabricanteIds);
 
     if (error) {
       console.error('Error deleting fabricantes:', error);

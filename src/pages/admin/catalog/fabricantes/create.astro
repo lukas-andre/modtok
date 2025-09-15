@@ -1,28 +1,52 @@
 ---
 import AdminLayout from '@/layouts/AdminLayout.astro';
 import { getAdminAuth, requireAdmin } from '@/lib/auth';
+import { createSupabaseClient } from '@/lib/supabase';
 
 const auth = await getAdminAuth(Astro);
 const user = requireAdmin(auth);
 
 if (!user) {
-  return Astro.redirect('/auth/login?redirect=/admin/catalog/fabricantes');
+  return Astro.redirect('/auth/login?redirect=/admin/catalog/fabricantes/create');
 }
+
+const supabase = createSupabaseClient(Astro);
+
+// Get providers that offer fabrication services (have "fabricantes" category)
+const { data: providers } = await supabase
+  .from('providers')
+  .select(`
+    id,
+    company_name,
+    tier,
+    provider_categories!inner(category_type)
+  `)
+  .eq('status', 'active')
+  .eq('provider_categories.category_type', 'fabricantes')
+  .order('company_name');
 
 // Get Chilean regions for dropdown
 const chileanRegions = [
   'Arica y Parinacota', 'Tarapacá', 'Antofagasta', 'Atacama', 'Coquimbo',
   'Valparaíso', 'Región Metropolitana', "O'Higgins", 'Maule', 'Ñuble',
-  'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén', 
+  'Biobío', 'La Araucanía', 'Los Ríos', 'Los Lagos', 'Aysén',
   'Magallanes y Antártica Chilena'
 ];
 
-// Common specialties for fabricantes
-const fabricanteSpecialties = [
-  'Casas Modulares', 'Casas Prefabricadas', 'Paneles SIP', 'Construcción en Seco',
-  'Casas Sustentables', 'Tiny Houses', 'Containers', 'Casas Tradicionales',
-  'Cabañas', 'Domos', 'Estructuras Metálicas', 'Construcción en Madera'
-];
+// Get fabricante features from database (same as houses)
+// First get the fabricantes category ID
+const { data: fabricantesCategory } = await supabase
+  .from('categories')
+  .select('id')
+  .eq('slug', 'fabricantes')
+  .single();
+
+const { data: fabricanteFeatures } = await supabase
+  .from('features')
+  .select('*')
+  .eq('category_id', fabricantesCategory?.id)
+  .eq('is_active', true)
+  .order('name');
 ---
 
 <AdminLayout title="Nuevo Fabricante", user={user}>
@@ -58,17 +82,45 @@ const fabricanteSpecialties = [
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700">
-                Nombre de la Empresa <span class="text-red-500">*</span>
+                Proveedor <span class="text-red-500">*</span>
+              </label>
+              <select
+                name="provider_id"
+                required
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              >
+                <option value="">Seleccione un proveedor</option>
+                {providers?.map((provider) => (
+                  <option value={provider.id}>{provider.company_name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                Nombre del Servicio <span class="text-red-500">*</span>
               </label>
               <input
                 type="text"
-                name="company_name"
+                name="name"
                 required
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                placeholder="Ej: Construcciones ModTech SPA"
+                placeholder="Ej: Fabricación de Casas Modulares"
               />
             </div>
             
+            <div>
+              <label class="block text-sm font-medium text-gray-700">
+                SKU
+              </label>
+              <input
+                type="text"
+                name="sku"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                placeholder="FAB-001"
+              />
+            </div>
+
             <div>
               <label class="block text-sm font-medium text-gray-700">
                 Slug URL
@@ -77,7 +129,7 @@ const fabricanteSpecialties = [
                 type="text"
                 name="slug"
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                placeholder="construcciones-modtech-spa (se genera automáticamente)"
+                placeholder="fabricacion-casas-modulares (se genera automáticamente)"
               />
             </div>
             
@@ -315,21 +367,73 @@ const fabricanteSpecialties = [
             </div>
           </div>
           
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Especialidades
-            </label>
+          <!-- Grouped Fabricante Features from Business Model -->
+
+          <!-- Servicios Disponibles -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-900 mb-3">Servicios Disponibles</label>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {fabricanteSpecialties.map(specialty => (
+              {fabricanteFeatures?.filter(f =>
+                ['diseno-standard', 'diseno-personalizado', 'instalacion-premontada',
+                 'construccion-terreno', 'instalacion', 'kits-autoconstruccion',
+                 'asesoria-tecnica', 'asesoria-legal', 'construccion-personalizada',
+                 'logistica-transporte', 'financiamiento'].includes(f.slug)
+              ).map(feature => (
                 <div class="flex items-center">
                   <input
                     type="checkbox"
-                    name={`specialty_${specialty.toLowerCase().replace(/\s+/g, '_')}`}
-                    id={`specialty_${specialty.toLowerCase().replace(/\s+/g, '_')}`}
+                    name={`feature_${feature.slug}`}
+                    id={`feature_${feature.slug}`}
+                    value={feature.name}
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <label for={`specialty_${specialty.toLowerCase().replace(/\s+/g, '_')}`} class="ml-2 block text-sm text-gray-900">
-                    {specialty}
+                  <label for={`feature_${feature.slug}`} class="ml-2 block text-sm text-gray-900">
+                    {feature.name}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Especialidades -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-900 mb-3">Especialidades</label>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {fabricanteFeatures?.filter(f =>
+                ['tiny-houses', 'casas-panel-sip', 'casas-container', 'casas-hormigon',
+                 'casas-madera', 'prefab-madera', 'oficinas-container'].includes(f.slug)
+              ).map(feature => (
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    name={`feature_${feature.slug}`}
+                    id={`feature_${feature.slug}`}
+                    value={feature.name}
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label for={`feature_${feature.slug}`} class="ml-2 block text-sm text-gray-900">
+                    {feature.name}
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Llave en Mano (Special Category) -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-900 mb-3">Modalidad</label>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {fabricanteFeatures?.filter(f => f.slug === 'llave-en-mano').map(feature => (
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    name={`feature_${feature.slug}`}
+                    id={`feature_${feature.slug}`}
+                    value={feature.name}
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label for={`feature_${feature.slug}`} class="ml-2 block text-sm text-gray-900">
+                    {feature.name}
                   </label>
                 </div>
               ))}
@@ -561,8 +665,8 @@ const fabricanteSpecialties = [
 
 
   <script is:inline>
-    // Auto-generate slug from company name
-    document.querySelector('input[name="company_name"]')?.addEventListener('input', (e) => {
+    // Auto-generate slug from service name
+    document.querySelector('input[name="name"]')?.addEventListener('input', (e) => {
       const slugInput = document.querySelector('input[name="slug"]');
       if (slugInput && !slugInput.value) {
         const slug = e.target.value
@@ -586,21 +690,25 @@ const fabricanteSpecialties = [
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData);
       
-      // Set category_type for fabricantes
-      data.category_type = 'fabricantes';
-      
-      // Collect specialties
-      const specialties = [];
-      formData.forEach((_, key) => {
-        if (key.startsWith('specialty_')) {
-          specialties.push(key.replace('specialty_', '').replace(/_/g, ' '));
+      // Collect selected features
+      const selectedFeatures = [];
+      formData.forEach((value, key) => {
+        if (key.startsWith('feature_')) {
+          selectedFeatures.push(value);
         }
       });
-      data.specialties = specialties;
-      
-      // Parse arrays
-      if (data.coverage_areas) {
-        data.coverage_areas = data.coverage_areas.split(',').map(area => area.trim());
+      data.features = selectedFeatures;
+
+      // Clean up feature fields from data
+      Object.keys(data).forEach(key => {
+        if (key.startsWith('feature_')) {
+          delete data[key];
+        }
+      });
+
+      // Parse arrays from comma-separated strings
+      if (data.regions) {
+        data.regions = data.regions.split(',').map(region => region.trim());
       }
       if (data.certifications) {
         data.certifications = data.certifications.split(',').map(cert => cert.trim());
@@ -608,37 +716,25 @@ const fabricanteSpecialties = [
       if (data.keywords) {
         data.keywords = data.keywords.split(',').map(keyword => keyword.trim());
       }
-      
+
       // Parse numeric fields
-      ['price_range_min', 'price_range_max', 'years_experience', 'commission_rate', 'internal_rating'].forEach(field => {
+      ['price_range_min', 'price_range_max', 'price_per_unit', 'lead_time_days', 'warranty_years', 'internal_rating'].forEach(field => {
         if (data[field] && data[field] !== '') {
           data[field] = parseFloat(data[field]);
         }
       });
-      
-      // Handle metadata fields
-      const metadata = {
-        tax_id: data.tax_id,
-        contact_person: data.contact_person,
-        contact_position: data.contact_position,
-        currency: data.currency || 'CLP',
-        kyc_status: data.kyc_status || 'pending',
-        commission_rate: data.commission_rate ? parseFloat(data.commission_rate) : null
-      };
-      
-      // Remove metadata fields from main data object
-      delete data.tax_id;
-      delete data.contact_person;
-      delete data.contact_position;
-      delete data.currency;
-      delete data.kyc_status;
-      delete data.commission_rate;
-      
-      // Add metadata to data
-      data.metadata = metadata;
-      
-      // Add gallery images (empty for now)
+
+      // Parse boolean fields
+      data.coverage_national = data.coverage_national === 'on';
+      data.custom_design = data.custom_design === 'on';
+      data.cad_service = data.cad_service === 'on';
+      data.installation_service = data.installation_service === 'on';
+      data.featured = data.featured === 'on';
+
+      // Set default values
       data.gallery_images = [];
+      data.status = data.status || 'draft';
+      data.tier = data.tier || 'standard';
       
       try {
         const response = await fetch('/api/admin/fabricantes', {
@@ -651,7 +747,7 @@ const fabricanteSpecialties = [
         
         if (response.ok) {
           const result = await response.json();
-          window.location.href = `/admin/catalog/fabricantes/${result.provider.id}/edit`;
+          window.location.href = `/admin/catalog/fabricantes/${result.fabricante.id}/edit`;
         } else {
           const error = await response.json();
           alert(`Error al crear el fabricante: ${error.error}`);

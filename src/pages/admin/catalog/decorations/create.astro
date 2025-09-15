@@ -1,4 +1,476 @@
 ---
-// Redirect to services create page since decorations are services
-return Astro.redirect('/admin/catalog/services/create?service_type=decoration');
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '@/lib/auth';
+import { createSupabaseClient } from '@/lib/supabase';
+
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/catalog/decorations/create');
+}
+
+const supabase = createSupabaseClient(Astro);
+
+// Get providers that offer decorations (have "decoracion" category)
+const { data: providers } = await supabase
+  .from('providers')
+  .select(`
+    id,
+    company_name,
+    tier,
+    provider_categories!inner(category_type)
+  `)
+  .eq('status', 'active')
+  .eq('provider_categories.category_type', 'decoracion')
+  .order('company_name');
+
+// Get sub-categories for decorations
+const { data: subCategories } = await supabase
+  .from('categories')
+  .select('*')
+  .eq('type', 'decoracion')
+  .not('parent_id', 'is', null)
+  .eq('is_active', true)
+  .order('display_order');
+
+// Removed productTypes - now using category-specific features from database
 ---
+
+<AdminLayout title="Nueva Decoración" user={user}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Nueva Decoración</h1>
+          <p class="mt-1 text-sm text-gray-500">
+            Agregue un nuevo producto de decoración al catálogo
+          </p>
+        </div>
+        <a
+          href="/admin/catalog/decorations"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+        >
+          Cancelar
+        </a>
+      </div>
+    </div>
+
+    <form id="decorationForm" class="space-y-6">
+      <!-- Basic Information -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Información Básica</h3>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="provider_id" class="block text-sm font-medium text-gray-700">
+                Proveedor *
+              </label>
+              <select
+                id="provider_id"
+                name="provider_id"
+                required
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="">Seleccione un proveedor...</option>
+                {providers?.map(provider => (
+                  <option value={provider.id}>{provider.company_name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label for="category_id" class="block text-sm font-medium text-gray-700">
+                Categoría *
+              </label>
+              <select
+                id="category_id"
+                name="category_id"
+                required
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="">Seleccione una categoría...</option>
+                {subCategories?.map(category => (
+                  <option value={category.id}>{category.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-700">
+                Nombre del Producto *
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label for="sku" class="block text-sm font-medium text-gray-700">
+                SKU
+              </label>
+              <input
+                type="text"
+                id="sku"
+                name="sku"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+
+
+            <div>
+              <label for="brand" class="block text-sm font-medium text-gray-700">
+                Marca
+              </label>
+              <input
+                type="text"
+                id="brand"
+                name="brand"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+
+            <div class="md:col-span-2">
+              <label for="description" class="block text-sm font-medium text-gray-700">
+                Descripción
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                rows="3"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Precios</h3>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label for="price" class="block text-sm font-medium text-gray-700">
+                Precio
+              </label>
+              <input
+                type="number"
+                id="price"
+                name="price"
+                min="0"
+                step="0.01"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label for="discount_percentage" class="block text-sm font-medium text-gray-700">
+                Descuento (%)
+              </label>
+              <input
+                type="number"
+                id="discount_percentage"
+                name="discount_percentage"
+                min="0"
+                max="100"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label for="currency" class="block text-sm font-medium text-gray-700">
+                Moneda
+              </label>
+              <select
+                id="currency"
+                name="currency"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="CLP">CLP</option>
+                <option value="USD">USD</option>
+                <option value="UF">UF</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inventory -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Inventario</h3>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label for="stock_quantity" class="block text-sm font-medium text-gray-700">
+                Cantidad en Stock
+              </label>
+              <input
+                type="number"
+                id="stock_quantity"
+                name="stock_quantity"
+                min="0"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+
+            <div>
+              <label for="stock_status" class="block text-sm font-medium text-gray-700">
+                Estado del Stock
+              </label>
+              <select
+                id="stock_status"
+                name="stock_status"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="in_stock">En Stock</option>
+                <option value="out_of_stock">Sin Stock</option>
+                <option value="pre_order">Pre-orden</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="is_available" class="block text-sm font-medium text-gray-700">
+                Disponible
+              </label>
+              <select
+                id="is_available"
+                name="is_available"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features & Characteristics -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Características del Producto</h3>
+          <p class="mt-1 text-sm text-gray-500">Seleccione primero una categoría para ver las características disponibles</p>
+        </div>
+        <div class="px-6 py-4">
+          <div id="featuresContainer" class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <p class="text-sm text-gray-500 col-span-full">Seleccione una categoría para cargar las características</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">Estado y Nivel</h3>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="status" class="block text-sm font-medium text-gray-700">
+                Estado
+              </label>
+              <select
+                id="status"
+                name="status"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="draft">Borrador</option>
+                <option value="pending_review">Pendiente de Revisión</option>
+                <option value="active" selected>Activo</option>
+                <option value="inactive">Inactivo</option>
+                <option value="rejected">Rechazado</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="tier" class="block text-sm font-medium text-gray-700">
+                Nivel
+              </label>
+              <select
+                id="tier"
+                name="tier"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="standard">Estándar</option>
+                <option value="destacado">Destacado</option>
+                <option value="premium">Premium</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEO -->
+      <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-medium text-gray-900">SEO</h3>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+          <div>
+            <label for="meta_title" class="block text-sm font-medium text-gray-700">
+              Meta Título
+            </label>
+            <input
+              type="text"
+              id="meta_title"
+              name="meta_title"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+
+          <div>
+            <label for="meta_description" class="block text-sm font-medium text-gray-700">
+              Meta Descripción
+            </label>
+            <textarea
+              id="meta_description"
+              name="meta_description"
+              rows="2"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            ></textarea>
+          </div>
+
+          <div>
+            <label for="keywords" class="block text-sm font-medium text-gray-700">
+              Palabras Clave (separadas por comas)
+            </label>
+            <input
+              type="text"
+              id="keywords"
+              name="keywords"
+              class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex justify-end space-x-3">
+        <button
+          type="button"
+          onclick="window.location.href='/admin/catalog/decorations'"
+          class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Crear Decoración
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script is:inline>
+    // Load features when category changes
+    document.querySelector('select[name="category_id"]')?.addEventListener('change', async (e) => {
+      const categoryId = e.target.value;
+      const featuresContainer = document.getElementById('featuresContainer');
+
+      if (!categoryId) {
+        featuresContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-full">Seleccione una categoría para cargar las características</p>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/admin/categories/${categoryId}/features`);
+        const features = await response.json();
+
+        if (features && features.length > 0) {
+          featuresContainer.innerHTML = features.map(feature => `
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                name="feature_${feature.slug}"
+                id="feature_${feature.slug}"
+                value="${feature.name}"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label for="feature_${feature.slug}" class="ml-2 block text-sm text-gray-900">
+                ${feature.name}
+              </label>
+            </div>
+          `).join('');
+        } else {
+          featuresContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-full">No hay características disponibles para esta categoría</p>';
+        }
+      } catch (error) {
+        console.error('Error loading features:', error);
+        featuresContainer.innerHTML = '<p class="text-sm text-red-500 col-span-full">Error al cargar las características</p>';
+      }
+    });
+
+    document.getElementById('decorationForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const data = Object.fromEntries(formData);
+
+      // Collect selected features
+      const selectedFeatures = [];
+      formData.forEach((value, key) => {
+        if (key.startsWith('feature_')) {
+          selectedFeatures.push(value);
+        }
+      });
+      data.features = selectedFeatures;
+
+      // Clean up feature fields from data
+      Object.keys(data).forEach(key => {
+        if (key.startsWith('feature_')) {
+          delete data[key];
+        }
+      });
+
+      // Parse arrays
+      if (data.keywords) {
+        data.keywords = data.keywords.split(',').map(k => k.trim()).filter(k => k);
+      }
+
+      // Parse numbers
+      ['price', 'discount_percentage', 'stock_quantity'].forEach(field => {
+        if (data[field]) {
+          data[field] = parseFloat(data[field]);
+        }
+      });
+
+      // Parse booleans
+      data.is_available = data.is_available === 'true';
+
+      try {
+        const response = await fetch('/api/admin/decorations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          window.location.href = `/admin/catalog/decorations/${result.decoration.id}/edit`;
+        } else {
+          const error = await response.json();
+          alert(`Error: ${error.message || 'Failed to create decoration'}`);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error creating decoration');
+      }
+    });
+  </script>
+</AdminLayout>

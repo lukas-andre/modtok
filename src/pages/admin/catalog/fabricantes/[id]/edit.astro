@@ -654,11 +654,12 @@ const fabricanteSpecialties = [
       // Set category_type for fabricantes
       data.category_type = 'fabricantes';
       
-      // Collect specialties
+      // Collect specialties and remove individual fields
       const specialties = [];
-      formData.forEach((_, key) => {
+      Object.keys(data).forEach(key => {
         if (key.startsWith('specialty_')) {
           specialties.push(key.replace('specialty_', '').replace(/_/g, ' '));
+          delete data[key]; // Remove the individual specialty field
         }
       });
       data.specialties = specialties;

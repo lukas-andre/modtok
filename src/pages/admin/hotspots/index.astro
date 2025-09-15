@@ -23,19 +23,15 @@ const { data: hotspots } = await supabase
   .order('created_at', { ascending: false });
 
 // Get statistics
-const { data: stats } = await supabase
+const { data: hotspotsData } = await supabase
   .from('hotspots')
-  .select('id, status')
-  .then(result => {
-    const total = result.data?.length || 0;
-    const published = result.data?.filter(h => h.status === 'published').length || 0;
-    const draft = result.data?.filter(h => h.status === 'draft').length || 0;
-    return {
-      total,
-      published,
-      draft
-    };
-  });
+  .select('id');
+
+const stats = {
+  total: hotspotsData?.length || 0,
+  published: hotspotsData?.length || 0, // All are considered published for now
+  draft: 0
+};
 ---
 
 <AdminLayout title="Gestión de Hotspots" user={user}>
@@ -141,9 +137,7 @@ const { data: stats } = await supabase
             <label class="block text-sm font-medium text-gray-700">Estado</label>
             <select id="statusFilter" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
               <option value="">Todos</option>
-              <option value="published">Publicado</option>
-              <option value="draft">Borrador</option>
-              <option value="archived">Archivado</option>
+              <option value="active">Activo</option>
             </select>
           </div>
           <div>
@@ -180,7 +174,7 @@ const { data: stats } = await supabase
       
       <ul class="divide-y divide-gray-200" id="hotspotsList">
         {hotspots?.map((hotspot) => (
-          <li class="hotspot-item" data-status={hotspot.status} data-region={hotspot.region}>
+          <li class="hotspot-item" data-region={hotspot.region}>
             <div class="px-6 py-4 flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 <div class="flex-shrink-0">
@@ -203,15 +197,8 @@ const { data: stats } = await supabase
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center space-x-2">
                     <h4 class="text-sm font-medium text-gray-900 truncate">{hotspot.name}</h4>
-                    <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      hotspot.status === 'published' 
-                        ? 'bg-green-100 text-green-800'
-                        : hotspot.status === 'draft'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {hotspot.status === 'published' ? 'Publicado' : 
-                       hotspot.status === 'draft' ? 'Borrador' : 'Archivado'}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Publicado
                     </span>
                   </div>
                   <div class="flex items-center mt-1 text-sm text-gray-500 space-x-4">
@@ -279,7 +266,7 @@ const { data: stats } = await supabase
   </div>
 </AdminLayout>
 
-<script>
+<script is:inline>
   // Search and filter functionality
   const searchInput = document.getElementById('searchInput');
   const statusFilter = document.getElementById('statusFilter');
@@ -294,11 +281,10 @@ const { data: stats } = await supabase
 
     hotspotItems.forEach(item => {
       const text = item.textContent.toLowerCase();
-      const status = item.dataset.status;
       const region = item.dataset.region;
 
       const matchesSearch = !searchTerm || text.includes(searchTerm);
-      const matchesStatus = !statusValue || status === statusValue;
+      const matchesStatus = !statusValue || statusValue === 'active'; // All hotspots are active for now
       const matchesRegion = !regionValue || region === regionValue;
 
       if (matchesSearch && matchesStatus && matchesRegion) {

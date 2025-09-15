@@ -742,6 +742,203 @@ export type Database = {
             referencedRelation: "providers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "decorations_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers_with_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fabricantes: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          cad_service: boolean | null
+          catalog_pdf_url: string | null
+          certifications: string[] | null
+          clicks: number | null
+          coverage_national: boolean | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          custom_design: boolean | null
+          description: string | null
+          description_long: string | null
+          factory_location: string | null
+          featured: boolean | null
+          featured_order: number | null
+          gallery_images: string[] | null
+          id: string
+          inquiries: number | null
+          installation_service: boolean | null
+          internal_notes: string | null
+          internal_rating: number | null
+          keywords: string[] | null
+          lead_time_days: number | null
+          main_image_url: string | null
+          materials: string[] | null
+          meta_description: string | null
+          meta_title: string | null
+          minimum_order: string | null
+          name: string
+          price_per_unit: number | null
+          price_range_max: number | null
+          price_range_min: number | null
+          production_capacity: string | null
+          provider_id: string | null
+          regions: string[] | null
+          service_type: string[] | null
+          sku: string | null
+          slug: string
+          specialties: string[] | null
+          status: Database["public"]["Enums"]["listing_status"] | null
+          tier: Database["public"]["Enums"]["listing_tier"] | null
+          updated_at: string | null
+          video_url: string | null
+          views: number | null
+          warranty_years: number | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          cad_service?: boolean | null
+          catalog_pdf_url?: string | null
+          certifications?: string[] | null
+          clicks?: number | null
+          coverage_national?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          custom_design?: boolean | null
+          description?: string | null
+          description_long?: string | null
+          factory_location?: string | null
+          featured?: boolean | null
+          featured_order?: number | null
+          gallery_images?: string[] | null
+          id?: string
+          inquiries?: number | null
+          installation_service?: boolean | null
+          internal_notes?: string | null
+          internal_rating?: number | null
+          keywords?: string[] | null
+          lead_time_days?: number | null
+          main_image_url?: string | null
+          materials?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          minimum_order?: string | null
+          name: string
+          price_per_unit?: number | null
+          price_range_max?: number | null
+          price_range_min?: number | null
+          production_capacity?: string | null
+          provider_id?: string | null
+          regions?: string[] | null
+          service_type?: string[] | null
+          sku?: string | null
+          slug: string
+          specialties?: string[] | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          tier?: Database["public"]["Enums"]["listing_tier"] | null
+          updated_at?: string | null
+          video_url?: string | null
+          views?: number | null
+          warranty_years?: number | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          cad_service?: boolean | null
+          catalog_pdf_url?: string | null
+          certifications?: string[] | null
+          clicks?: number | null
+          coverage_national?: boolean | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          custom_design?: boolean | null
+          description?: string | null
+          description_long?: string | null
+          factory_location?: string | null
+          featured?: boolean | null
+          featured_order?: number | null
+          gallery_images?: string[] | null
+          id?: string
+          inquiries?: number | null
+          installation_service?: boolean | null
+          internal_notes?: string | null
+          internal_rating?: number | null
+          keywords?: string[] | null
+          lead_time_days?: number | null
+          main_image_url?: string | null
+          materials?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          minimum_order?: string | null
+          name?: string
+          price_per_unit?: number | null
+          price_range_max?: number | null
+          price_range_min?: number | null
+          production_capacity?: string | null
+          provider_id?: string | null
+          regions?: string[] | null
+          service_type?: string[] | null
+          sku?: string | null
+          slug?: string
+          specialties?: string[] | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          tier?: Database["public"]["Enums"]["listing_tier"] | null
+          updated_at?: string | null
+          video_url?: string | null
+          views?: number | null
+          warranty_years?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fabricantes_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fabricantes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fabricantes_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_admin_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fabricantes_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_public_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fabricantes_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fabricantes_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers_with_categories"
+            referencedColumns: ["id"]
+          },
         ]
       }
       faq_items: {
@@ -1061,6 +1258,13 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotspot_providers_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers_with_categories"
             referencedColumns: ["id"]
           },
         ]
@@ -1420,6 +1624,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "houses_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers_with_categories"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "houses_topology_id_fkey"
             columns: ["topology_id"]
             isOneToOne: false
@@ -1559,6 +1770,13 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inquiries_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers_with_categories"
             referencedColumns: ["id"]
           },
           {
@@ -1733,6 +1951,59 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      provider_categories: {
+        Row: {
+          category_type: Database["public"]["Enums"]["category_type"]
+          created_at: string | null
+          id: string
+          is_primary: boolean | null
+          provider_id: string
+        }
+        Insert: {
+          category_type: Database["public"]["Enums"]["category_type"]
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          provider_id: string
+        }
+        Update: {
+          category_type?: Database["public"]["Enums"]["category_type"]
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          provider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_categories_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_admin_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_categories_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider_public_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_categories_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_categories_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers_with_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       providers: {
         Row: {
@@ -2051,6 +2322,13 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers_with_categories"
             referencedColumns: ["id"]
           },
         ]
@@ -2581,11 +2859,118 @@ export type Database = {
           },
         ]
       }
+      providers_with_categories: {
+        Row: {
+          address: string | null
+          admin_notes: string | null
+          approved_at: string | null
+          approved_by: string | null
+          catalog_pdf_url: string | null
+          categories: Database["public"]["Enums"]["category_type"][] | null
+          category_type: Database["public"]["Enums"]["category_type"] | null
+          certifications: Json | null
+          city: string | null
+          clicks_count: number | null
+          company_name: string | null
+          cover_image_url: string | null
+          coverage_areas: string[] | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          description_long: string | null
+          email: string | null
+          featured_order: number | null
+          featured_until: string | null
+          features: Json | null
+          financing_available: boolean | null
+          gallery_images: string[] | null
+          id: string | null
+          inquiries_count: number | null
+          internal_rating: number | null
+          keywords: string[] | null
+          llave_en_mano: boolean | null
+          logo_url: string | null
+          meta_description: string | null
+          meta_title: string | null
+          metadata: Json | null
+          onboarding_completed: boolean | null
+          phone: string | null
+          premium_until: string | null
+          price_per_m2_max: number | null
+          price_per_m2_min: number | null
+          price_range_max: number | null
+          price_range_min: number | null
+          primary_category: Database["public"]["Enums"]["category_type"] | null
+          profile_id: string | null
+          region: string | null
+          rejection_reason: string | null
+          services_offered: string[] | null
+          slug: string | null
+          specialties: string[] | null
+          status: Database["public"]["Enums"]["listing_status"] | null
+          temp_password: string | null
+          tier: Database["public"]["Enums"]["listing_tier"] | null
+          updated_at: string | null
+          videos: string[] | null
+          views_count: number | null
+          website: string | null
+          whatsapp: string | null
+          years_experience: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "providers_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "providers_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "providers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      add_provider_category: {
+        Args: {
+          p_category: Database["public"]["Enums"]["category_type"]
+          p_is_primary?: boolean
+          p_provider_id: string
+        }
+        Returns: boolean
+      }
       generate_slug: {
         Args: { input_text: string }
         Returns: string
+      }
+      get_providers_by_category: {
+        Args: {
+          p_category: Database["public"]["Enums"]["category_type"]
+          p_status?: Database["public"]["Enums"]["listing_status"]
+          p_tier?: Database["public"]["Enums"]["listing_tier"]
+        }
+        Returns: {
+          categories: Database["public"]["Enums"]["category_type"][]
+          company_name: string
+          email: string
+          id: string
+          phone: string
+          slug: string
+          status: Database["public"]["Enums"]["listing_status"]
+          tier: Database["public"]["Enums"]["listing_tier"]
+        }[]
       }
       is_admin: {
         Args: { user_id: string }
@@ -2601,6 +2986,13 @@ export type Database = {
           p_target_type: string
         }
         Returns: string
+      }
+      remove_provider_category: {
+        Args: {
+          p_category: Database["public"]["Enums"]["category_type"]
+          p_provider_id: string
+        }
+        Returns: boolean
       }
     }
     Enums: {
@@ -2796,86 +3188,3 @@ export const Constants = {
     },
   },
 } as const
-
-
-// Type aliases for easier use
-export type Profile = Tables<"profiles">
-export type ProfileInsert = TablesInsert<"profiles">
-export type ProfileUpdate = TablesUpdate<"profiles">
-
-export type Provider = Tables<"providers">
-export type ProviderInsert = TablesInsert<"providers">
-export type ProviderUpdate = TablesUpdate<"providers">
-
-export type House = Tables<"houses">
-export type HouseInsert = TablesInsert<"houses">
-export type HouseUpdate = TablesUpdate<"houses">
-
-export type Service = Tables<"services">
-export type ServiceInsert = TablesInsert<"services">
-export type ServiceUpdate = TablesUpdate<"services">
-
-export type Inquiry = Tables<"inquiries">
-export type InquiryInsert = TablesInsert<"inquiries">
-export type InquiryUpdate = TablesUpdate<"inquiries">
-
-export type Category = Tables<"categories">
-export type CategoryInsert = TablesInsert<"categories">
-export type CategoryUpdate = TablesUpdate<"categories">
-
-export type BlogPost = Tables<"blog_posts">
-export type BlogPostInsert = TablesInsert<"blog_posts">
-export type BlogPostUpdate = TablesUpdate<"blog_posts">
-
-export type BlogComment = Tables<"blog_comments">
-export type BlogCommentInsert = TablesInsert<"blog_comments">
-export type BlogCommentUpdate = TablesUpdate<"blog_comments">
-
-export type UserFavorite = Tables<"user_favorites">
-export type UserFavoriteInsert = TablesInsert<"user_favorites">
-export type UserFavoriteUpdate = TablesUpdate<"user_favorites">
-
-export type UserSearch = Tables<"user_searches">
-export type UserSearchInsert = TablesInsert<"user_searches">
-export type UserSearchUpdate = TablesUpdate<"user_searches">
-
-export type Hotspot = Tables<"hotspots">
-export type HotspotInsert = TablesInsert<"hotspots">
-export type HotspotUpdate = TablesUpdate<"hotspots">
-
-export type HouseTopology = Tables<"house_topologies">
-export type HouseTopologyInsert = TablesInsert<"house_topologies">
-export type HouseTopologyUpdate = TablesUpdate<"house_topologies">
-
-export type Feature = Tables<"features">
-export type FeatureInsert = TablesInsert<"features">
-export type FeatureUpdate = TablesUpdate<"features">
-
-export type AdminAction = Tables<"admin_actions">
-export type AdminActionInsert = TablesInsert<"admin_actions">
-export type AdminActionUpdate = TablesUpdate<"admin_actions">
-
-export type AdminLog = Tables<"admin_logs">
-export type AdminLogInsert = TablesInsert<"admin_logs">
-export type AdminLogUpdate = TablesUpdate<"admin_logs">
-
-export type AnalyticsDaily = Tables<"analytics_daily">
-export type AnalyticsDailyInsert = TablesInsert<"analytics_daily">
-export type AnalyticsDailyUpdate = TablesUpdate<"analytics_daily">
-
-export type AnalyticsEvent = Tables<"analytics_events">
-export type AnalyticsEventInsert = TablesInsert<"analytics_events">
-export type AnalyticsEventUpdate = TablesUpdate<"analytics_events">
-
-export type ContentReview = Tables<"content_reviews">
-export type ContentReviewInsert = TablesInsert<"content_reviews">
-export type ContentReviewUpdate = TablesUpdate<"content_reviews">
-
-// Enum type exports
-export type UserRole = Enums<"user_role">
-export type UserStatus = Enums<"user_status">
-export type CategoryType = Enums<"category_type">
-export type ListingStatus = Enums<"listing_status">
-export type ListingTier = Enums<"listing_tier">
-export type BlogStatus = Enums<"blog_status">
-export type BlogCategory = Enums<"blog_category">

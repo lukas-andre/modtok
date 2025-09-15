@@ -38,7 +38,8 @@ export const GET: APIRoute = async ({ request, cookies }) => {
         *,
         profile:profiles(id, full_name, email, avatar_url),
         approved_by_profile:profiles!providers_approved_by_fkey(full_name),
-        created_by_profile:profiles!providers_created_by_fkey(full_name)
+        created_by_profile:profiles!providers_created_by_fkey(full_name),
+        provider_categories(category_type, is_primary)
       `, { count: 'exact' });
 
     // Apply filters
