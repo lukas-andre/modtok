@@ -101,7 +101,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     // Validate all categories
-    const validCategories = ['casas', 'fabricantes', 'habilitacion_servicios', 'decoracion'];
+    const validCategories = ['casas', 'fabrica', 'habilitacion_servicios'];
     for (const cat of providerCategories) {
       if (!validCategories.includes(cat)) {
         return new Response(
@@ -167,7 +167,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       slug,
       email,
       phone,
-      category_type: providerCategories[0] as 'casas' | 'fabricantes' | 'habilitacion_servicios' | 'decoracion', // Primary category for backward compatibility
+      category_type: providerCategories[0] as 'casas' | 'fabrica' | 'habilitacion_servicios', // Primary category for backward compatibility
       description,
       description_long,
       whatsapp,
@@ -230,7 +230,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (providerCategories.length > 0) {
       const categoryInserts = providerCategories.map((cat: string, index: number) => ({
         provider_id: provider.id,
-        category_type: cat as 'casas' | 'fabricantes' | 'habilitacion_servicios' | 'decoracion',
+        category_type: cat as 'casas' | 'fabrica' | 'habilitacion_servicios',
         is_primary: index === 0 // First category is primary
       }));
 

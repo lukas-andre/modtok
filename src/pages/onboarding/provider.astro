@@ -6,7 +6,7 @@ import { getUser, getSession } from '@/lib/supabase';
 const user = await getUser(Astro);
 const session = await getSession(Astro);
 
-if (!user || !session) {
+if (!user) {
   return Astro.redirect('/auth/login');
 }
 ---

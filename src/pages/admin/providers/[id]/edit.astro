@@ -394,11 +394,11 @@ const featuresByCategory = features?.reduce((acc, feature) => {
               <input
                 type="checkbox"
                 name="categories"
-                value="fabricantes"
-                checked={providerCategories.includes('fabricantes')}
+                value="fabrica"
+                checked={providerCategories.includes('fabrica')}
                 class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
               />
-              <span class="text-sm font-medium text-gray-700">Fabricantes de Casas</span>
+              <span class="text-sm font-medium text-gray-700">Fábrica</span>
             </label>
             <label class="flex items-center space-x-3">
               <input
@@ -409,16 +409,6 @@ const featuresByCategory = features?.reduce((acc, feature) => {
                 class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
               />
               <span class="text-sm font-medium text-gray-700">Habilitación y Servicios</span>
-            </label>
-            <label class="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                name="categories"
-                value="decoracion"
-                checked={providerCategories.includes('decoracion')}
-                class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500"
-              />
-              <span class="text-sm font-medium text-gray-700">Decoración y Mejoras</span>
             </label>
           </div>
         </div>
