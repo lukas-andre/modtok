@@ -25,7 +25,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     }
 
     // Validate category
-    const validCategories = ['casas', 'fabricantes', 'habilitacion_servicios', 'decoracion'];
+    const validCategories = ['casas', 'fabrica', 'habilitacion_servicios'];
     if (!validCategories.includes(category)) {
       return new Response(
         JSON.stringify({ error: 'Invalid category type' }),
@@ -46,7 +46,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
         tier,
         provider_categories!inner(category_type, is_primary)
       `)
-      .eq('provider_categories.category_type', category as 'fabricantes' | 'casas' | 'habilitacion_servicios' | 'decoracion')
+      .eq('provider_categories.category_type', category as 'fabrica' | 'casas' | 'habilitacion_servicios')
       .eq('status', 'active')
       .order('company_name');
 

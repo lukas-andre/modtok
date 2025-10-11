@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     // Filters
     const status = searchParams.get('status') as 'draft' | 'pending_review' | 'active' | 'inactive' | 'rejected' | null;
     const tier = searchParams.get('tier') as 'premium' | 'destacado' | 'standard' | null;
-    const category_type = searchParams.get('category_type') as 'casas' | 'fabricantes' | 'habilitacion_servicios' | 'decoracion' | null;
+    const category_type = searchParams.get('category_type') as 'casas' | 'fabrica' | 'habilitacion_servicios' | null;
     const region = searchParams.get('region');
     const search = searchParams.get('search');
 
@@ -51,7 +51,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       query = query.eq('tier', tier);
     }
 
-    if (category_type && ['casas', 'fabricantes', 'habilitacion_servicios', 'decoracion'].includes(category_type)) {
+    if (category_type && ['casas', 'fabrica', 'habilitacion_servicios'].includes(category_type)) {
       query = query.eq('category_type', category_type);
     }
 

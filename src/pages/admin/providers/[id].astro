@@ -92,9 +92,8 @@ const getTierBadge = (tier: string | null) => {
 const formatCategoryName = (categoryType: string) => {
   const categoryNames: Record<string, string> = {
     'casas': 'Casas Prefabricadas',
-    'fabricantes': 'Fabricantes de Casas',
-    'habilitacion_servicios': 'Habilitación y Servicios',
-    'decoracion': 'Decoración y Mejoras'
+    'fabrica': 'Fábrica',
+    'habilitacion_servicios': 'Habilitación y Servicios'
   };
   return categoryNames[categoryType] || categoryType;
 };

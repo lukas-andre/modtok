@@ -19,7 +19,7 @@ export type Database = {
           action_type: string
           admin_id: string
           changes: Json | null
-          created_at: string
+          created_at: string | null
           id: string
           ip_address: unknown | null
           target_id: string | null
@@ -30,7 +30,7 @@ export type Database = {
           action_type: string
           admin_id: string
           changes?: Json | null
-          created_at?: string
+          created_at?: string | null
           id?: string
           ip_address?: unknown | null
           target_id?: string | null
@@ -41,7 +41,7 @@ export type Database = {
           action_type?: string
           admin_id?: string
           changes?: Json | null
-          created_at?: string
+          created_at?: string | null
           id?: string
           ip_address?: unknown | null
           target_id?: string | null
@@ -57,95 +57,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      admin_logs: {
-        Row: {
-          action: string
-          admin_id: string | null
-          created_at: string | null
-          entity_id: string | null
-          entity_type: string | null
-          id: string
-          ip_address: unknown | null
-          new_values: Json | null
-          old_values: Json | null
-          user_agent: string | null
-        }
-        Insert: {
-          action: string
-          admin_id?: string | null
-          created_at?: string | null
-          entity_id?: string | null
-          entity_type?: string | null
-          id?: string
-          ip_address?: unknown | null
-          new_values?: Json | null
-          old_values?: Json | null
-          user_agent?: string | null
-        }
-        Update: {
-          action?: string
-          admin_id?: string | null
-          created_at?: string | null
-          entity_id?: string | null
-          entity_type?: string | null
-          id?: string
-          ip_address?: unknown | null
-          new_values?: Json | null
-          old_values?: Json | null
-          user_agent?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "admin_logs_admin_id_fkey"
-            columns: ["admin_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      analytics_daily: {
-        Row: {
-          clicks_contact: number | null
-          clicks_detail: number | null
-          date: string
-          id: string
-          inquiries_count: number | null
-          item_id: string
-          item_type: string
-          saves_count: number | null
-          shares_count: number | null
-          unique_visitors: number | null
-          views_count: number | null
-        }
-        Insert: {
-          clicks_contact?: number | null
-          clicks_detail?: number | null
-          date: string
-          id?: string
-          inquiries_count?: number | null
-          item_id: string
-          item_type: string
-          saves_count?: number | null
-          shares_count?: number | null
-          unique_visitors?: number | null
-          views_count?: number | null
-        }
-        Update: {
-          clicks_contact?: number | null
-          clicks_detail?: number | null
-          date?: string
-          id?: string
-          inquiries_count?: number | null
-          item_id?: string
-          item_type?: string
-          saves_count?: number | null
-          shares_count?: number | null
-          unique_visitors?: number | null
-          views_count?: number | null
-        }
-        Relationships: []
       }
       analytics_events: {
         Row: {
@@ -236,65 +147,10 @@ export type Database = {
           },
         ]
       }
-      blog_comments: {
-        Row: {
-          content: string
-          created_at: string | null
-          id: string
-          is_approved: boolean | null
-          parent_id: string | null
-          post_id: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          content: string
-          created_at?: string | null
-          id?: string
-          is_approved?: boolean | null
-          parent_id?: string | null
-          post_id?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          content?: string
-          created_at?: string | null
-          id?: string
-          is_approved?: boolean | null
-          parent_id?: string | null
-          post_id?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "blog_comments_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "blog_comments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_comments_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "blog_posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "blog_comments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       blog_posts: {
         Row: {
           author_id: string | null
-          category: Database["public"]["Enums"]["blog_category"] | null
+          category: string | null
           content: string
           created_at: string | null
           editor_id: string | null
@@ -309,7 +165,7 @@ export type Database = {
           reading_time_minutes: number | null
           shares_count: number | null
           slug: string
-          status: Database["public"]["Enums"]["blog_status"] | null
+          status: Database["public"]["Enums"]["content_status"] | null
           tags: string[] | null
           title: string
           updated_at: string | null
@@ -317,7 +173,7 @@ export type Database = {
         }
         Insert: {
           author_id?: string | null
-          category?: Database["public"]["Enums"]["blog_category"] | null
+          category?: string | null
           content: string
           created_at?: string | null
           editor_id?: string | null
@@ -332,7 +188,7 @@ export type Database = {
           reading_time_minutes?: number | null
           shares_count?: number | null
           slug: string
-          status?: Database["public"]["Enums"]["blog_status"] | null
+          status?: Database["public"]["Enums"]["content_status"] | null
           tags?: string[] | null
           title: string
           updated_at?: string | null
@@ -340,7 +196,7 @@ export type Database = {
         }
         Update: {
           author_id?: string | null
-          category?: Database["public"]["Enums"]["blog_category"] | null
+          category?: string | null
           content?: string
           created_at?: string | null
           editor_id?: string | null
@@ -355,7 +211,7 @@ export type Database = {
           reading_time_minutes?: number | null
           shares_count?: number | null
           slug?: string
-          status?: Database["public"]["Enums"]["blog_status"] | null
+          status?: Database["public"]["Enums"]["content_status"] | null
           tags?: string[] | null
           title?: string
           updated_at?: string | null
@@ -378,993 +234,87 @@ export type Database = {
           },
         ]
       }
-      categories: {
+      feature_definitions: {
         Row: {
+          admin_helper_text: string | null
+          admin_input_type: string | null
+          category: Database["public"]["Enums"]["category_type"]
           created_at: string | null
+          data_type: Database["public"]["Enums"]["feature_data_type"]
+          default_value: Json | null
           description: string | null
           display_order: number | null
-          icon: string | null
-          id: string
-          is_active: boolean | null
-          metadata: Json | null
-          name: string
-          parent_id: string | null
-          slug: string
-          type: Database["public"]["Enums"]["category_type"]
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          display_order?: number | null
-          icon?: string | null
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          name: string
-          parent_id?: string | null
-          slug: string
-          type: Database["public"]["Enums"]["category_type"]
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          display_order?: number | null
-          icon?: string | null
-          id?: string
-          is_active?: boolean | null
-          metadata?: Json | null
-          name?: string
-          parent_id?: string | null
-          slug?: string
-          type?: Database["public"]["Enums"]["category_type"]
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "categories_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      comparison_lists: {
-        Row: {
-          created_at: string | null
-          id: string
-          is_public: boolean | null
-          item_ids: string[] | null
-          item_type: string
-          name: string | null
-          share_token: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          is_public?: boolean | null
-          item_ids?: string[] | null
-          item_type: string
-          name?: string | null
-          share_token?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          is_public?: boolean | null
-          item_ids?: string[] | null
-          item_type?: string
-          name?: string | null
-          share_token?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "comparison_lists_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      contact_settings: {
-        Row: {
-          created_at: string | null
-          display_order: number | null
-          extra_data: Json | null
-          id: string
-          is_active: boolean | null
-          setting_type: string
-          title: string | null
-          updated_at: string | null
-          value: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          display_order?: number | null
-          extra_data?: Json | null
-          id?: string
-          is_active?: boolean | null
-          setting_type: string
-          title?: string | null
-          updated_at?: string | null
-          value?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          display_order?: number | null
-          extra_data?: Json | null
-          id?: string
-          is_active?: boolean | null
-          setting_type?: string
-          title?: string | null
-          updated_at?: string | null
-          value?: string | null
-        }
-        Relationships: []
-      }
-      content_reviews: {
-        Row: {
-          content_id: string
-          content_type: string
-          created_at: string
-          id: string
-          notes: string | null
-          reviewed_by: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          content_id: string
-          content_type: string
-          created_at?: string
-          id?: string
-          notes?: string | null
-          reviewed_by: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          content_id?: string
-          content_type?: string
-          created_at?: string
-          id?: string
-          notes?: string | null
-          reviewed_by?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "content_reviews_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      decorations: {
-        Row: {
-          availability_date: string | null
-          brand: string | null
-          category_id: string | null
-          clicks_count: number | null
-          colors: string[] | null
-          created_at: string | null
-          currency: string | null
-          delivery_time_days: number | null
-          description: string | null
-          description_long: string | null
-          dimensions: Json | null
-          discount_percentage: number | null
-          features: Json | null
-          gallery_images: string[] | null
-          has_variants: boolean | null
-          id: string
-          inquiries_count: number | null
-          installation_guide_url: string | null
-          installation_price: number | null
-          installation_required: boolean | null
-          is_available: boolean | null
-          keywords: string[] | null
-          main_image_url: string | null
-          materials: string[] | null
-          meta_description: string | null
-          meta_title: string | null
-          metadata: Json | null
-          model: string | null
-          name: string
-          parent_product_id: string | null
-          price: number | null
-          price_wholesale: number | null
-          product_type: string
-          provider_id: string | null
-          sales_count: number | null
-          saves_count: number | null
-          sizes: string[] | null
-          sku: string | null
-          slug: string
-          status: Database["public"]["Enums"]["listing_status"] | null
-          stock_quantity: number | null
-          stock_status: string | null
-          technical_sheet_url: string | null
-          tier: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at: string | null
-          variant_attributes: Json | null
-          videos: string[] | null
-          views_count: number | null
-          warranty_months: number | null
-        }
-        Insert: {
-          availability_date?: string | null
-          brand?: string | null
-          category_id?: string | null
-          clicks_count?: number | null
-          colors?: string[] | null
-          created_at?: string | null
-          currency?: string | null
-          delivery_time_days?: number | null
-          description?: string | null
-          description_long?: string | null
-          dimensions?: Json | null
-          discount_percentage?: number | null
-          features?: Json | null
-          gallery_images?: string[] | null
-          has_variants?: boolean | null
-          id?: string
-          inquiries_count?: number | null
-          installation_guide_url?: string | null
-          installation_price?: number | null
-          installation_required?: boolean | null
-          is_available?: boolean | null
-          keywords?: string[] | null
-          main_image_url?: string | null
-          materials?: string[] | null
-          meta_description?: string | null
-          meta_title?: string | null
-          metadata?: Json | null
-          model?: string | null
-          name: string
-          parent_product_id?: string | null
-          price?: number | null
-          price_wholesale?: number | null
-          product_type: string
-          provider_id?: string | null
-          sales_count?: number | null
-          saves_count?: number | null
-          sizes?: string[] | null
-          sku?: string | null
-          slug: string
-          status?: Database["public"]["Enums"]["listing_status"] | null
-          stock_quantity?: number | null
-          stock_status?: string | null
-          technical_sheet_url?: string | null
-          tier?: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at?: string | null
-          variant_attributes?: Json | null
-          videos?: string[] | null
-          views_count?: number | null
-          warranty_months?: number | null
-        }
-        Update: {
-          availability_date?: string | null
-          brand?: string | null
-          category_id?: string | null
-          clicks_count?: number | null
-          colors?: string[] | null
-          created_at?: string | null
-          currency?: string | null
-          delivery_time_days?: number | null
-          description?: string | null
-          description_long?: string | null
-          dimensions?: Json | null
-          discount_percentage?: number | null
-          features?: Json | null
-          gallery_images?: string[] | null
-          has_variants?: boolean | null
-          id?: string
-          inquiries_count?: number | null
-          installation_guide_url?: string | null
-          installation_price?: number | null
-          installation_required?: boolean | null
-          is_available?: boolean | null
-          keywords?: string[] | null
-          main_image_url?: string | null
-          materials?: string[] | null
-          meta_description?: string | null
-          meta_title?: string | null
-          metadata?: Json | null
-          model?: string | null
-          name?: string
-          parent_product_id?: string | null
-          price?: number | null
-          price_wholesale?: number | null
-          product_type?: string
-          provider_id?: string | null
-          sales_count?: number | null
-          saves_count?: number | null
-          sizes?: string[] | null
-          sku?: string | null
-          slug?: string
-          status?: Database["public"]["Enums"]["listing_status"] | null
-          stock_quantity?: number | null
-          stock_status?: string | null
-          technical_sheet_url?: string | null
-          tier?: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at?: string | null
-          variant_attributes?: Json | null
-          videos?: string[] | null
-          views_count?: number | null
-          warranty_months?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "decorations_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "decorations_parent_product_id_fkey"
-            columns: ["parent_product_id"]
-            isOneToOne: false
-            referencedRelation: "decorations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "decorations_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_admin_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "decorations_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_public_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "decorations_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "providers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "decorations_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "providers_with_categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      fabricantes: {
-        Row: {
-          approved_at: string | null
-          approved_by: string | null
-          cad_service: boolean | null
-          catalog_pdf_url: string | null
-          certifications: string[] | null
-          clicks: number | null
-          coverage_national: boolean | null
-          created_at: string | null
-          created_by: string | null
-          currency: string | null
-          custom_design: boolean | null
-          description: string | null
-          description_long: string | null
-          factory_location: string | null
-          featured: boolean | null
-          featured_order: number | null
-          gallery_images: string[] | null
-          id: string
-          inquiries: number | null
-          installation_service: boolean | null
-          internal_notes: string | null
-          internal_rating: number | null
-          keywords: string[] | null
-          lead_time_days: number | null
-          main_image_url: string | null
-          materials: string[] | null
-          meta_description: string | null
-          meta_title: string | null
-          minimum_order: string | null
-          name: string
-          price_per_unit: number | null
-          price_range_max: number | null
-          price_range_min: number | null
-          production_capacity: string | null
-          provider_id: string | null
-          regions: string[] | null
-          service_type: string[] | null
-          sku: string | null
-          slug: string
-          specialties: string[] | null
-          status: Database["public"]["Enums"]["listing_status"] | null
-          tier: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at: string | null
-          video_url: string | null
-          views: number | null
-          warranty_years: number | null
-        }
-        Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          cad_service?: boolean | null
-          catalog_pdf_url?: string | null
-          certifications?: string[] | null
-          clicks?: number | null
-          coverage_national?: boolean | null
-          created_at?: string | null
-          created_by?: string | null
-          currency?: string | null
-          custom_design?: boolean | null
-          description?: string | null
-          description_long?: string | null
-          factory_location?: string | null
-          featured?: boolean | null
-          featured_order?: number | null
-          gallery_images?: string[] | null
-          id?: string
-          inquiries?: number | null
-          installation_service?: boolean | null
-          internal_notes?: string | null
-          internal_rating?: number | null
-          keywords?: string[] | null
-          lead_time_days?: number | null
-          main_image_url?: string | null
-          materials?: string[] | null
-          meta_description?: string | null
-          meta_title?: string | null
-          minimum_order?: string | null
-          name: string
-          price_per_unit?: number | null
-          price_range_max?: number | null
-          price_range_min?: number | null
-          production_capacity?: string | null
-          provider_id?: string | null
-          regions?: string[] | null
-          service_type?: string[] | null
-          sku?: string | null
-          slug: string
-          specialties?: string[] | null
-          status?: Database["public"]["Enums"]["listing_status"] | null
-          tier?: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at?: string | null
-          video_url?: string | null
-          views?: number | null
-          warranty_years?: number | null
-        }
-        Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          cad_service?: boolean | null
-          catalog_pdf_url?: string | null
-          certifications?: string[] | null
-          clicks?: number | null
-          coverage_national?: boolean | null
-          created_at?: string | null
-          created_by?: string | null
-          currency?: string | null
-          custom_design?: boolean | null
-          description?: string | null
-          description_long?: string | null
-          factory_location?: string | null
-          featured?: boolean | null
-          featured_order?: number | null
-          gallery_images?: string[] | null
-          id?: string
-          inquiries?: number | null
-          installation_service?: boolean | null
-          internal_notes?: string | null
-          internal_rating?: number | null
-          keywords?: string[] | null
-          lead_time_days?: number | null
-          main_image_url?: string | null
-          materials?: string[] | null
-          meta_description?: string | null
-          meta_title?: string | null
-          minimum_order?: string | null
-          name?: string
-          price_per_unit?: number | null
-          price_range_max?: number | null
-          price_range_min?: number | null
-          production_capacity?: string | null
-          provider_id?: string | null
-          regions?: string[] | null
-          service_type?: string[] | null
-          sku?: string | null
-          slug?: string
-          specialties?: string[] | null
-          status?: Database["public"]["Enums"]["listing_status"] | null
-          tier?: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at?: string | null
-          video_url?: string | null
-          views?: number | null
-          warranty_years?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fabricantes_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fabricantes_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fabricantes_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_admin_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fabricantes_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_public_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fabricantes_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "providers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fabricantes_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "providers_with_categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      faq_items: {
-        Row: {
-          answer: string
-          category: string | null
-          created_at: string | null
-          display_order: number | null
-          helpful_count: number | null
-          id: string
-          is_featured: boolean | null
-          page_id: string | null
-          question: string
-          tags: string[] | null
-          updated_at: string | null
-          views_count: number | null
-        }
-        Insert: {
-          answer: string
-          category?: string | null
-          created_at?: string | null
-          display_order?: number | null
-          helpful_count?: number | null
-          id?: string
-          is_featured?: boolean | null
-          page_id?: string | null
-          question: string
-          tags?: string[] | null
-          updated_at?: string | null
-          views_count?: number | null
-        }
-        Update: {
-          answer?: string
-          category?: string | null
-          created_at?: string | null
-          display_order?: number | null
-          helpful_count?: number | null
-          id?: string
-          is_featured?: boolean | null
-          page_id?: string | null
-          question?: string
-          tags?: string[] | null
-          updated_at?: string | null
-          views_count?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "faq_items_page_id_fkey"
-            columns: ["page_id"]
-            isOneToOne: false
-            referencedRelation: "static_pages"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      features: {
-        Row: {
-          category_id: string | null
-          created_at: string | null
-          display_order: number | null
+          feature_key: string
           filter_format: string | null
           filter_location: string | null
-          id: string
-          is_active: boolean | null
-          name: string
-          options: Json | null
-          show_in_card_featured: boolean | null
-          show_in_card_premium: boolean | null
-          show_in_landing: boolean | null
-          slug: string
-          type: string
-        }
-        Insert: {
-          category_id?: string | null
-          created_at?: string | null
-          display_order?: number | null
-          filter_format?: string | null
-          filter_location?: string | null
-          id?: string
-          is_active?: boolean | null
-          name: string
-          options?: Json | null
-          show_in_card_featured?: boolean | null
-          show_in_card_premium?: boolean | null
-          show_in_landing?: boolean | null
-          slug: string
-          type: string
-        }
-        Update: {
-          category_id?: string | null
-          created_at?: string | null
-          display_order?: number | null
-          filter_format?: string | null
-          filter_location?: string | null
-          id?: string
-          is_active?: boolean | null
-          name?: string
-          options?: Json | null
-          show_in_card_featured?: boolean | null
-          show_in_card_premium?: boolean | null
-          show_in_landing?: boolean | null
-          slug?: string
-          type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "features_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      hotspot_cost_estimates: {
-        Row: {
-          avg_cost: number | null
-          category: string
-          created_at: string | null
-          currency: string | null
-          estimate_type: string
-          hotspot_id: string | null
-          id: string
-          last_updated: string | null
-          max_cost: number | null
-          min_cost: number | null
-          notes: string | null
-          source: string | null
-          unit: string | null
-        }
-        Insert: {
-          avg_cost?: number | null
-          category: string
-          created_at?: string | null
-          currency?: string | null
-          estimate_type: string
-          hotspot_id?: string | null
-          id?: string
-          last_updated?: string | null
-          max_cost?: number | null
-          min_cost?: number | null
-          notes?: string | null
-          source?: string | null
-          unit?: string | null
-        }
-        Update: {
-          avg_cost?: number | null
-          category?: string
-          created_at?: string | null
-          currency?: string | null
-          estimate_type?: string
-          hotspot_id?: string | null
-          id?: string
-          last_updated?: string | null
-          max_cost?: number | null
-          min_cost?: number | null
-          notes?: string | null
-          source?: string | null
-          unit?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "hotspot_cost_estimates_hotspot_id_fkey"
-            columns: ["hotspot_id"]
-            isOneToOne: false
-            referencedRelation: "hotspots"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      hotspot_demographics: {
-        Row: {
-          age_distribution: Json | null
-          created_at: string | null
-          economic_indicators: Json | null
-          education_index: number | null
-          hotspot_id: string | null
-          id: string
-          median_income: number | null
-          population: number | null
-          population_density: number | null
-          year: number
-        }
-        Insert: {
-          age_distribution?: Json | null
-          created_at?: string | null
-          economic_indicators?: Json | null
-          education_index?: number | null
-          hotspot_id?: string | null
-          id?: string
-          median_income?: number | null
-          population?: number | null
-          population_density?: number | null
-          year: number
-        }
-        Update: {
-          age_distribution?: Json | null
-          created_at?: string | null
-          economic_indicators?: Json | null
-          education_index?: number | null
-          hotspot_id?: string | null
-          id?: string
-          median_income?: number | null
-          population?: number | null
-          population_density?: number | null
-          year?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "hotspot_demographics_hotspot_id_fkey"
-            columns: ["hotspot_id"]
-            isOneToOne: false
-            referencedRelation: "hotspots"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      hotspot_features: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          distance_km: number | null
-          feature_type: string
-          hotspot_id: string | null
+          filter_type: Database["public"]["Enums"]["filter_type"] | null
+          group_name: string
           icon: string | null
           id: string
-          name: string
-          rating: number | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          distance_km?: number | null
-          feature_type: string
-          hotspot_id?: string | null
-          icon?: string | null
-          id?: string
-          name: string
-          rating?: number | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          distance_km?: number | null
-          feature_type?: string
-          hotspot_id?: string | null
-          icon?: string | null
-          id?: string
-          name?: string
-          rating?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "hotspot_features_hotspot_id_fkey"
-            columns: ["hotspot_id"]
-            isOneToOne: false
-            referencedRelation: "hotspots"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      hotspot_providers: {
-        Row: {
-          coverage_type: string | null
-          created_at: string | null
-          hotspot_id: string | null
-          id: string
-          notes: string | null
-          priority_order: number | null
-          provider_id: string | null
-          service_radius_km: number | null
-        }
-        Insert: {
-          coverage_type?: string | null
-          created_at?: string | null
-          hotspot_id?: string | null
-          id?: string
-          notes?: string | null
-          priority_order?: number | null
-          provider_id?: string | null
-          service_radius_km?: number | null
-        }
-        Update: {
-          coverage_type?: string | null
-          created_at?: string | null
-          hotspot_id?: string | null
-          id?: string
-          notes?: string | null
-          priority_order?: number | null
-          provider_id?: string | null
-          service_radius_km?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "hotspot_providers_hotspot_id_fkey"
-            columns: ["hotspot_id"]
-            isOneToOne: false
-            referencedRelation: "hotspots"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "hotspot_providers_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_admin_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "hotspot_providers_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_public_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "hotspot_providers_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "providers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "hotspot_providers_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "providers_with_categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      hotspots: {
-        Row: {
-          altitude_m: number | null
-          city: string
-          climate_data: Json | null
-          construction_cost_m2_avg: number | null
-          created_at: string | null
-          description: string | null
-          description_long: string | null
-          distance_santiago_km: number | null
-          gallery_images: string[] | null
-          hero_image_url: string | null
-          id: string
-          latitude: number | null
-          longitude: number | null
-          meta_description: string | null
-          meta_title: string | null
-          name: string
-          nearest_airport: string | null
-          permits_info: string | null
-          population: number | null
-          projects_count: number | null
-          providers_count: number | null
-          region: string
-          regulations_info: string | null
-          restrictions: string | null
-          slug: string
-          terrain_cost_max: number | null
-          terrain_cost_min: number | null
+          is_active: boolean | null
+          is_filterable: boolean | null
+          label: string
+          requires_login: boolean | null
+          show_in_card_destacado: boolean | null
+          show_in_card_premium: boolean | null
+          show_in_card_standard: boolean | null
+          show_in_landing: boolean | null
           updated_at: string | null
-          useful_links: Json | null
-          why_build_here: string | null
+          validation_rules: Json | null
         }
         Insert: {
-          altitude_m?: number | null
-          city: string
-          climate_data?: Json | null
-          construction_cost_m2_avg?: number | null
+          admin_helper_text?: string | null
+          admin_input_type?: string | null
+          category: Database["public"]["Enums"]["category_type"]
           created_at?: string | null
+          data_type: Database["public"]["Enums"]["feature_data_type"]
+          default_value?: Json | null
           description?: string | null
-          description_long?: string | null
-          distance_santiago_km?: number | null
-          gallery_images?: string[] | null
-          hero_image_url?: string | null
+          display_order?: number | null
+          feature_key: string
+          filter_format?: string | null
+          filter_location?: string | null
+          filter_type?: Database["public"]["Enums"]["filter_type"] | null
+          group_name: string
+          icon?: string | null
           id?: string
-          latitude?: number | null
-          longitude?: number | null
-          meta_description?: string | null
-          meta_title?: string | null
-          name: string
-          nearest_airport?: string | null
-          permits_info?: string | null
-          population?: number | null
-          projects_count?: number | null
-          providers_count?: number | null
-          region: string
-          regulations_info?: string | null
-          restrictions?: string | null
-          slug: string
-          terrain_cost_max?: number | null
-          terrain_cost_min?: number | null
+          is_active?: boolean | null
+          is_filterable?: boolean | null
+          label: string
+          requires_login?: boolean | null
+          show_in_card_destacado?: boolean | null
+          show_in_card_premium?: boolean | null
+          show_in_card_standard?: boolean | null
+          show_in_landing?: boolean | null
           updated_at?: string | null
-          useful_links?: Json | null
-          why_build_here?: string | null
+          validation_rules?: Json | null
         }
         Update: {
-          altitude_m?: number | null
-          city?: string
-          climate_data?: Json | null
-          construction_cost_m2_avg?: number | null
+          admin_helper_text?: string | null
+          admin_input_type?: string | null
+          category?: Database["public"]["Enums"]["category_type"]
           created_at?: string | null
+          data_type?: Database["public"]["Enums"]["feature_data_type"]
+          default_value?: Json | null
           description?: string | null
-          description_long?: string | null
-          distance_santiago_km?: number | null
-          gallery_images?: string[] | null
-          hero_image_url?: string | null
+          display_order?: number | null
+          feature_key?: string
+          filter_format?: string | null
+          filter_location?: string | null
+          filter_type?: Database["public"]["Enums"]["filter_type"] | null
+          group_name?: string
+          icon?: string | null
           id?: string
-          latitude?: number | null
-          longitude?: number | null
-          meta_description?: string | null
-          meta_title?: string | null
-          name?: string
-          nearest_airport?: string | null
-          permits_info?: string | null
-          population?: number | null
-          projects_count?: number | null
-          providers_count?: number | null
-          region?: string
-          regulations_info?: string | null
-          restrictions?: string | null
-          slug?: string
-          terrain_cost_max?: number | null
-          terrain_cost_min?: number | null
+          is_active?: boolean | null
+          is_filterable?: boolean | null
+          label?: string
+          requires_login?: boolean | null
+          show_in_card_destacado?: boolean | null
+          show_in_card_premium?: boolean | null
+          show_in_card_standard?: boolean | null
+          show_in_landing?: boolean | null
           updated_at?: string | null
-          useful_links?: Json | null
-          why_build_here?: string | null
+          validation_rules?: Json | null
         }
         Relationships: []
       }
@@ -1400,21 +350,17 @@ export type Database = {
       }
       houses: {
         Row: {
-          area_built_m2: number | null
           area_m2: number | null
           assembly_time_days: number | null
           bathrooms: number | null
           bedrooms: number | null
           brochure_pdf_url: string | null
-          certifications: Json | null
           clicks_count: number | null
           created_at: string | null
           currency: string | null
           delivery_time_days: number | null
           description: string | null
           description_long: string | null
-          energy_rating: string | null
-          expandable: boolean | null
           features: Json | null
           floor_plans: string[] | null
           floors: number | null
@@ -1425,19 +371,15 @@ export type Database = {
           is_available: boolean | null
           keywords: string[] | null
           latitude: number | null
-          llave_en_mano: boolean | null
           location_city: string | null
           location_region: string | null
           longitude: number | null
           main_image_url: string | null
-          main_material: string | null
           meta_description: string | null
           meta_title: string | null
           metadata: Json | null
-          mobile: boolean | null
           model_code: string | null
           name: string
-          off_grid_ready: boolean | null
           parent_house_id: string | null
           price: number | null
           price_opportunity: number | null
@@ -1445,41 +387,32 @@ export type Database = {
           provider_id: string | null
           sales_count: number | null
           saves_count: number | null
-          services_included: string[] | null
           sku: string | null
           slug: string
-          smart_home: boolean | null
           status: Database["public"]["Enums"]["listing_status"] | null
           stock_quantity: number | null
           stock_status: string | null
-          sustainable: boolean | null
-          technology_materials: string[] | null
           tier: Database["public"]["Enums"]["listing_tier"] | null
-          topology_id: string | null
+          topology_code: string | null
           updated_at: string | null
           variant_attributes: Json | null
           videos: string[] | null
           views_count: number | null
           virtual_tour_url: string | null
           warranty_years: number | null
-          windows_type: string[] | null
         }
         Insert: {
-          area_built_m2?: number | null
           area_m2?: number | null
           assembly_time_days?: number | null
           bathrooms?: number | null
           bedrooms?: number | null
           brochure_pdf_url?: string | null
-          certifications?: Json | null
           clicks_count?: number | null
           created_at?: string | null
           currency?: string | null
           delivery_time_days?: number | null
           description?: string | null
           description_long?: string | null
-          energy_rating?: string | null
-          expandable?: boolean | null
           features?: Json | null
           floor_plans?: string[] | null
           floors?: number | null
@@ -1490,19 +423,15 @@ export type Database = {
           is_available?: boolean | null
           keywords?: string[] | null
           latitude?: number | null
-          llave_en_mano?: boolean | null
           location_city?: string | null
           location_region?: string | null
           longitude?: number | null
           main_image_url?: string | null
-          main_material?: string | null
           meta_description?: string | null
           meta_title?: string | null
           metadata?: Json | null
-          mobile?: boolean | null
           model_code?: string | null
           name: string
-          off_grid_ready?: boolean | null
           parent_house_id?: string | null
           price?: number | null
           price_opportunity?: number | null
@@ -1510,41 +439,32 @@ export type Database = {
           provider_id?: string | null
           sales_count?: number | null
           saves_count?: number | null
-          services_included?: string[] | null
           sku?: string | null
           slug: string
-          smart_home?: boolean | null
           status?: Database["public"]["Enums"]["listing_status"] | null
           stock_quantity?: number | null
           stock_status?: string | null
-          sustainable?: boolean | null
-          technology_materials?: string[] | null
           tier?: Database["public"]["Enums"]["listing_tier"] | null
-          topology_id?: string | null
+          topology_code?: string | null
           updated_at?: string | null
           variant_attributes?: Json | null
           videos?: string[] | null
           views_count?: number | null
           virtual_tour_url?: string | null
           warranty_years?: number | null
-          windows_type?: string[] | null
         }
         Update: {
-          area_built_m2?: number | null
           area_m2?: number | null
           assembly_time_days?: number | null
           bathrooms?: number | null
           bedrooms?: number | null
           brochure_pdf_url?: string | null
-          certifications?: Json | null
           clicks_count?: number | null
           created_at?: string | null
           currency?: string | null
           delivery_time_days?: number | null
           description?: string | null
           description_long?: string | null
-          energy_rating?: string | null
-          expandable?: boolean | null
           features?: Json | null
           floor_plans?: string[] | null
           floors?: number | null
@@ -1555,19 +475,15 @@ export type Database = {
           is_available?: boolean | null
           keywords?: string[] | null
           latitude?: number | null
-          llave_en_mano?: boolean | null
           location_city?: string | null
           location_region?: string | null
           longitude?: number | null
           main_image_url?: string | null
-          main_material?: string | null
           meta_description?: string | null
           meta_title?: string | null
           metadata?: Json | null
-          mobile?: boolean | null
           model_code?: string | null
           name?: string
-          off_grid_ready?: boolean | null
           parent_house_id?: string | null
           price?: number | null
           price_opportunity?: number | null
@@ -1575,24 +491,19 @@ export type Database = {
           provider_id?: string | null
           sales_count?: number | null
           saves_count?: number | null
-          services_included?: string[] | null
           sku?: string | null
           slug?: string
-          smart_home?: boolean | null
           status?: Database["public"]["Enums"]["listing_status"] | null
           stock_quantity?: number | null
           stock_status?: string | null
-          sustainable?: boolean | null
-          technology_materials?: string[] | null
           tier?: Database["public"]["Enums"]["listing_tier"] | null
-          topology_id?: string | null
+          topology_code?: string | null
           updated_at?: string | null
           variant_attributes?: Json | null
           videos?: string[] | null
           views_count?: number | null
           virtual_tour_url?: string | null
           warranty_years?: number | null
-          windows_type?: string[] | null
         }
         Relationships: [
           {
@@ -1600,20 +511,6 @@ export type Database = {
             columns: ["parent_house_id"]
             isOneToOne: false
             referencedRelation: "houses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "houses_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_admin_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "houses_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_public_view"
             referencedColumns: ["id"]
           },
           {
@@ -1628,66 +525,6 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers_with_categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "houses_topology_id_fkey"
-            columns: ["topology_id"]
-            isOneToOne: false
-            referencedRelation: "house_topologies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      import_logs: {
-        Row: {
-          completed_at: string | null
-          errors: Json | null
-          failed_rows: number | null
-          file_name: string
-          id: string
-          import_type: string
-          imported_by: string | null
-          metadata: Json | null
-          started_at: string | null
-          status: string | null
-          successful_rows: number | null
-          total_rows: number | null
-        }
-        Insert: {
-          completed_at?: string | null
-          errors?: Json | null
-          failed_rows?: number | null
-          file_name: string
-          id?: string
-          import_type: string
-          imported_by?: string | null
-          metadata?: Json | null
-          started_at?: string | null
-          status?: string | null
-          successful_rows?: number | null
-          total_rows?: number | null
-        }
-        Update: {
-          completed_at?: string | null
-          errors?: Json | null
-          failed_rows?: number | null
-          file_name?: string
-          id?: string
-          import_type?: string
-          imported_by?: string | null
-          metadata?: Json | null
-          started_at?: string | null
-          status?: string | null
-          successful_rows?: number | null
-          total_rows?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "import_logs_imported_by_fkey"
-            columns: ["imported_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1755,20 +592,6 @@ export type Database = {
             foreignKeyName: "inquiries_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
-            referencedRelation: "provider_admin_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "inquiries_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_public_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "inquiries_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
             referencedRelation: "providers"
             referencedColumns: ["id"]
           },
@@ -1787,104 +610,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      landing_sections: {
-        Row: {
-          background_image_url: string | null
-          content: string | null
-          created_at: string | null
-          display_order: number | null
-          id: string
-          is_active: boolean | null
-          page_id: string | null
-          section_type: string
-          settings: Json | null
-          subtitle: string | null
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          background_image_url?: string | null
-          content?: string | null
-          created_at?: string | null
-          display_order?: number | null
-          id?: string
-          is_active?: boolean | null
-          page_id?: string | null
-          section_type: string
-          settings?: Json | null
-          subtitle?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          background_image_url?: string | null
-          content?: string | null
-          created_at?: string | null
-          display_order?: number | null
-          id?: string
-          is_active?: boolean | null
-          page_id?: string | null
-          section_type?: string
-          settings?: Json | null
-          subtitle?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "landing_sections_page_id_fkey"
-            columns: ["page_id"]
-            isOneToOne: false
-            referencedRelation: "static_pages"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      product_variants: {
-        Row: {
-          attributes: Json
-          created_at: string | null
-          id: string
-          images: string[] | null
-          is_available: boolean | null
-          price: number | null
-          product_id: string
-          product_type: string
-          sku: string | null
-          stock_quantity: number | null
-          updated_at: string | null
-          variant_name: string
-        }
-        Insert: {
-          attributes: Json
-          created_at?: string | null
-          id?: string
-          images?: string[] | null
-          is_available?: boolean | null
-          price?: number | null
-          product_id: string
-          product_type: string
-          sku?: string | null
-          stock_quantity?: number | null
-          updated_at?: string | null
-          variant_name: string
-        }
-        Update: {
-          attributes?: Json
-          created_at?: string | null
-          id?: string
-          images?: string[] | null
-          is_available?: boolean | null
-          price?: number | null
-          product_id?: string
-          product_type?: string
-          sku?: string | null
-          stock_quantity?: number | null
-          updated_at?: string | null
-          variant_name?: string
-        }
-        Relationships: []
       }
       profiles: {
         Row: {
@@ -1954,41 +679,27 @@ export type Database = {
       }
       provider_categories: {
         Row: {
-          category_type: Database["public"]["Enums"]["category_type"]
+          category: Database["public"]["Enums"]["category_type"]
           created_at: string | null
           id: string
           is_primary: boolean | null
           provider_id: string
         }
         Insert: {
-          category_type: Database["public"]["Enums"]["category_type"]
+          category: Database["public"]["Enums"]["category_type"]
           created_at?: string | null
           id?: string
           is_primary?: boolean | null
           provider_id: string
         }
         Update: {
-          category_type?: Database["public"]["Enums"]["category_type"]
+          category?: Database["public"]["Enums"]["category_type"]
           created_at?: string | null
           id?: string
           is_primary?: boolean | null
           provider_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "provider_categories_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_admin_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "provider_categories_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_public_view"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "provider_categories_provider_id_fkey"
             columns: ["provider_id"]
@@ -2011,177 +722,134 @@ export type Database = {
           admin_notes: string | null
           approved_at: string | null
           approved_by: string | null
-          catalog_pdf_url: string | null
-          category_type: Database["public"]["Enums"]["category_type"]
-          certifications: Json | null
           city: string | null
           clicks_count: number | null
           company_name: string
           cover_image_url: string | null
-          coverage_areas: string[] | null
           created_at: string | null
-          created_by: string | null
           description: string | null
           description_long: string | null
+          editor_approved_for_premium: boolean | null
           email: string
           featured_order: number | null
           featured_until: string | null
           features: Json | null
-          financing_available: boolean | null
           gallery_images: string[] | null
+          has_complete_info: boolean | null
+          has_quality_images: boolean | null
           id: string
           inquiries_count: number | null
           internal_rating: number | null
           keywords: string[] | null
-          llave_en_mano: boolean | null
           logo_url: string | null
           meta_description: string | null
           meta_title: string | null
           metadata: Json | null
-          onboarding_completed: boolean | null
-          phone: string
+          phone: string | null
           premium_until: string | null
-          price_per_m2_max: number | null
-          price_per_m2_min: number | null
-          price_range_max: number | null
-          price_range_min: number | null
+          primary_category: Database["public"]["Enums"]["category_type"]
           profile_id: string | null
           region: string | null
           rejection_reason: string | null
-          services_offered: string[] | null
           slug: string
-          specialties: string[] | null
           status: Database["public"]["Enums"]["listing_status"] | null
-          temp_password: string | null
           tier: Database["public"]["Enums"]["listing_tier"] | null
           updated_at: string | null
           videos: string[] | null
           views_count: number | null
           website: string | null
           whatsapp: string | null
-          years_experience: number | null
         }
         Insert: {
           address?: string | null
           admin_notes?: string | null
           approved_at?: string | null
           approved_by?: string | null
-          catalog_pdf_url?: string | null
-          category_type: Database["public"]["Enums"]["category_type"]
-          certifications?: Json | null
           city?: string | null
           clicks_count?: number | null
           company_name: string
           cover_image_url?: string | null
-          coverage_areas?: string[] | null
           created_at?: string | null
-          created_by?: string | null
           description?: string | null
           description_long?: string | null
+          editor_approved_for_premium?: boolean | null
           email: string
           featured_order?: number | null
           featured_until?: string | null
           features?: Json | null
-          financing_available?: boolean | null
           gallery_images?: string[] | null
+          has_complete_info?: boolean | null
+          has_quality_images?: boolean | null
           id?: string
           inquiries_count?: number | null
           internal_rating?: number | null
           keywords?: string[] | null
-          llave_en_mano?: boolean | null
           logo_url?: string | null
           meta_description?: string | null
           meta_title?: string | null
           metadata?: Json | null
-          onboarding_completed?: boolean | null
-          phone: string
+          phone?: string | null
           premium_until?: string | null
-          price_per_m2_max?: number | null
-          price_per_m2_min?: number | null
-          price_range_max?: number | null
-          price_range_min?: number | null
+          primary_category: Database["public"]["Enums"]["category_type"]
           profile_id?: string | null
           region?: string | null
           rejection_reason?: string | null
-          services_offered?: string[] | null
           slug: string
-          specialties?: string[] | null
           status?: Database["public"]["Enums"]["listing_status"] | null
-          temp_password?: string | null
           tier?: Database["public"]["Enums"]["listing_tier"] | null
           updated_at?: string | null
           videos?: string[] | null
           views_count?: number | null
           website?: string | null
           whatsapp?: string | null
-          years_experience?: number | null
         }
         Update: {
           address?: string | null
           admin_notes?: string | null
           approved_at?: string | null
           approved_by?: string | null
-          catalog_pdf_url?: string | null
-          category_type?: Database["public"]["Enums"]["category_type"]
-          certifications?: Json | null
           city?: string | null
           clicks_count?: number | null
           company_name?: string
           cover_image_url?: string | null
-          coverage_areas?: string[] | null
           created_at?: string | null
-          created_by?: string | null
           description?: string | null
           description_long?: string | null
+          editor_approved_for_premium?: boolean | null
           email?: string
           featured_order?: number | null
           featured_until?: string | null
           features?: Json | null
-          financing_available?: boolean | null
           gallery_images?: string[] | null
+          has_complete_info?: boolean | null
+          has_quality_images?: boolean | null
           id?: string
           inquiries_count?: number | null
           internal_rating?: number | null
           keywords?: string[] | null
-          llave_en_mano?: boolean | null
           logo_url?: string | null
           meta_description?: string | null
           meta_title?: string | null
           metadata?: Json | null
-          onboarding_completed?: boolean | null
-          phone?: string
+          phone?: string | null
           premium_until?: string | null
-          price_per_m2_max?: number | null
-          price_per_m2_min?: number | null
-          price_range_max?: number | null
-          price_range_min?: number | null
+          primary_category?: Database["public"]["Enums"]["category_type"]
           profile_id?: string | null
           region?: string | null
           rejection_reason?: string | null
-          services_offered?: string[] | null
           slug?: string
-          specialties?: string[] | null
           status?: Database["public"]["Enums"]["listing_status"] | null
-          temp_password?: string | null
           tier?: Database["public"]["Enums"]["listing_tier"] | null
           updated_at?: string | null
           videos?: string[] | null
           views_count?: number | null
           website?: string | null
           whatsapp?: string | null
-          years_experience?: number | null
         }
         Relationships: [
           {
             foreignKeyName: "providers_approved_by_fkey"
             columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "providers_created_by_fkey"
-            columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -2195,13 +863,13 @@ export type Database = {
           },
         ]
       }
-      services: {
+      service_products: {
         Row: {
           booking_calendar: Json | null
-          category_id: string | null
           clicks_count: number | null
           coverage_areas: string[] | null
           created_at: string | null
+          currency: string | null
           current_bookings: number | null
           description: string | null
           description_long: string | null
@@ -2215,26 +883,29 @@ export type Database = {
           max_bookings: number | null
           meta_description: string | null
           meta_title: string | null
+          metadata: Json | null
           name: string
           price_from: number | null
           price_to: number | null
           price_unit: string | null
           provider_id: string | null
           sales_count: number | null
-          service_type: string
+          service_family: string | null
+          service_type: string | null
           sku: string | null
           slug: string
           status: Database["public"]["Enums"]["listing_status"] | null
           tier: Database["public"]["Enums"]["listing_tier"] | null
           updated_at: string | null
+          videos: string[] | null
           views_count: number | null
         }
         Insert: {
           booking_calendar?: Json | null
-          category_id?: string | null
           clicks_count?: number | null
           coverage_areas?: string[] | null
           created_at?: string | null
+          currency?: string | null
           current_bookings?: number | null
           description?: string | null
           description_long?: string | null
@@ -2248,26 +919,29 @@ export type Database = {
           max_bookings?: number | null
           meta_description?: string | null
           meta_title?: string | null
+          metadata?: Json | null
           name: string
           price_from?: number | null
           price_to?: number | null
           price_unit?: string | null
           provider_id?: string | null
           sales_count?: number | null
-          service_type: string
+          service_family?: string | null
+          service_type?: string | null
           sku?: string | null
           slug: string
           status?: Database["public"]["Enums"]["listing_status"] | null
           tier?: Database["public"]["Enums"]["listing_tier"] | null
           updated_at?: string | null
+          videos?: string[] | null
           views_count?: number | null
         }
         Update: {
           booking_calendar?: Json | null
-          category_id?: string | null
           clicks_count?: number | null
           coverage_areas?: string[] | null
           created_at?: string | null
+          currency?: string | null
           current_bookings?: number | null
           description?: string | null
           description_long?: string | null
@@ -2281,51 +955,33 @@ export type Database = {
           max_bookings?: number | null
           meta_description?: string | null
           meta_title?: string | null
+          metadata?: Json | null
           name?: string
           price_from?: number | null
           price_to?: number | null
           price_unit?: string | null
           provider_id?: string | null
           sales_count?: number | null
-          service_type?: string
+          service_family?: string | null
+          service_type?: string | null
           sku?: string | null
           slug?: string
           status?: Database["public"]["Enums"]["listing_status"] | null
           tier?: Database["public"]["Enums"]["listing_tier"] | null
           updated_at?: string | null
+          videos?: string[] | null
           views_count?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "services_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "services_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_admin_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "services_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider_public_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "services_provider_id_fkey"
+            foreignKeyName: "service_products_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "services_provider_id_fkey"
+            foreignKeyName: "service_products_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers_with_categories"
@@ -2349,9 +1005,9 @@ export type Database = {
           published_at: string | null
           settings: Json | null
           slug: string
-          status: Database["public"]["Enums"]["page_status"]
+          status: Database["public"]["Enums"]["content_status"] | null
           title: string
-          type: Database["public"]["Enums"]["page_type"]
+          type: string
           updated_at: string | null
           updated_by: string | null
         }
@@ -2370,9 +1026,9 @@ export type Database = {
           published_at?: string | null
           settings?: Json | null
           slug: string
-          status?: Database["public"]["Enums"]["page_status"]
+          status?: Database["public"]["Enums"]["content_status"] | null
           title: string
-          type: Database["public"]["Enums"]["page_type"]
+          type: string
           updated_at?: string | null
           updated_by?: string | null
         }
@@ -2391,9 +1047,9 @@ export type Database = {
           published_at?: string | null
           settings?: Json | null
           slug?: string
-          status?: Database["public"]["Enums"]["page_status"]
+          status?: Database["public"]["Enums"]["content_status"] | null
           title?: string
-          type?: Database["public"]["Enums"]["page_type"]
+          type?: string
           updated_at?: string | null
           updated_by?: string | null
         }
@@ -2461,473 +1117,60 @@ export type Database = {
           },
         ]
       }
-      user_searches: {
-        Row: {
-          alert_enabled: boolean | null
-          created_at: string | null
-          id: string
-          name: string | null
-          search_params: Json
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          alert_enabled?: boolean | null
-          created_at?: string | null
-          id?: string
-          name?: string | null
-          search_params: Json
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          alert_enabled?: boolean | null
-          created_at?: string | null
-          id?: string
-          name?: string | null
-          search_params?: Json
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_searches_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
-      provider_admin_view: {
-        Row: {
-          address: string | null
-          admin_notes: string | null
-          approved_at: string | null
-          approved_by: string | null
-          catalog_pdf_url: string | null
-          category_type: Database["public"]["Enums"]["category_type"] | null
-          certifications: Json | null
-          city: string | null
-          clicks_count: number | null
-          company_name: string | null
-          cover_image_url: string | null
-          coverage_areas: string[] | null
-          created_at: string | null
-          created_by: string | null
-          description: string | null
-          description_long: string | null
-          email: string | null
-          featured_order: number | null
-          featured_until: string | null
-          features: Json | null
-          financing_available: boolean | null
-          gallery_images: string[] | null
-          id: string | null
-          inquiries_count: number | null
-          internal_rating: number | null
-          keywords: string[] | null
-          llave_en_mano: boolean | null
-          logo_url: string | null
-          meta_description: string | null
-          meta_title: string | null
-          metadata: Json | null
-          onboarding_completed: boolean | null
-          phone: string | null
-          premium_until: string | null
-          price_per_m2_max: number | null
-          price_per_m2_min: number | null
-          price_range_max: number | null
-          price_range_min: number | null
-          profile_id: string | null
-          region: string | null
-          rejection_reason: string | null
-          services_offered: string[] | null
-          slug: string | null
-          specialties: string[] | null
-          status: Database["public"]["Enums"]["listing_status"] | null
-          temp_password: string | null
-          tier: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at: string | null
-          videos: string[] | null
-          views_count: number | null
-          website: string | null
-          whatsapp: string | null
-          years_experience: number | null
-        }
-        Insert: {
-          address?: string | null
-          admin_notes?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
-          catalog_pdf_url?: string | null
-          category_type?: Database["public"]["Enums"]["category_type"] | null
-          certifications?: Json | null
-          city?: string | null
-          clicks_count?: number | null
-          company_name?: string | null
-          cover_image_url?: string | null
-          coverage_areas?: string[] | null
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
-          description_long?: string | null
-          email?: string | null
-          featured_order?: number | null
-          featured_until?: string | null
-          features?: Json | null
-          financing_available?: boolean | null
-          gallery_images?: string[] | null
-          id?: string | null
-          inquiries_count?: number | null
-          internal_rating?: number | null
-          keywords?: string[] | null
-          llave_en_mano?: boolean | null
-          logo_url?: string | null
-          meta_description?: string | null
-          meta_title?: string | null
-          metadata?: Json | null
-          onboarding_completed?: boolean | null
-          phone?: string | null
-          premium_until?: string | null
-          price_per_m2_max?: number | null
-          price_per_m2_min?: number | null
-          price_range_max?: number | null
-          price_range_min?: number | null
-          profile_id?: string | null
-          region?: string | null
-          rejection_reason?: string | null
-          services_offered?: string[] | null
-          slug?: string | null
-          specialties?: string[] | null
-          status?: Database["public"]["Enums"]["listing_status"] | null
-          temp_password?: string | null
-          tier?: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at?: string | null
-          videos?: string[] | null
-          views_count?: number | null
-          website?: string | null
-          whatsapp?: string | null
-          years_experience?: number | null
-        }
-        Update: {
-          address?: string | null
-          admin_notes?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
-          catalog_pdf_url?: string | null
-          category_type?: Database["public"]["Enums"]["category_type"] | null
-          certifications?: Json | null
-          city?: string | null
-          clicks_count?: number | null
-          company_name?: string | null
-          cover_image_url?: string | null
-          coverage_areas?: string[] | null
-          created_at?: string | null
-          created_by?: string | null
-          description?: string | null
-          description_long?: string | null
-          email?: string | null
-          featured_order?: number | null
-          featured_until?: string | null
-          features?: Json | null
-          financing_available?: boolean | null
-          gallery_images?: string[] | null
-          id?: string | null
-          inquiries_count?: number | null
-          internal_rating?: number | null
-          keywords?: string[] | null
-          llave_en_mano?: boolean | null
-          logo_url?: string | null
-          meta_description?: string | null
-          meta_title?: string | null
-          metadata?: Json | null
-          onboarding_completed?: boolean | null
-          phone?: string | null
-          premium_until?: string | null
-          price_per_m2_max?: number | null
-          price_per_m2_min?: number | null
-          price_range_max?: number | null
-          price_range_min?: number | null
-          profile_id?: string | null
-          region?: string | null
-          rejection_reason?: string | null
-          services_offered?: string[] | null
-          slug?: string | null
-          specialties?: string[] | null
-          status?: Database["public"]["Enums"]["listing_status"] | null
-          temp_password?: string | null
-          tier?: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at?: string | null
-          videos?: string[] | null
-          views_count?: number | null
-          website?: string | null
-          whatsapp?: string | null
-          years_experience?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "providers_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "providers_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "providers_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      provider_public_view: {
-        Row: {
-          address: string | null
-          approved_at: string | null
-          approved_by: string | null
-          catalog_pdf_url: string | null
-          category_type: Database["public"]["Enums"]["category_type"] | null
-          certifications: Json | null
-          city: string | null
-          clicks_count: number | null
-          company_name: string | null
-          cover_image_url: string | null
-          coverage_areas: string[] | null
-          created_at: string | null
-          description: string | null
-          description_long: string | null
-          email: string | null
-          featured_until: string | null
-          features: Json | null
-          financing_available: boolean | null
-          gallery_images: string[] | null
-          id: string | null
-          inquiries_count: number | null
-          keywords: string[] | null
-          llave_en_mano: boolean | null
-          logo_url: string | null
-          meta_description: string | null
-          meta_title: string | null
-          metadata: Json | null
-          onboarding_completed: boolean | null
-          phone: string | null
-          premium_until: string | null
-          price_per_m2_max: number | null
-          price_per_m2_min: number | null
-          price_range_max: number | null
-          price_range_min: number | null
-          profile_id: string | null
-          region: string | null
-          rejection_reason: string | null
-          services_offered: string[] | null
-          slug: string | null
-          specialties: string[] | null
-          status: Database["public"]["Enums"]["listing_status"] | null
-          tier: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at: string | null
-          videos: string[] | null
-          views_count: number | null
-          website: string | null
-          whatsapp: string | null
-          years_experience: number | null
-        }
-        Insert: {
-          address?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
-          catalog_pdf_url?: string | null
-          category_type?: Database["public"]["Enums"]["category_type"] | null
-          certifications?: Json | null
-          city?: string | null
-          clicks_count?: number | null
-          company_name?: string | null
-          cover_image_url?: string | null
-          coverage_areas?: string[] | null
-          created_at?: string | null
-          description?: string | null
-          description_long?: string | null
-          email?: string | null
-          featured_until?: string | null
-          features?: Json | null
-          financing_available?: boolean | null
-          gallery_images?: string[] | null
-          id?: string | null
-          inquiries_count?: number | null
-          keywords?: string[] | null
-          llave_en_mano?: boolean | null
-          logo_url?: string | null
-          meta_description?: string | null
-          meta_title?: string | null
-          metadata?: Json | null
-          onboarding_completed?: boolean | null
-          phone?: string | null
-          premium_until?: string | null
-          price_per_m2_max?: number | null
-          price_per_m2_min?: number | null
-          price_range_max?: number | null
-          price_range_min?: number | null
-          profile_id?: string | null
-          region?: string | null
-          rejection_reason?: string | null
-          services_offered?: string[] | null
-          slug?: string | null
-          specialties?: string[] | null
-          status?: Database["public"]["Enums"]["listing_status"] | null
-          tier?: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at?: string | null
-          videos?: string[] | null
-          views_count?: number | null
-          website?: string | null
-          whatsapp?: string | null
-          years_experience?: number | null
-        }
-        Update: {
-          address?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
-          catalog_pdf_url?: string | null
-          category_type?: Database["public"]["Enums"]["category_type"] | null
-          certifications?: Json | null
-          city?: string | null
-          clicks_count?: number | null
-          company_name?: string | null
-          cover_image_url?: string | null
-          coverage_areas?: string[] | null
-          created_at?: string | null
-          description?: string | null
-          description_long?: string | null
-          email?: string | null
-          featured_until?: string | null
-          features?: Json | null
-          financing_available?: boolean | null
-          gallery_images?: string[] | null
-          id?: string | null
-          inquiries_count?: number | null
-          keywords?: string[] | null
-          llave_en_mano?: boolean | null
-          logo_url?: string | null
-          meta_description?: string | null
-          meta_title?: string | null
-          metadata?: Json | null
-          onboarding_completed?: boolean | null
-          phone?: string | null
-          premium_until?: string | null
-          price_per_m2_max?: number | null
-          price_per_m2_min?: number | null
-          price_range_max?: number | null
-          price_range_min?: number | null
-          profile_id?: string | null
-          region?: string | null
-          rejection_reason?: string | null
-          services_offered?: string[] | null
-          slug?: string | null
-          specialties?: string[] | null
-          status?: Database["public"]["Enums"]["listing_status"] | null
-          tier?: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at?: string | null
-          videos?: string[] | null
-          views_count?: number | null
-          website?: string | null
-          whatsapp?: string | null
-          years_experience?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "providers_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "providers_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       providers_with_categories: {
         Row: {
           address: string | null
           admin_notes: string | null
           approved_at: string | null
           approved_by: string | null
-          catalog_pdf_url: string | null
           categories: Database["public"]["Enums"]["category_type"][] | null
-          category_type: Database["public"]["Enums"]["category_type"] | null
-          certifications: Json | null
           city: string | null
           clicks_count: number | null
           company_name: string | null
           cover_image_url: string | null
-          coverage_areas: string[] | null
           created_at: string | null
-          created_by: string | null
           description: string | null
           description_long: string | null
+          editor_approved_for_premium: boolean | null
           email: string | null
           featured_order: number | null
           featured_until: string | null
           features: Json | null
-          financing_available: boolean | null
           gallery_images: string[] | null
+          has_complete_info: boolean | null
+          has_quality_images: boolean | null
           id: string | null
           inquiries_count: number | null
           internal_rating: number | null
           keywords: string[] | null
-          llave_en_mano: boolean | null
           logo_url: string | null
           meta_description: string | null
           meta_title: string | null
           metadata: Json | null
-          onboarding_completed: boolean | null
           phone: string | null
           premium_until: string | null
-          price_per_m2_max: number | null
-          price_per_m2_min: number | null
-          price_range_max: number | null
-          price_range_min: number | null
           primary_category: Database["public"]["Enums"]["category_type"] | null
+          primary_category_from_junction:
+            | Database["public"]["Enums"]["category_type"]
+            | null
           profile_id: string | null
           region: string | null
           rejection_reason: string | null
-          services_offered: string[] | null
           slug: string | null
-          specialties: string[] | null
           status: Database["public"]["Enums"]["listing_status"] | null
-          temp_password: string | null
           tier: Database["public"]["Enums"]["listing_tier"] | null
           updated_at: string | null
           videos: string[] | null
           views_count: number | null
           website: string | null
           whatsapp: string | null
-          years_experience: number | null
         }
         Relationships: [
           {
             foreignKeyName: "providers_approved_by_fkey"
             columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "providers_created_by_fkey"
-            columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -2943,17 +1186,13 @@ export type Database = {
       }
     }
     Functions: {
-      add_provider_category: {
-        Args: {
-          p_category: Database["public"]["Enums"]["category_type"]
-          p_is_primary?: boolean
-          p_provider_id: string
-        }
-        Returns: boolean
-      }
       generate_slug: {
         Args: { input_text: string }
         Returns: string
+      }
+      get_feature_value: {
+        Args: { p_features: Json; p_group: string; p_key: string }
+        Returns: Json
       }
       get_providers_by_category: {
         Args: {
@@ -2987,27 +1226,25 @@ export type Database = {
         }
         Returns: string
       }
-      remove_provider_category: {
+      search_providers_by_feature: {
         Args: {
           p_category: Database["public"]["Enums"]["category_type"]
-          p_provider_id: string
+          p_group: string
+          p_key: string
+          p_value: boolean
         }
-        Returns: boolean
+        Returns: {
+          company_name: string
+          id: string
+          slug: string
+        }[]
       }
     }
     Enums: {
-      blog_category:
-        | "tendencias"
-        | "guias"
-        | "casos_exito"
-        | "noticias"
-        | "tutoriales"
-      blog_status: "draft" | "pending_review" | "published" | "archived"
-      category_type:
-        | "casas"
-        | "fabricantes"
-        | "habilitacion_servicios"
-        | "decoracion"
+      category_type: "fabrica" | "casas" | "habilitacion_servicios"
+      content_status: "draft" | "pending_review" | "published" | "archived"
+      feature_data_type: "boolean" | "number" | "text" | "text_array" | "json"
+      filter_type: "checklist" | "slider" | "checkbox" | "radio" | "select"
       listing_status:
         | "draft"
         | "pending_review"
@@ -3015,14 +1252,6 @@ export type Database = {
         | "inactive"
         | "rejected"
       listing_tier: "premium" | "destacado" | "standard"
-      page_status: "draft" | "published" | "archived"
-      page_type:
-        | "about_us"
-        | "terms_conditions"
-        | "privacy_policy"
-        | "faq"
-        | "contact"
-        | "landing_section"
       user_role: "super_admin" | "admin" | "provider" | "user"
       user_status: "active" | "inactive" | "suspended" | "pending_verification"
     }
@@ -3152,20 +1381,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      blog_category: [
-        "tendencias",
-        "guias",
-        "casos_exito",
-        "noticias",
-        "tutoriales",
-      ],
-      blog_status: ["draft", "pending_review", "published", "archived"],
-      category_type: [
-        "casas",
-        "fabricantes",
-        "habilitacion_servicios",
-        "decoracion",
-      ],
+      category_type: ["fabrica", "casas", "habilitacion_servicios"],
+      content_status: ["draft", "pending_review", "published", "archived"],
+      feature_data_type: ["boolean", "number", "text", "text_array", "json"],
+      filter_type: ["checklist", "slider", "checkbox", "radio", "select"],
       listing_status: [
         "draft",
         "pending_review",
@@ -3174,160 +1393,8 @@ export const Constants = {
         "rejected",
       ],
       listing_tier: ["premium", "destacado", "standard"],
-      page_status: ["draft", "published", "archived"],
-      page_type: [
-        "about_us",
-        "terms_conditions",
-        "privacy_policy",
-        "faq",
-        "contact",
-        "landing_section",
-      ],
       user_role: ["super_admin", "admin", "provider", "user"],
       user_status: ["active", "inactive", "suspended", "pending_verification"],
     },
   },
 } as const
-
-
-// Type aliases for easier use
-export type Profile = Tables<"profiles">
-export type ProfileInsert = TablesInsert<"profiles">
-export type ProfileUpdate = TablesUpdate<"profiles">
-
-export type Provider = Tables<"providers">
-export type ProviderInsert = TablesInsert<"providers">
-export type ProviderUpdate = TablesUpdate<"providers">
-
-export type House = Tables<"houses">
-export type HouseInsert = TablesInsert<"houses">
-export type HouseUpdate = TablesUpdate<"houses">
-
-export type Service = Tables<"services">
-export type ServiceInsert = TablesInsert<"services">
-export type ServiceUpdate = TablesUpdate<"services">
-
-export type Inquiry = Tables<"inquiries">
-export type InquiryInsert = TablesInsert<"inquiries">
-export type InquiryUpdate = TablesUpdate<"inquiries">
-
-export type Category = Tables<"categories">
-export type CategoryInsert = TablesInsert<"categories">
-export type CategoryUpdate = TablesUpdate<"categories">
-
-export type BlogPost = Tables<"blog_posts">
-export type BlogPostInsert = TablesInsert<"blog_posts">
-export type BlogPostUpdate = TablesUpdate<"blog_posts">
-
-export type BlogComment = Tables<"blog_comments">
-export type BlogCommentInsert = TablesInsert<"blog_comments">
-export type BlogCommentUpdate = TablesUpdate<"blog_comments">
-
-export type UserFavorite = Tables<"user_favorites">
-export type UserFavoriteInsert = TablesInsert<"user_favorites">
-export type UserFavoriteUpdate = TablesUpdate<"user_favorites">
-
-export type UserSearch = Tables<"user_searches">
-export type UserSearchInsert = TablesInsert<"user_searches">
-export type UserSearchUpdate = TablesUpdate<"user_searches">
-
-export type Hotspot = Tables<"hotspots">
-export type HotspotInsert = TablesInsert<"hotspots">
-export type HotspotUpdate = TablesUpdate<"hotspots">
-
-export type HouseTopology = Tables<"house_topologies">
-export type HouseTopologyInsert = TablesInsert<"house_topologies">
-export type HouseTopologyUpdate = TablesUpdate<"house_topologies">
-
-export type Feature = Tables<"features">
-export type FeatureInsert = TablesInsert<"features">
-export type FeatureUpdate = TablesUpdate<"features">
-
-export type AdminAction = Tables<"admin_actions">
-export type AdminActionInsert = TablesInsert<"admin_actions">
-export type AdminActionUpdate = TablesUpdate<"admin_actions">
-
-export type AdminLog = Tables<"admin_logs">
-export type AdminLogInsert = TablesInsert<"admin_logs">
-export type AdminLogUpdate = TablesUpdate<"admin_logs">
-
-export type AnalyticsDaily = Tables<"analytics_daily">
-export type AnalyticsDailyInsert = TablesInsert<"analytics_daily">
-export type AnalyticsDailyUpdate = TablesUpdate<"analytics_daily">
-
-export type AnalyticsEvent = Tables<"analytics_events">
-export type AnalyticsEventInsert = TablesInsert<"analytics_events">
-export type AnalyticsEventUpdate = TablesUpdate<"analytics_events">
-
-export type ContentReview = Tables<"content_reviews">
-export type ContentReviewInsert = TablesInsert<"content_reviews">
-export type ContentReviewUpdate = TablesUpdate<"content_reviews">
-
-export type Decoration = Tables<"decorations">
-export type DecorationInsert = TablesInsert<"decorations">
-export type DecorationUpdate = TablesUpdate<"decorations">
-
-export type StaticPage = Tables<"static_pages">
-export type StaticPageInsert = TablesInsert<"static_pages">
-export type StaticPageUpdate = TablesUpdate<"static_pages">
-
-export type LandingSection = Tables<"landing_sections">
-export type LandingSectionInsert = TablesInsert<"landing_sections">
-export type LandingSectionUpdate = TablesUpdate<"landing_sections">
-
-export type FaqItem = Tables<"faq_items">
-export type FaqItemInsert = TablesInsert<"faq_items">
-export type FaqItemUpdate = TablesUpdate<"faq_items">
-
-export type ComparisonList = Tables<"comparison_lists">
-export type ComparisonListInsert = TablesInsert<"comparison_lists">
-export type ComparisonListUpdate = TablesUpdate<"comparison_lists">
-
-export type ImportLog = Tables<"import_logs">
-export type ImportLogInsert = TablesInsert<"import_logs">
-export type ImportLogUpdate = TablesUpdate<"import_logs">
-
-export type ProductVariant = Tables<"product_variants">
-export type ProductVariantInsert = TablesInsert<"product_variants">
-export type ProductVariantUpdate = TablesUpdate<"product_variants">
-
-export type HotspotProvider = Tables<"hotspot_providers">
-export type HotspotProviderInsert = TablesInsert<"hotspot_providers">
-export type HotspotProviderUpdate = TablesUpdate<"hotspot_providers">
-
-export type HotspotFeature = Tables<"hotspot_features">
-export type HotspotFeatureInsert = TablesInsert<"hotspot_features">
-export type HotspotFeatureUpdate = TablesUpdate<"hotspot_features">
-
-export type HotspotDemographic = Tables<"hotspot_demographics">
-export type HotspotDemographicInsert = TablesInsert<"hotspot_demographics">
-export type HotspotDemographicUpdate = TablesUpdate<"hotspot_demographics">
-
-export type HotspotCostEstimate = Tables<"hotspot_cost_estimates">
-export type HotspotCostEstimateInsert = TablesInsert<"hotspot_cost_estimates">
-export type HotspotCostEstimateUpdate = TablesUpdate<"hotspot_cost_estimates">
-
-export type ContactSetting = Tables<"contact_settings">
-export type ContactSettingInsert = TablesInsert<"contact_settings">
-export type ContactSettingUpdate = TablesUpdate<"contact_settings">
-
-// Provider Categories (NEW)
-export type ProviderCategory = Tables<"provider_categories">
-export type ProviderCategoryInsert = TablesInsert<"provider_categories">
-export type ProviderCategoryUpdate = TablesUpdate<"provider_categories">
-
-// Views
-export type ProviderAdminView = Tables<"provider_admin_view">
-export type ProviderPublicView = Tables<"provider_public_view">
-export type ProvidersWithCategories = Tables<"providers_with_categories">
-
-// Enum type exports
-export type UserRole = Enums<"user_role">
-export type UserStatus = Enums<"user_status">
-export type CategoryType = Enums<"category_type">
-export type ListingStatus = Enums<"listing_status">
-export type ListingTier = Enums<"listing_tier">
-export type BlogStatus = Enums<"blog_status">
-export type BlogCategory = Enums<"blog_category">
-export type PageStatus = Enums<"page_status">
-export type PageType = Enums<"page_type">

@@ -358,14 +358,14 @@ const featuresByCategory = features?.reduce((acc, feature) => {
             <div class="flex items-start">
               <input
                 type="checkbox"
-                id="category_fabricantes"
+                id="category_fabrica"
                 name="categories[]"
-                value="fabricantes"
+                value="fabrica"
                 class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <div class="ml-3">
-                <label for="category_fabricantes" class="text-sm font-medium text-gray-900">
-                  Fabricante
+                <label for="category_fabrica" class="text-sm font-medium text-gray-900">
+                  Fábrica
                 </label>
                 <p class="text-sm text-gray-500">Empresa que construye casas modulares/prefabricadas</p>
               </div>
@@ -387,21 +387,6 @@ const featuresByCategory = features?.reduce((acc, feature) => {
               </div>
             </div>
 
-            <div class="flex items-start">
-              <input
-                type="checkbox"
-                id="category_decoracion"
-                name="categories[]"
-                value="decoracion"
-                class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <div class="ml-3">
-                <label for="category_decoracion" class="text-sm font-medium text-gray-900">
-                  Decoración y Mejoras
-                </label>
-                <p class="text-sm text-gray-500">Productos y servicios para mejorar espacios</p>
-              </div>
-            </div>
           </div>
           <p class="mt-4 text-sm text-gray-600">
             <strong>Nota:</strong> Un proveedor puede ofrecer múltiples categorías. La primera seleccionada será la categoría principal.

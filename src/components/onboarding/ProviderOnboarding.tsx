@@ -4,12 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { createBrowserSupabaseClient } from '@/lib/supabase-browser';
-import type { CategoryType, ProfileUpdate, ProviderInsert } from '@/lib/types';
+import type { CategoryType, ProfileUpdate, ProviderInsert, Json } from '@/lib/types';
 import type { Session } from '@supabase/supabase-js';
 
 interface Props {
   userId: string;
-  session: any; // Using any to avoid serialization issues
+  session: Session | null;
 }
 
 const ProviderOnboarding: React.FC<Props> = ({ userId, session }) => {
@@ -22,7 +22,7 @@ const ProviderOnboarding: React.FC<Props> = ({ userId, session }) => {
   const formDataRef = useRef({
     companyName: '',
     rut: '',
-    categoryType: 'fabricantes' as CategoryType,
+    categoryType: 'fabrica' as CategoryType,
     phone: '',
     website: '',
     address: '',
@@ -61,23 +61,38 @@ const ProviderOnboarding: React.FC<Props> = ({ userId, session }) => {
 
     try {
       const formData = formDataRef.current;
-      
-      // Get the current user's profile to fetch email
-      const { data: profile } = await supabase
+
+      const companyName = formData.companyName.trim();
+      const phoneValue = formData.phone.trim();
+      const websiteValue = formData.website.trim();
+      const addressValue = formData.address.trim();
+      const cityValue = formData.city.trim();
+      const regionValue = formData.region.trim();
+      const descriptionValue = formData.description.trim();
+
+      if (!companyName) {
+        throw new Error('El nombre de la empresa es obligatorio.');
+      }
+      if (!descriptionValue) {
+        throw new Error('La descripción es obligatoria.');
+      }
+
+      const { data: profile, error: profileFetchError } = await supabase
         .from('profiles')
         .select('email')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      // Update profile
+      if (profileFetchError) throw profileFetchError;
+
       const profileUpdate: ProfileUpdate = {
-        company_name: formData.companyName,
-        rut: formData.rut,
-        phone: formData.phone,
-        website: formData.website,
+        company_name: companyName,
+        rut: formData.rut || null,
+        phone: phoneValue || null,
+        website: websiteValue || null,
         phone_verified: true,
       };
-      
+
       const { error: profileError } = await supabase
         .from('profiles')
         .update(profileUpdate)
@@ -85,25 +100,70 @@ const ProviderOnboarding: React.FC<Props> = ({ userId, session }) => {
 
       if (profileError) throw profileError;
 
-      // Create provider entry
-      const slug = formData.companyName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-      
+      const baseSlug = companyName
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+
+      const specialties = formData.specialties
+        ? formData.specialties
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean)
+        : [];
+
+      const yearsExperience = formData.yearsExperience
+        ? parseInt(formData.yearsExperience, 10)
+        : null;
+
+      const metadataContent: Record<string, unknown> = {};
+      if (specialties.length > 0) {
+        metadataContent.specialties = specialties;
+      }
+      if (!Number.isNaN(yearsExperience) && yearsExperience !== null) {
+        metadataContent.years_experience = yearsExperience;
+      }
+
+      const metadata: Json | undefined =
+        Object.keys(metadataContent).length > 0
+          ? ({ onboarding: metadataContent } as Json)
+          : undefined;
+
+      let slug = baseSlug;
+      let suffix = 1;
+      // Ensure slug uniqueness client-side to avoid constraint errors
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const { data: existingSlug } = await supabase
+          .from('providers')
+          .select('id')
+          .eq('slug', slug)
+          .maybeSingle();
+
+        if (!existingSlug) break;
+        slug = `${baseSlug}-${suffix}`;
+        suffix += 1;
+
+        if (suffix > 50) {
+          throw new Error('No se pudo generar un slug único para el proveedor.');
+        }
+      }
+
       const providerData: ProviderInsert = {
         profile_id: userId,
-        category_type: formData.categoryType,
-        company_name: formData.companyName,
-        slug: slug,
+        primary_category: formData.categoryType,
+        company_name: companyName,
+        slug,
         email: profile?.email || session?.user?.email || '',
-        phone: formData.phone,
-        website: formData.website || null,
-        address: formData.address || null,
-        city: formData.city || null,
-        region: formData.region || null,
-        description: formData.description || null,
-        years_experience: formData.yearsExperience ? parseInt(formData.yearsExperience) : null,
-        specialties: formData.specialties ? formData.specialties.split(',').map(s => s.trim()).filter(s => s) : null,
+        phone: phoneValue || null,
+        website: websiteValue || null,
+        address: addressValue || null,
+        city: cityValue || null,
+        region: regionValue || null,
+        description: descriptionValue || null,
         status: 'pending_review',
         tier: 'standard',
+        ...(metadata ? { metadata } : {})
       };
       
       const { error: providerError } = await supabase
@@ -223,9 +283,9 @@ const ProviderOnboarding: React.FC<Props> = ({ userId, session }) => {
                 onChange={(e) => updateFormField('categoryType', e.target.value)}
                 disabled={loading}
               >
-                <option value="fabricantes">Fabricante de Casas</option>
+                <option value="fabrica">Fábrica de Casas</option>
+                <option value="casas">Casas Modulares</option>
                 <option value="habilitacion_servicios">Habilitación y Servicios</option>
-                <option value="decoracion">Decoración y Mejoras</option>
               </select>
             </div>
           </div>

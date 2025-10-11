@@ -1,0 +1,127 @@
+Orden,Categoria,Feature Disponible,Etiqueta,Filtro /Ubicacion,formulario admin,Formato en Filtro,Dato en Bloque Std,Dato en tarjeta Premium,Dato en tarjeta Destacada,Dato en Landing,Observaciones,nombre_columna,logica columna,posibles valores
+1,Fabrica,Servicios Disponibles,Diseño standard,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,Excl. Std | Destacado | Premium,dise_std,Verdadero si solo entrega casas con diseño standard sin personalización ,(true or false)
+2,Fabrica,Servicios Disponibles,Diseño personalizado,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,dise_pers,Verdadero si la empresa tiene opciones para personalizar el diseño o la construcción de la casa,(true or false)
+3,Fabrica,Servicios Disponibles,Instalación premontada,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,insta_premontada,Verdadero si la casa es transportada ensamblada al terreno de instalación,(true or false)
+4,Fabrica,Servicios Disponibles,Construcción en terreno,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,contr_terreno,Verdadero si la casa es construida en el terreno.,(true or false)
+5,Fabrica,Servicios Disponibles,Instalación,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,instalacion,Verdadero si la empresa ofrece el servicio de instalación,(true or false)
+6,Fabrica,Servicios Disponibles,Kits de autoconstrucción,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,kit_autocons,Verdadero si la empresa vende kits de contruccion de casas sin ensamblar,(true or false)
+7,Fabrica,Servicios Disponibles,Asesoría técnica,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,ases_tecnica,Verdadero si la empresa ofrece asesorías técnicas,(true or false)
+8,Fabrica,Servicios Disponibles,Asesoría legal,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,ases_legal,Verdadero si la empresa ofrece asesoría legal,(true or false)
+9,Fabrica,Servicios Disponibles,Logística y transporte,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,logist_transporte,Verdadero si la empresa ofrece el servicio de logística o transporte de la casa al terreno,(true or false)
+10,Fabrica,Servicios Disponibles,Financiamiento,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,financiamiento,Verdadero si la empresa ofrece opciones de credito o financiamiento,(true or false)
+11,Fabrica,Especialidad,Tiny Houses,Lateral,(true or false),checklist|varios|todos,SI,SI,SI,SI,No se muestra en landing porque es redundante,tiny_houses,Verdadero si la empresa fabrica tiny houses,(true or false)
+12,Fabrica,Especialidad,Casas Modulares Panel Sip,Lateral,(true or false),checklist|varios|todos,SI,SI,SI,SI,,modulares_sip,Verdadero si la empresa fabrica casas de panel sip,(true or false)
+13,Fabrica,Especialidad,Casas Modulares Container,Lateral,(true or false),checklist|varios|todos,SI,SI,SI,SI,,modulares_container,Verdadero si la empresa fabrica casas modulares en base a containers ,(true or false)
+14,Fabrica,Especialidad,Casas Modulares Hormigón,Lateral,(true or false),checklist|varios|todos,SI,SI,SI,SI,,modulares_hormigon,Verdadero si la empresa fabrica casas de hormigon ,(true or false)
+15,Fabrica,Especialidad,Casas Modulares Madera,Lateral,(true or false),checklist|varios|todos,SI,SI,SI,SI,,modulares_madera,Verdadero si la empresa fabrica casas de madera,(true or false)
+16,Fabrica,Especialidad,Casas Prefabricadas Madera,Lateral,(true or false),checklist|varios|todos,SI,SI,SI,SI,,prefabricada_tradicional,Verdadero si la empresa fabrica casas prefabricadas tradicionales no modulares ,(true or false)
+17,Fabrica,Especialidad,Oficinas Modulares Container,Lateral,(true or false),checklist|varios|todos,SI,SI,SI,SI,,oficinas_modulares,Verdadero si la empresa fabrica oficinas modulares basadas en containers,(true or false)
+18,Fabrica,Generales | Experiencia,[dato],no,input text número,no va en filtro,NO,Opcional,SI,SI,años en el mercado | premiun tiene opcion de esconderlo,experiencia,años de experiencia de la empresa,dato
+19,Fabrica,Generales | Nombre de la Empresa,[dato],no,input text string,no va en filtro,SI,SI,SI,SI,,nombre_empresa,nombre de la empresa,dato
+20,Fabrica,Generales | Descripción breve,[dato],no,input text string,no va en filtro,SI,SI,SI,SI,,descripcion,descripcion breve,dato
+21,Fabrica,Generales | Ubicación Direccion,[dato],no,input text string ,no va en filtro,NO,NO,NO,SI,matriz y sucursales,ubi_direccion,"dirección , ciudad , región de ubicación de la empresa",dato
+22,Fabrica,Generales | Ubicación Region,[dato],no,checklist regiones chile (ISO),no va en filtro,SI,SI,SI,SI,matriz y sucursales,ubi_region,región en donde se encuentra la empresa,dato
+23,Fabrica,Generales | Instagram,[dato],no,input text string,no va en filtro,NO,NO,NO,SI,,instagram,primera cuenta instagran detectada,dato
+24,Fabrica,Generales | Instagram2,[dato],no,input text string ,no va en filtro,NO,NO,NO,NO,,instagram2,segunda cuenta instagram detectada,dato
+25,Fabrica,Generales | Teléfono ,[dato],no,input text string ,no va en filtro,NO,NO,SI Login,SI,"Simbolo mail (un sobre) , permitido si esta",telefono,número de teléfono detectado,dato
+26,Fabrica,Generales | Correo Electronico,[dato],no,input text string ,no va en filtro,SI login,NO,SI Login,SI,,email,cuenta de correo electronico de la empresa,dato
+27,Fabrica,Generales | Cobertura geográfica para entregas,[region|una o varias| todo chile],no,checklist regiones chile (ISO),checklist|varios|todos,NO,SI,Si Login,SI,no estará en filtro en MVP,cobertura,listado de regiones de cobertura para entrega de las casas,secuencia de datos separados con el caracter |
+28,Fabrica,Generales | Llave en Mano,Si,Lateral,(true or false),checkbox,NO,SI,SI,SI,si - no,llave_en_mano,verdadero si la fabrica entrega casas llave en mano,(true or false)
+29,Fabrica,Generales | Publica precios,[dato],no,(true or false),checkbox,SI,NO,NO,NO,si - no,publica_precios,verdadero si la fabrica pueblica precios de las casas en su sitio web,(true or false)
+30,Fabrica,Generales | Precio Referencia Minimo/m2,[dato],Lateral,input text número,slider,NO,SI,SI,NO,rango de precios,precio_ref_min_m2,"entre todas las casas del catalogo de la fabrica , el precio por m2 más económico",dato
+31,Fabrica,Generales | Precio Referencia Máximo/m2,[dato],Lateral,input text número,slider,NO,SI,SI,NO,rango de precios,precio_ref_max_m2,"entre todas las casas del catalogo de la fabrica , el precio por m2 más caro",dato
+Orden,Categoria,Feature Disponible,Etiqueta,Filtro /Ubicacion,formulario admin,Formato en Filtro,Dato en Bloque Std,Dato en tarjeta Premium,Dato en tarjeta Destacada,Dato en Landing,Observaciones,nombre_columna,logica columna,posibles valores
+1,Casas,Fabrica,[Dato],no,definir,no va en filtro,SI,SI,SI,SI,,fabrica,verdadero si la casas te entrega previamente ensamblada,(true or false)
+,Casas,Servicios Disponibles,Instalación premontada,no,(true or false),checklist|varios|todos,NO,NO,SI,SI,,insta_premontada,verdadero si la casas te entrega previamente ensamblada,(true or false)
+,Casas,Servicios Disponibles,Construcción en terreno,no,(true or false),checklist|varios|todos,NO,NO,SI,SI,,contr_terreno,verdadero si la casa se construye o ensambla en el terreno de destino,(true or false)
+,Casas,Servicios Disponibles,Instalación,no,(true or false),checklist|varios|todos,NO,NO,SI,SI,,instalacion,verdadero si la casa tiene opción de instalación incluida,(true or false)
+,Casas,Servicios Disponibles,Logística y transporte,no,(true or false),checklist|varios|todos,NO,NO,SI,SI,,logist_transporte,verdadero si la casas tiene opción de transporte al terreno de instalación,(true or false)
+,Casas,Servicios Disponibles,Financiamiento,no,(true or false),checklist|varios|todos,NO,NO,SI,SI,,financiamiento,verdadero si la casa puede ser compada con opciones de financiamiento de la fabrica,(true or false)
+,Casas,Ventanas,Termopanel,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,vent_termopanel,verdadero si la casa tiene ventanas de termopanel,(true or false)
+,Casas,Ventanas,Marco de PVC,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,vent_pvc,vendadero si la casa tiene ventanas de pvc,(true or false)
+,Casas,Ventanas,Marco de Aluminio,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,vent_aluminio,verdadero si la casa tiene ventanas de aluminio,(true or false)
+,Casas,Ventanas,Marco de Madera,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,vent_madera,verdadero si la casa tiene ventanas de madera,(true or false)
+,Casas,Tecnología de Materiales,Paneles SIP,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_panel_sip,verdadero si el material principal de la casa es panel sip,
+,Casas,Tecnología de Materiales,Estructura Contenedor,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_estructura_contenedor,verdadero si el material principal de la casa es contenedor maritimo,
+,Casas,Tecnología de Materiales,Losa Radiante,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_losa_radiante,verdadero si la casa tiene losa radiante,
+,Casas,Tecnología de Materiales,Losa Hormigon Liviano,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_losa_liviano,verdadero si la casa tiene losa de hommigon liviano,
+,Casas,Tecnología de Materiales,Jaula Acero Estructural,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_jaula_estructural,verdadero si la casa tiene jaula de acero estructural,
+,Casas,Tecnología de Materiales,Madera,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_madera,verdadero si el material principal de la casa es madera,
+,Casas,Tecnología de Materiales,Materiales Ecoamigables,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_materiales_ecoamigables,verdadero si el material principal de la casa son materiales ecoamigables,
+,Casas,Tecnología de Materiales,Acero Reciclado,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_acero_reciclado,verdadero si la casa esta fabricada con acero reclicado,
+,Casas,Tecnología de Materiales,Acero Galvanizado,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_acero_galvanizado,verdadero si la casa esta fabricada con acero galvanizado,
+,Casas,Tecnología de Materiales,Paneles de Poliuretano,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_paneles_poliuretano,verdadero si la casa esta fabricada con paneles de poliuretano,
+,Casas,Tecnología de Materiales,Zinc,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_zinc,,
+,Casas,Tecnología de Materiales,Fibrocemento,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_fibrocemento,,
+,Casas,Tecnología de Materiales,OSB,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_osb,,
+,Casas,Tecnología de Materiales,Poliestireno Expandido,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_poliestireno_expandido,,
+,Casas,Tecnología de Materiales,Acero|Contenedor Marítimo,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_acero_marítimo,,
+,Casas,Tecnología de Materiales,Vulcometal,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_vulcometal,,
+,Casas,Tecnología de Materiales,Metalcon,no,(true or false),checklist|varios|todos,NO,SI,SI,SI,,tec_metalcon,,
+,Casas,Generales | Topología,[dato],Lateral,checklist tipologias,checklist|varios|todos,NO,SI,SI,SI,,topologia,nomenclatura para numero de dormitorios y baños de la casa. Por ejemplo: 2D-1B,
+,Casas,Generales | m2,[dato],Lateral,input text número,slider,SI,SI,SI,SI,filtro rango,m2,,
+,Casas,Generales | Precio,[precio],Lateral,input text número,slider,SI,SI,SI,SI,solo el precio base en el filtro,precio,,
+,Casas,Generales | Precio Oportunidad,[precio oportunidad],,input text número,definir un criterio,SI,SI Login,SI Login,SI,,precio_oportunidad,,
+,Casas,Generales | Llave en Mano,Si,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,si-no,llave_en_mano,,
+,Casas,Generales | Modelo,[dato],,input text string ,no va en filtro,SI,SI,SI,SI,,modelo,,
+,Casas,Generales | Descripción Breve,[dato],,input text string ,no va en filtro,SI,SI,SI,SI,,descripcion,,
+Orden,Categoria,Familia,Tipo,Filtro /Ubicacion,formulario admin,Formato en Filtro,Dato en Bloque Std,Dato en tarjeta Premium,Dato en tarjeta Destacada,Dato en Landing,Observaciones,nombre_columna,logica columna,posibles valores
+1,Habilitación & Servicios,Agua & Sanitarios,Perforación de pozos,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,agu_perforación_pozos,,
+,Habilitación & Servicios,Agua & Sanitarios,Captación de Aguas Lluvia,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,agu_checklist_todos,,
+,Habilitación & Servicios,Agua & Sanitarios,Alcantarillado Autónomo,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,agu_alcantarillado_autónomo,,
+,Habilitación & Servicios,Agua & Sanitarios,Baños Secos,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,agu_baños_secos,,
+,Habilitación & Servicios,Agua & Sanitarios,Reciclaje y Compostaje,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,agu_reciclaje_compostaje,,
+,Habilitación & Servicios,Agua & Sanitarios,Sistemas de Riego,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,agu_sistemas_riego,,
+,Habilitación & Servicios,Contratistas,Construcción de Accesos y Caminos,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,con_construcción_caminos,,
+,Habilitación & Servicios,Contratistas,Mantenimiento de Vías Rurales,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,con_mantenimiento_rurales,,
+,Habilitación & Servicios,Contratistas,Invernadores y Huertos,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,con_invernadores_huertos,,
+,Habilitación & Servicios,Contratistas,Cercos y Portones,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,con_cercos_portones,,
+,Habilitación & Servicios,Energia,Energía Solar,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,ene_paneles_solares,,
+,Habilitación & Servicios,Energía,Generadores Eléctricos,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,ene_generadores_eléctricos,,
+,Habilitación & Servicios,Energia,Energía Eólica,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,ene_energía_eólica,,
+,Habilitación & Servicios,Climatización,Estufas a Leña o Pellet,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,cal_estufas_pellet,,
+,Habilitación & Servicios,Climatización,Calefacción Solar,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,cal_calefacción_solar,,
+,Habilitación & Servicios,Climatización,Aislamiento Térmico,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,cal_aislamiento_térmico,,
+,Habilitación & Servicios,Pisos,Pisos Deck,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,pis_pisos_deck,,
+,Habilitación & Servicios,Pisos,Pisos de Madera,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,pis_pisos_madera,,
+,Habilitación & Servicios,Pisos,Pisos Vinilicos,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,pis_pisos_vinilicos,,
+,Habilitación & Servicios,Pisos,Alfombras,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,pis_alfombras,,
+,Habilitación & Servicios,Revestimientos Interior,Madera,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,rev_madera,,
+,Habilitación & Servicios,Revestimientos Exterior,Madera,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,rev_madera,,
+,Habilitación & Servicios,Revestimientos Exterior,Metal,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,rev_metal,,
+,Habilitación & Servicios,Revestimientos Exterior,Fibra Mineral,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,rev_fibra_mineral,,
+,Habilitación & Servicios,Ventanas,Termopanel,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,ven_termopanel,,
+,Habilitación & Servicios,Ventanas,Marco de PVC,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,ven_marco_pvc,,
+,Habilitación & Servicios,Ventanas,Marco de Aluminio,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,ven_marco_aluminio,,
+,Habilitación & Servicios,Ventanas,Marco de Madera,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,ven_marco_madera,,
+,Habilitación & Servicios,Cortasoles,Madera,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,cor_madera,,
+,Habilitación & Servicios,Cortasoles,Accionables,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,cor_accionables,,
+,Habilitación & Servicios,Cortasoles,Folding / Sliding Shutter,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,cor_folding_shutter,,
+,Habilitación & Servicios,Fachadas,Paneles Aislantes,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,fac_paneles_aislantes,,
+,Habilitación & Servicios,Fachadas,Fachadas de Madera,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,fac_fachadas_madera,,
+,Habilitación & Servicios,Seguridad & Comunicación,Instalación Antenas y Repetidores,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,seg_instalación_repetidores,,
+,Habilitación & Servicios,Seguridad & Comunicación,Internet Satelital,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,seg_internet_satelital,,
+,Habilitación & Servicios,Seguridad & Comunicación,Camaras y Vigilancia Remota,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,seg_camaras_remota,,
+,Habilitación & Servicios,Seguridad & Comunicación,Domótica,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,seg_domótica,,
+,Habilitación & Servicios,Seguridad & Comunicación,Sistemas de Seguridad,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,seg_sistemas_seguridad,,
+,Habilitación & Servicios,Control Solar,Cortinas y Persianas,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,con_cortinas_persianas,,
+,Habilitación & Servicios,Control Solar,Toldos,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,con_toldos,,
+,Habilitación & Servicios,Control Solar,Pérgolas y quinchos,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,con_pérgolas_quinchos,,
+,Habilitación & Servicios,Muebles,Muebles Modulares,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,mue_modulares,,
+,Habilitación & Servicios,Muebles,Muebles Personalizados,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,mue_personalizados,,
+,Habilitación & Servicios,Muebles,Muebles de Exterior,,,,,,,,,,,
+,Habilitación & Servicios,Techo,Impermeabilización,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,techo_impermeabilizacion,,
+,Habilitación & Servicios,Decoración,Interiorismo,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,deco_interiorismo,,
+,Habilitación & Servicios,Decoración,Paisajismo,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,deco_paisajismo,,
+,Habilitación & Servicios,Arquitectura,Arquitectura y Diseño,Lateral,(true or false),checklist|varios|todos,NO,SI,SI,SI,,arquitectura,,
+,Habilitación & Servicios,Generales | Experiencia,[dato],no,input text número,no va en filtro,NO,Opcional,SI,SI,años en el mercado | premiun tiene opcion de esconderlo,experiencia,años de experiencia de la empresa,dato
+,Habilitación & Servicios,Generales | Nombre de la Empresa,[dato],no,input text string,no va en filtro,SI,SI,SI,SI,,nombre_empresa,nombre de la empresa,dato
+,Habilitación & Servicios,Generales | Descripción breve,[dato],no,input text string,no va en filtro,SI,SI,SI,SI,,descripcion,nombre de la empresa,dato
+,Habilitación & Servicios,Generales | Ubicación Direccion,[dato],no,input text string ,no va en filtro,NO,NO,NO,SI,matriz y sucursales,ubi_direccion,"dirección , ciudad , región de ubicación de la empresa",dato
+,Habilitación & Servicios,Generales | Ubicación Region,[dato],no,checklist regiones chile (ISO),no va en filtro,SI,SI,SI,SI,matriz y sucursales,ubi_region,región en donde se encuentra la empresa,dato
+,Habilitación & Servicios,Generales | Instagram,[dato],no,input text string,no va en filtro,NO,NO,NO,SI,,instagram,primera cuenta instagran detectada,dato
+,Habilitación & Servicios,Generales | Instagram2,[dato],no,input text string ,no va en filtro,NO,NO,NO,NO,,instagram2,segunda cuenta instagram detectada,dato
+,Habilitación & Servicios,Generales | Teléfono ,[dato],no,input text string ,no va en filtro,NO,NO,SI Login,SI,"Simbolo mail (un sobre) , permitido si esta",telefono,número de teléfono detectado,dato
+,Habilitación & Servicios,Generales | Correo Electronico,[dato],no,input text string ,no va en filtro,SI login,NO,SI Login,SI,,email,cuenta de correo electronico de la empresa,dato
+,Habilitación & Servicios,Generales | Cobertura geográfica,[region|una o varias| todo chile],no,checklist regiones chile (ISO),no va en filtro,NO,SI Login,Si Login,SI,no estará en filtro en MVP,cobertura,listado de regiones de cobertura para entrega de las casas,secuencia de datos separados con el caracter |
+,Habilitación & Servicios,Generales | Publica precios,[dato],no,(true or false),no va en filtro,SI,NO,NO,NO,si - no,publica_precios,verdadero si la fabrica pueblica precios de las casas en su sitio web,(true or false)
