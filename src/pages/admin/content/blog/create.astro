@@ -43,7 +43,7 @@ if (!user) {
               id="title"
               name="title"
               required
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent-blue focus:border-transparent"
               placeholder="Ej: Tendencias en Construcción Modular 2024"
             >
             <p class="text-xs text-gray-500 mt-1">
@@ -60,7 +60,7 @@ if (!user) {
               id="excerpt"
               name="excerpt"
               rows="3"
-              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent-blue focus:border-transparent"
               placeholder="Breve descripción que aparecerá en las tarjetas y feeds..."
             ></textarea>
             <p class="text-xs text-gray-500 mt-1">
@@ -94,15 +94,25 @@ if (!user) {
               <button type="button" data-command="ol" class="editor-btn">1. Lista</button>
               <button type="button" data-command="quote" class="editor-btn">" Cita</button>
               <span class="border-l border-gray-400 mx-1"></span>
-              <button type="button" data-command="link" class="editor-btn">🔗 Link</button>
-              <button type="button" data-command="image" class="editor-btn">🖼️ Imagen</button>
+              <button type="button" data-command="link" class="editor-btn">
+                <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                Link
+              </button>
+              <button type="button" data-command="image" class="editor-btn">
+                <svg class="w-4 h-4 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Imagen
+              </button>
             </div>
 
             <!-- Content Editor -->
             <div 
               id="content-editor" 
               contenteditable="true"
-              class="w-full border border-gray-300 border-t-0 rounded-b-lg px-4 py-3 min-h-96 focus:ring-2 focus:ring-blue-500 focus:border-transparent prose max-w-none"
+              class="w-full border border-gray-300 border-t-0 rounded-b-lg px-4 py-3 min-h-96 focus:ring-2 focus:ring-accent-blue focus:border-transparent prose max-w-none"
               style="outline: none;"
             >
               <p>Comienza a escribir tu artículo aquí...</p>
@@ -118,7 +128,7 @@ if (!user) {
               <button 
                 type="button" 
                 onclick="insertImageFromUpload()" 
-                class="text-blue-600 hover:text-blue-800"
+                class="text-accent-blue hover:text-accent-blue-dark"
               >
                 Subir imagen desde archivo
               </button>
@@ -156,7 +166,7 @@ if (!user) {
               <button 
                 type="button" 
                 onclick="document.getElementById('featured-image-input').click()" 
-                class="text-blue-600 hover:text-blue-800 font-medium"
+                class="text-accent-blue hover:text-accent-blue-dark font-medium"
               >
                 Seleccionar Imagen
               </button>
@@ -173,10 +183,10 @@ if (!user) {
                 <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
                   Categoría
                 </label>
-                <select 
-                  id="category" 
+                <select
+                  id="category"
                   name="category"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent-blue focus:border-transparent"
                 >
                   <option value="">Seleccionar categoría</option>
                   <option value="tendencias">Tendencias</option>
@@ -184,6 +194,7 @@ if (!user) {
                   <option value="casos_exito">Casos de Éxito</option>
                   <option value="noticias">Noticias</option>
                   <option value="tutoriales">Tutoriales</option>
+                  <option value="entrevistas">Entrevistas</option>
                 </select>
               </div>
 
@@ -195,7 +206,7 @@ if (!user) {
                   type="text"
                   id="tags-input"
                   placeholder="Ej: construcción, modular, sustentable (separar con comas)"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-accent-blue focus:border-transparent"
                 >
                 <div id="tags-preview" class="flex flex-wrap gap-2 mt-2"></div>
                 <input type="hidden" id="tags" name="tags">
@@ -216,7 +227,7 @@ if (!user) {
                   type="text"
                   id="meta_title"
                   name="meta_title"
-                  class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-accent-blue"
                   placeholder="Título optimizado para buscadores"
                 >
                 <p class="text-xs text-gray-500 mt-1">
@@ -232,7 +243,7 @@ if (!user) {
                   id="meta_description"
                   name="meta_description"
                   rows="3"
-                  class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-accent-blue"
                   placeholder="Descripción que aparecerá en Google"
                 ></textarea>
                 <p class="text-xs text-gray-500 mt-1">
@@ -248,7 +259,7 @@ if (!user) {
                   type="text"
                   id="keywords"
                   name="keywords"
-                  class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-accent-blue"
                   placeholder="casas modulares, construcción, Chile"
                 >
               </div>
@@ -261,7 +272,7 @@ if (!user) {
                   type="text"
                   id="slug"
                   name="slug"
-                  class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-accent-blue"
                   placeholder="Se genera automáticamente"
                 >
               </div>
@@ -280,7 +291,7 @@ if (!user) {
                 <select 
                   id="status" 
                   name="status"
-                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-1 focus:ring-blue-500"
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-1 focus:ring-accent-blue"
                 >
                   <option value="draft">Borrador</option>
                   <option value="pending_review">Pendiente de Revisión</option>
@@ -310,7 +321,7 @@ if (!user) {
                     type="date"
                     id="schedule_date"
                     name="schedule_date"
-                    class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500"
+                    class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-accent-blue"
                   >
                 </div>
                 <div>
@@ -321,7 +332,7 @@ if (!user) {
                     type="time"
                     id="schedule_time"
                     name="schedule_time"
-                    class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-500"
+                    class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-accent-blue"
                   >
                 </div>
               </div>
@@ -333,7 +344,7 @@ if (!user) {
             <div class="space-y-3">
               <button
                 type="submit"
-                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                class="w-full bg-accent-blue text-white py-2 px-4 rounded-lg hover:bg-accent-blue-dark transition-colors font-medium"
               >
                 Crear Publicación
               </button>
@@ -366,7 +377,7 @@ if (!user) {
     <div id="loading-indicator" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded-lg shadow-lg">
         <div class="flex items-center space-x-3">
-          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+          <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-accent-blue"></div>
           <span class="text-gray-700">Guardando...</span>
         </div>
       </div>
@@ -526,7 +537,7 @@ if (!user) {
 
       // Update preview
       tagsPreview.innerHTML = tags.map(tag => `
-        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent-blue/10 text-accent-blue">
           ${tag}
         </span>
       `).join('');
@@ -739,7 +750,7 @@ if (!user) {
             body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
             h1, h2, h3 { color: #1f2937; }
             img { max-width: 100%; height: auto; border-radius: 8px; }
-            blockquote { border-left: 4px solid #3b82f6; padding-left: 16px; margin: 16px 0; font-style: italic; }
+            blockquote { border-left: 4px solid #4DA1F5; padding-left: 16px; margin: 16px 0; font-style: italic; }
           </style>
         </head>
         <body>
@@ -772,7 +783,7 @@ if (!user) {
   }
   
   .editor-btn.active {
-    @apply bg-blue-100 border-blue-300;
+    @apply bg-accent-blue/10 border-accent-blue;
   }
 
   #content-editor {
@@ -792,7 +803,7 @@ if (!user) {
   }
 
   #content-editor blockquote {
-    @apply border-l-4 border-blue-500 pl-4 my-4 italic text-gray-700;
+    @apply border-l-4 border-accent-blue pl-4 my-4 italic text-gray-700;
   }
 
   #content-editor ul {
@@ -804,7 +815,7 @@ if (!user) {
   }
 
   #content-editor a {
-    @apply text-blue-600 underline;
+    @apply text-accent-blue underline;
   }
 
   #content-editor img {

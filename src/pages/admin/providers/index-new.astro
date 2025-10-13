@@ -1,0 +1,59 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import ProvidersTable from '../../../components/admin/ProvidersTable';
+import { getAdminAuth, requireAdmin } from '../../../lib/auth';
+import { createSupabaseClient } from '../../../lib/supabase';
+
+// Protect this page - only admins can access
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/providers');
+}
+
+// Fetch all providers (we'll let the client component handle filtering/pagination)
+const supabase = createSupabaseClient(Astro);
+const { data: providers, error } = await supabase
+  .from('providers')
+  .select(`
+    *,
+    profile:profiles!providers_profile_id_fkey(full_name, email, avatar_url),
+    approved_by_profile:profiles!providers_approved_by_fkey(full_name, email),
+    created_by_profile:profiles!providers_created_by_fkey(full_name, email),
+    provider_categories(category_type)
+  `)
+  .order('created_at', { ascending: false });
+
+if (error) {
+  console.error('Error fetching providers:', error);
+}
+---
+
+<AdminLayout title="Gestión de Proveedores" user={user} currentPage="/admin/providers">
+  <div class="p-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Gestión de Proveedores</h2>
+        <p class="text-gray-500 mt-1">Administra los proveedores de la plataforma MODTOK</p>
+      </div>
+      <a
+        href="/admin/providers/create"
+        class="inline-flex items-center gap-2 bg-accent-blue text-white px-4 py-2.5 rounded-lg hover:bg-accent-blue-dark hover:-translate-y-0.5 hover:shadow-apple-md transition-all duration-200 font-semibold shadow-apple-sm"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Crear Proveedor
+      </a>
+    </div>
+
+    <!-- Providers Table -->
+    <ProvidersTable
+      client:load
+      providers={providers || []}
+      userRole={user.role}
+    />
+  </div>
+</AdminLayout>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { getRelativeTime } from '@/lib/utils';
 
 interface PendingApproval {
@@ -27,101 +28,120 @@ const typeLabels = {
   user: 'Usuario',
 };
 
-const typeIcons = {
-  provider: '■',
-  house: '□',
-  blog: '▢',
-  user: '○',
+const typeIcons: Record<string, React.ReactNode> = {
+  provider: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-4m-5 0H9m0 0H5m4 0v-5a1 1 0 011-1h4a1 1 0 011 1v5m-4-5V9a1 1 0 011-1h2a1 1 0 011 1v4.01" />
+    </svg>
+  ),
+  house: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+    </svg>
+  ),
+  blog: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+    </svg>
+  ),
+  user: (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+    </svg>
+  ),
 };
 
-const priorityColors = {
-  low: 'bg-gray-100 text-gray-800',
-  medium: 'bg-yellow-100 text-yellow-800',
-  high: 'bg-red-100 text-red-800',
+const priorityVariantMap = {
+  low: 'neutral' as const,
+  medium: 'warning' as const,
+  high: 'error' as const,
 };
 
-export function PendingApprovals({ 
-  approvals, 
-  onApprove, 
-  onReject, 
-  onView 
+export function PendingApprovals({
+  approvals,
+  onApprove,
+  onReject,
+  onView
 }: PendingApprovalsProps) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Aprobaciones Pendientes</span>
-          <span className="text-sm font-normal bg-primary/10 text-primary px-2 py-1 rounded-full">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between mb-2">
+          <CardTitle className="text-lg font-bold text-gray-900">Aprobaciones Pendientes</CardTitle>
+          <Badge variant="primary" size="sm">
             {approvals.length}
-          </span>
-        </CardTitle>
-        <CardDescription>
+          </Badge>
+        </div>
+        <CardDescription className="text-sm text-gray-500">
           Elementos que requieren revisión y aprobación
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {approvals.length === 0 ? (
           <div className="text-center py-8">
-            <div className="text-4xl mb-2">✓</div>
-            <p className="text-sm text-muted-foreground">
-              ¡No hay aprobaciones pendientes!
-            </p>
+            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
+              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-gray-900 mb-1">Todo al día</p>
+            <p className="text-sm text-gray-500">No hay aprobaciones pendientes</p>
           </div>
         ) : (
           approvals.map((approval) => (
             <div
               key={approval.id}
-              className="border rounded-lg p-4 hover:bg-muted/50 transition-colors"
+              className="border border-gray-200 rounded-lg p-4 hover:border-accent-blue hover:bg-accent-blue-pale/50 transition-all duration-200"
             >
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-start space-x-3">
-                  <div className="text-lg">
-                    {typeIcons[approval.type]}
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-9 h-9 rounded-lg bg-accent-blue-pale text-accent-blue flex items-center justify-center flex-shrink-0">
+                  {typeIcons[approval.type]}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start gap-2 mb-2">
+                    <h4 className="font-semibold text-sm text-gray-900 flex-1">{approval.title}</h4>
+                    <Badge variant={priorityVariantMap[approval.priority]} size="sm">
+                      {approval.priority === 'low' && 'Baja'}
+                      {approval.priority === 'medium' && 'Media'}
+                      {approval.priority === 'high' && 'Alta'}
+                    </Badge>
                   </div>
-                  <div className="flex-grow">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <h4 className="font-medium text-sm">{approval.title}</h4>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          priorityColors[approval.priority]
-                        }`}
-                      >
-                        {approval.priority}
-                      </span>
-                    </div>
-                    <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                      <span>{typeLabels[approval.type]}</span>
-                      <span>Por: {approval.submittedBy}</span>
-                      <span>{getRelativeTime(approval.submittedAt)}</span>
-                    </div>
-                    {approval.description && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {approval.description}
-                      </p>
-                    )}
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500">
+                    <span className="inline-flex items-center gap-1">
+                      <span className="font-medium text-gray-700">{typeLabels[approval.type]}</span>
+                    </span>
+                    <span>•</span>
+                    <span>Por: {approval.submittedBy}</span>
+                    <span>•</span>
+                    <span>{getRelativeTime(approval.submittedAt)}</span>
                   </div>
+                  {approval.description && (
+                    <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                      {approval.description}
+                    </p>
+                  )}
                 </div>
               </div>
-              <div className="flex items-center justify-end space-x-2 mt-3">
-                <Button 
-                  variant="outline" 
+              <div className="flex items-center justify-end gap-2">
+                <Button
+                  variant="ghost"
                   size="sm"
                   onClick={() => onView(approval.id)}
                 >
                   Ver
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={() => onReject(approval.id)}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-200"
                 >
                   Rechazar
                 </Button>
-                <Button 
+                <Button
                   size="sm"
                   onClick={() => onApprove(approval.id)}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   Aprobar
                 </Button>
