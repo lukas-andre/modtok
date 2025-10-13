@@ -1,0 +1,53 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '../../../lib/auth';
+import ServiceForm from '../../../components/admin/ServiceForm';
+
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/services/create');
+}
+---
+
+<AdminLayout title="Crear Servicio" user={user} currentPage="/admin/services">
+  <div class="p-6">
+    <div class="mb-8">
+      <div class="flex items-center space-x-4 mb-4">
+        <a
+          href="/admin/services"
+          class="text-gray-600 hover:text-gray-900 flex items-center"
+        >
+          <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Volver a Servicios
+        </a>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-900">Crear Nuevo Servicio</h2>
+      <p class="text-gray-600 mt-2">
+        Registra un nuevo servicio de habilitación en el catálogo
+      </p>
+    </div>
+
+    <div class="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+      <div class="flex items-start">
+        <svg class="w-5 h-5 text-purple-400 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div>
+          <p class="text-purple-800 font-medium">Solo Proveedores H&S</p>
+          <p class="text-purple-700 text-sm mt-1">
+            Los servicios solo pueden asignarse a providers con "H&S" activo. Si no encuentras un proveedor, puedes crearlo rápidamente desde el formulario.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <ServiceForm
+      client:load
+      mode="create"
+    />
+  </div>
+</AdminLayout>

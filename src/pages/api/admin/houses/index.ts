@@ -164,7 +164,11 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       changes: { created: body }
     });
 
-    return new Response(JSON.stringify(data), {
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'House created successfully',
+      house: data
+    }), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
     });

@@ -61,7 +61,7 @@ if (error || !post) {
     </div>
 
     <form id="blog-form" class="space-y-6">
-      <input type="hidden" id="post_id" name="post_id" value={post.id}>
+      <input type="hidden" id="post_id" name="id" value={post.id}>
       
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Main Content -->
@@ -733,6 +733,11 @@ if (error || !post) {
       if (isDraft) {
         data.status = 'draft';
       }
+
+      // Remove fields that don't exist in database
+      delete data.schedule_publish;
+      delete data.schedule_date;
+      delete data.schedule_time;
 
       const response = await fetch(`/api/admin/blog/${postId}`, {
         method: 'PUT',

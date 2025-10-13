@@ -1,0 +1,213 @@
+---
+import { createSupabaseClient } from '@/lib/supabase';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SEOHead from '@/components/SEOHead.astro';
+
+const supabase = createSupabaseClient(Astro);
+
+// Fetch published news posts
+const { data: posts } = await supabase
+  .from('news_posts')
+  .select('*')
+  .eq('status', 'published')
+  .lte('published_at', new Date().toISOString())
+  .or('expires_at.is.null,expires_at.gte.' + new Date().toISOString())
+  .order('published_at', { ascending: false })
+  .limit(20);
+
+// Get breaking news
+const breakingNews = posts?.filter(p => p.is_breaking).slice(0, 3) || [];
+const regularNews = posts?.filter(p => !p.is_breaking) || [];
+
+const newsTypes = {
+  'industria': { name: 'Industria', icon: '🏗️', color: 'blue' },
+  'empresa': { name: 'Empresa', icon: '🏢', color: 'green' },
+  'producto': { name: 'Producto', icon: '🏠', color: 'purple' },
+  'evento': { name: 'Evento', icon: '📅', color: 'orange' },
+  'normativa': { name: 'Normativa', icon: '📋', color: 'red' }
+};
+
+const siteUrl = Astro.site?.href || 'https://modtok.cl';
+---
+
+<BaseLayout>
+  <SEOHead
+    slot="head"
+    title="Noticias de Construcción Modular en Chile"
+    description="Últimas noticias y actualizaciones sobre la industria de construcción modular y casas prefabricadas en Chile."
+    type="website"
+    url={`${siteUrl}noticias`}
+    keywords={['noticias construcción modular', 'industria modular Chile', 'casas prefabricadas noticias']}
+  />
+
+  <main class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-red-900 via-red-800 to-red-900 text-white py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+          <div class="inline-flex items-center space-x-2 bg-red-700 bg-opacity-50 px-4 py-2 rounded-full mb-4">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+            </span>
+            <span class="text-sm font-medium">Actualizaciones en vivo</span>
+          </div>
+          <h1 class="text-4xl md:text-5xl font-bold mb-4">
+            Noticias de Construcción Modular
+          </h1>
+          <p class="text-xl text-red-100 mb-8 max-w-3xl mx-auto">
+            Mantente informado con las últimas noticias de la industria de construcción modular en Chile
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Breaking News Banner -->
+    {breakingNews.length > 0 && (
+      <section class="bg-red-600 py-3">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center space-x-4 overflow-x-auto">
+            <span class="text-white font-bold text-sm whitespace-nowrap flex items-center">
+              <span class="animate-pulse mr-2">🔴</span> URGENTE:
+            </span>
+            {breakingNews.map((news, i) => (
+              <a href={`/noticias/${news.slug}`} class="text-white hover:underline text-sm whitespace-nowrap">
+                {news.title}
+                {i < breakingNews.length - 1 && <span class="mx-4 text-red-300">|</span>}
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- News Types Filter -->
+    <section class="py-8 bg-white border-b">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-wrap gap-3 justify-center">
+          <a href="/noticias" class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium">
+            Todas
+          </a>
+          {Object.entries(newsTypes).map(([slug, type]) => (
+            <a
+              href={`/noticias?tipo=${slug}`}
+              class={`px-4 py-2 border-2 rounded-lg hover:bg-${type.color}-50 transition-colors text-sm font-medium border-${type.color}-200 text-${type.color}-700`}
+            >
+              {type.icon} {type.name}
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- News Grid -->
+    <section class="py-12">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {regularNews.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {regularNews.map((news) => (
+              <article class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                {news.is_breaking && (
+                  <div class="bg-red-600 text-white text-xs font-bold px-3 py-1 text-center">
+                    🔴 URGENTE
+                  </div>
+                )}
+
+                <div class="relative">
+                  {news.featured_image_url ? (
+                    <img
+                      src={news.featured_image_url}
+                      alt={news.title}
+                      class="w-full h-48 object-cover"
+                    />
+                  ) : (
+                    <div class="w-full h-48 bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center">
+                      <div class="text-4xl">{newsTypes[news.news_type]?.icon || '📰'}</div>
+                    </div>
+                  )}
+
+                  {news.news_type && (
+                    <div class="absolute top-4 left-4">
+                      <span class={`px-3 py-1 bg-white bg-opacity-90 rounded-full text-xs font-medium text-${newsTypes[news.news_type]?.color || 'gray'}-700`}>
+                        {newsTypes[news.news_type]?.name || news.news_type}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div class="p-6">
+                  <div class="flex items-center space-x-2 mb-3">
+                    <time class="text-sm text-gray-500">
+                      {new Date(news.published_at!).toLocaleDateString('es-CL', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </time>
+                    <span class="text-gray-300">•</span>
+                    <span class="text-sm text-gray-500">{news.reading_time_minutes} min</span>
+                  </div>
+
+                  <h3 class="text-xl font-bold text-gray-900 mb-3 hover:text-red-600 transition-colors">
+                    <a href={`/noticias/${news.slug}`}>{news.title}</a>
+                  </h3>
+
+                  {news.summary && (
+                    <p class="text-gray-600 mb-4 leading-relaxed line-clamp-3">{news.summary}</p>
+                  )}
+
+                  <a
+                    href={`/noticias/${news.slug}`}
+                    class="text-red-600 hover:text-red-800 font-medium text-sm inline-flex items-center"
+                  >
+                    Leer más
+                    <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-12">
+            <div class="text-6xl mb-4">📰</div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No hay noticias disponibles</h3>
+            <p class="text-gray-600">Vuelve pronto para ver las últimas actualizaciones.</p>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-gradient-to-r from-red-600 to-red-800">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-bold text-white mb-4">
+          ¿Quieres estar al día?
+        </h2>
+        <p class="text-xl text-red-100 mb-8">
+          Suscríbete a nuestro RSS feed o síguenos para recibir las últimas noticias
+        </p>
+        <div class="flex flex-wrap gap-4 justify-center">
+          <a
+            href="/noticias/rss.xml"
+            class="inline-flex items-center px-6 py-3 bg-white text-red-600 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+          >
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20C5 20 4 19 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"/>
+            </svg>
+            Suscribirse vía RSS
+          </a>
+          <a
+            href="/blog"
+            class="inline-flex items-center px-6 py-3 border border-white text-white rounded-lg hover:bg-white hover:text-red-600 transition-colors font-medium"
+          >
+            Ver Blog
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

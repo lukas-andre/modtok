@@ -1,0 +1,156 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '../../../lib/auth';
+import { createSupabaseClient } from '../../../lib/supabase';
+import SlotManagementUI from '../../../components/admin/SlotManagementUI';
+
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/slots');
+}
+
+const supabase = createSupabaseClient(Astro);
+
+// Load initial slots with content
+const { data: slots, error } = await supabase
+  .from('homepage_slots')
+  .select('*')
+  .order('slot_type', { ascending: true })
+  .order('rotation_order', { ascending: true });
+
+// For each slot, fetch the associated content
+const slotsWithContent = await Promise.all(
+  (slots || []).map(async (slot) => {
+    if (!slot.content_type || !slot.content_id) {
+      return slot;
+    }
+
+    let content = null;
+
+    if (slot.content_type === 'provider') {
+      const { data } = await supabase
+        .from('providers')
+        .select('id, name, main_image_url, slug')
+        .eq('id', slot.content_id)
+        .single();
+      content = data;
+    } else if (slot.content_type === 'house') {
+      const { data } = await supabase
+        .from('houses')
+        .select('id, name, main_image_url, slug')
+        .eq('id', slot.content_id)
+        .single();
+      content = data;
+    } else if (slot.content_type === 'service_product') {
+      const { data } = await supabase
+        .from('service_products')
+        .select('id, name, main_image_url, slug')
+        .eq('id', slot.content_id)
+        .single();
+      content = data;
+    }
+
+    return {
+      ...slot,
+      content
+    };
+  })
+);
+
+// Stats
+const totalSlots = slots?.length || 0;
+const activeSlots = slots?.filter(s => s.is_active)?.length || 0;
+const premiumSlots = slots?.filter(s => s.slot_type === 'premium')?.length || 0;
+const destacadoSlots = slots?.filter(s => s.slot_type === 'destacado')?.length || 0;
+---
+
+<AdminLayout title="Gestión de Slots Homepage" user={user} currentPage="/admin/slots">
+  <div class="p-6">
+    <!-- Header con estadísticas -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Gestión de Slots Homepage</h2>
+          <p class="text-gray-600 mt-2">
+            Sistema de rotación automática (round-robin) para destacar contenido en la página principal
+          </p>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">Total Slots</p>
+              <p class="text-2xl font-bold text-gray-900 mt-1">{totalSlots}</p>
+            </div>
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+              <span class="text-2xl">📋</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">Slots Activos</p>
+              <p class="text-2xl font-bold text-green-600 mt-1">{activeSlots}</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <span class="text-2xl">✓</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">Premium</p>
+              <p class="text-2xl font-bold text-purple-600 mt-1">{premiumSlots}</p>
+            </div>
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+              <span class="text-2xl">👑</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">Destacados</p>
+              <p class="text-2xl font-bold text-blue-600 mt-1">{destacadoSlots}</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <span class="text-2xl">⭐</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Box -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 text-blue-400 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div class="flex-1">
+            <p class="text-blue-800 font-medium">¿Cómo funciona el sistema de slots?</p>
+            <ul class="text-blue-700 text-sm mt-2 space-y-1">
+              <li>• <strong>Premium</strong>: 2 slots visibles a la vez, rotando entre N slots del pool cada 10 segundos</li>
+              <li>• <strong>Destacado</strong>: 4 slots visibles a la vez, rotando entre N slots del pool cada 10 segundos</li>
+              <li>• <strong>Standard</strong>: Listado estándar sin rotación automática</li>
+              <li>• Los slots pueden contener <strong>Proveedores</strong>, <strong>Casas</strong> o <strong>Servicios</strong></li>
+              <li>• El orden de rotación determina la secuencia de aparición (0, 1, 2, 3...)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slot Management Component -->
+    <SlotManagementUI client:load initialSlots={slotsWithContent} />
+  </div>
+</AdminLayout>

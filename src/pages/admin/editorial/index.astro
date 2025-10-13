@@ -1,0 +1,157 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '../../../lib/auth';
+import { createSupabaseClient } from '../../../lib/supabase';
+import EditorialReviewSystem from '../../../components/admin/EditorialReviewSystem';
+
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/editorial');
+}
+
+const supabase = createSupabaseClient(Astro);
+
+// Stats: Items pending editorial review
+const { count: pendingProviders } = await supabase
+  .from('providers')
+  .select('*', { count: 'exact', head: true })
+  .eq('tier', 'premium')
+  .or('has_quality_images.is.false,has_complete_info.is.false,editor_approved_for_premium.is.false');
+
+const { count: pendingHouses } = await supabase
+  .from('houses')
+  .select('*', { count: 'exact', head: true })
+  .eq('tier', 'premium')
+  .or('has_quality_images.is.false,has_complete_info.is.false,editor_approved_for_premium.is.false');
+
+const { count: pendingServices } = await supabase
+  .from('service_products')
+  .select('*', { count: 'exact', head: true })
+  .eq('tier', 'premium')
+  .or('has_quality_images.is.false,has_complete_info.is.false,editor_approved_for_premium.is.false');
+
+// Approved items
+const { count: approvedProviders } = await supabase
+  .from('providers')
+  .select('*', { count: 'exact', head: true })
+  .eq('editor_approved_for_premium', true);
+
+const { count: approvedHouses } = await supabase
+  .from('houses')
+  .select('*', { count: 'exact', head: true })
+  .eq('editor_approved_for_premium', true);
+
+const { count: approvedServices } = await supabase
+  .from('service_products')
+  .select('*', { count: 'exact', head: true })
+  .eq('editor_approved_for_premium', true);
+
+const totalPending = (pendingProviders || 0) + (pendingHouses || 0) + (pendingServices || 0);
+const totalApproved = (approvedProviders || 0) + (approvedHouses || 0) + (approvedServices || 0);
+---
+
+<AdminLayout title="Revisión Editorial" user={user} currentPage="/admin/editorial">
+  <div class="p-6">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-900">Revisión Editorial</h2>
+          <p class="text-gray-600 mt-2">
+            Sistema de aprobación para contenido premium basado en quality flags
+          </p>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">Pendientes Revisión</p>
+              <p class="text-2xl font-bold text-yellow-600 mt-1">{totalPending}</p>
+            </div>
+            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+              <span class="text-2xl">⏳</span>
+            </div>
+          </div>
+          <div class="mt-3 text-xs text-gray-500">
+            {pendingProviders || 0} proveedores · {pendingHouses || 0} casas · {pendingServices || 0} servicios
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">Aprobados Premium</p>
+              <p class="text-2xl font-bold text-green-600 mt-1">{totalApproved}</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <span class="text-2xl">✓</span>
+            </div>
+          </div>
+          <div class="mt-3 text-xs text-gray-500">
+            {approvedProviders || 0} proveedores · {approvedHouses || 0} casas · {approvedServices || 0} servicios
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">Proveedores</p>
+              <p class="text-2xl font-bold text-gray-900 mt-1">{(pendingProviders || 0) + (approvedProviders || 0)}</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <span class="text-2xl">🏢</span>
+            </div>
+          </div>
+          <div class="mt-3 flex items-center text-xs">
+            <span class="text-yellow-600">{pendingProviders || 0} pendientes</span>
+            <span class="mx-1 text-gray-400">·</span>
+            <span class="text-green-600">{approvedProviders || 0} aprobados</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 p-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">Productos</p>
+              <p class="text-2xl font-bold text-gray-900 mt-1">{(pendingHouses || 0) + (pendingServices || 0) + (approvedHouses || 0) + (approvedServices || 0)}</p>
+            </div>
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+              <span class="text-2xl">📦</span>
+            </div>
+          </div>
+          <div class="mt-3 flex items-center text-xs">
+            <span class="text-yellow-600">{(pendingHouses || 0) + (pendingServices || 0)} pendientes</span>
+            <span class="mx-1 text-gray-400">·</span>
+            <span class="text-green-600">{(approvedHouses || 0) + (approvedServices || 0)} aprobados</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Box -->}
+      <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 text-purple-400 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div class="flex-1">
+            <p class="text-purple-800 font-medium">Sistema de Quality Flags</p>
+            <ul class="text-purple-700 text-sm mt-2 space-y-1">
+              <li>• <strong>has_quality_images</strong>: Imágenes de calidad (1200x800px+, bien iluminadas)</li>
+              <li>• <strong>has_complete_info</strong>: Información completa y verificada (descripción, specs, precio)</li>
+              <li>• <strong>editor_approved_for_premium</strong>: Aprobación editorial final para tier premium</li>
+              <li>• Los 3 flags deben estar en TRUE para mostrar contenido en slots premium</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Editorial Review System Component -->
+    <EditorialReviewSystem client:load />
+  </div>
+</AdminLayout>

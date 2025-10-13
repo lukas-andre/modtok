@@ -147,7 +147,11 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       });
     }
 
-    return new Response(JSON.stringify(data), {
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'House updated successfully',
+      house: data
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
