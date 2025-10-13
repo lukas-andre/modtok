@@ -1,8 +1,7 @@
 ---
-import AdminLayout from '../../../layouts/AdminLayout.astro';
-import { getAdminAuth, requireAdmin } from '../../../lib/auth';
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '@/lib/auth';
 
-// Protect this page - only admins can access
 const auth = await getAdminAuth(Astro);
 const user = requireAdmin(auth);
 
@@ -12,321 +11,74 @@ if (!user) {
 ---
 
 <AdminLayout title="Gestión de Contenido" user={user} currentPage="/admin/content">
-  <div class="p-6">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="mb-8">
-      <h2 class="text-xl font-semibold text-gray-900">Gestión de Contenido</h2>
-      <p class="text-gray-600 mt-1">Administra todo el contenido de la plataforma MODTOK</p>
+      <h1 class="text-3xl font-bold text-gray-900">Gestión de Contenido</h1>
+      <p class="mt-2 text-gray-600">Administra el contenido del blog de la plataforma MODTOK</p>
     </div>
 
-    <!-- Content Types Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      
-      <!-- Houses/Products -->
-      <div class="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-        <div class="p-6">
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-blue-100 rounded-lg">
-              <div class="w-8 h-8 text-blue-600 flex items-center justify-center text-lg font-bold">□</div>
-            </div>
-            <div class="ml-4">
-              <h3 class="text-lg font-semibold text-gray-900">Casas y Productos</h3>
-              <p class="text-sm text-gray-600">Catálogo de casas modulares</p>
-            </div>
+    <!-- Content Grid -->
+    <div class="max-w-2xl">
+      <!-- Blog Card -->
+      <a
+        href="/admin/blog"
+        class="group block bg-white rounded-xl border-2 border-gray-200 hover:border-accent-blue hover:shadow-apple-lg hover:-translate-y-1 transition-all duration-200 overflow-hidden"
+      >
+        <div class="p-8">
+          <!-- Icon -->
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-accent-blue/10 to-accent-blue/5 mb-4 group-hover:from-accent-blue/20 group-hover:to-accent-blue/10 transition-colors">
+            <svg class="w-8 h-8 text-accent-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
           </div>
-          <div class="mb-4">
-            <div class="text-2xl font-bold text-gray-900">84</div>
-            <div class="text-sm text-gray-600">productos totales</div>
-          </div>
-          <div class="flex space-x-2">
-            <a 
-              href="/admin/content/houses" 
-              class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-center text-sm font-medium"
-            >
-              Gestionar
-            </a>
-            <a 
-              href="/admin/content/houses/create" 
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-            >
-              + Nuevo
-            </a>
-          </div>
-        </div>
-      </div>
 
-      <!-- Blog Posts -->
-      <div class="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-        <div class="p-6">
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-green-100 rounded-lg">
-              <div class="w-8 h-8 text-green-600 flex items-center justify-center text-lg font-bold">▢</div>
-            </div>
-            <div class="ml-4">
-              <h3 class="text-lg font-semibold text-gray-900">Blog y Noticias</h3>
-              <p class="text-sm text-gray-600">Artículos y contenido educativo</p>
-            </div>
-          </div>
-          <div class="mb-4">
-            <div class="text-2xl font-bold text-gray-900">23</div>
-            <div class="text-sm text-gray-600">artículos publicados</div>
-          </div>
-          <div class="flex space-x-2">
-            <a 
-              href="/admin/content/blog" 
-              class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-center text-sm font-medium"
-            >
-              Gestionar
-            </a>
-            <a 
-              href="/admin/content/blog/create" 
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-            >
-              + Nuevo
-            </a>
-          </div>
-        </div>
-      </div>
+          <!-- Title & Description -->
+          <h2 class="text-2xl font-bold text-gray-900 mb-2 group-hover:text-accent-blue transition-colors">
+            Blog
+          </h2>
+          <p class="text-gray-600 mb-6">
+            Administra artículos, guías, tutoriales, noticias, entrevistas y todo el contenido educativo del blog
+          </p>
 
-      <!-- Hotspots -->
-      <div class="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-        <div class="p-6">
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-purple-100 rounded-lg">
-              <div class="w-8 h-8 text-purple-600 flex items-center justify-center text-lg font-bold">◆</div>
+          <!-- Actions -->
+          <div class="flex items-center gap-4 text-sm">
+            <div class="flex items-center gap-2 text-accent-blue font-semibold">
+              <span>Ver blog</span>
+              <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
             </div>
-            <div class="ml-4">
-              <h3 class="text-lg font-semibold text-gray-900">Hotspots</h3>
-              <p class="text-sm text-gray-600">Ubicaciones destacadas</p>
+            <span class="text-gray-400">|</span>
+            <div class="text-gray-500 hover:text-accent-blue transition-colors" onclick="event.preventDefault(); event.stopPropagation(); window.location.href='/admin/content/blog/create';">
+              + Crear post
             </div>
-          </div>
-          <div class="mb-4">
-            <div class="text-2xl font-bold text-gray-900">15</div>
-            <div class="text-sm text-gray-600">ubicaciones activas</div>
-          </div>
-          <div class="flex space-x-2">
-            <a 
-              href="/admin/content/hotspots" 
-              class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-center text-sm font-medium"
-            >
-              Gestionar
-            </a>
-            <a 
-              href="/admin/content/hotspots/create" 
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-            >
-              + Nuevo
-            </a>
           </div>
         </div>
-      </div>
 
-      <!-- Static Pages -->
-      <div class="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-        <div class="p-6">
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-yellow-100 rounded-lg">
-              <div class="w-8 h-8 text-yellow-600 flex items-center justify-center text-lg font-bold">▣</div>
-            </div>
-            <div class="ml-4">
-              <h3 class="text-lg font-semibold text-gray-900">Páginas Estáticas</h3>
-              <p class="text-sm text-gray-600">Páginas informativas</p>
-            </div>
-          </div>
-          <div class="mb-4">
-            <div class="text-2xl font-bold text-gray-900">8</div>
-            <div class="text-sm text-gray-600">páginas configuradas</div>
-          </div>
-          <div class="flex space-x-2">
-            <a 
-              href="/admin/content/pages" 
-              class="flex-1 bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors text-center text-sm font-medium"
-            >
-              Gestionar
-            </a>
-            <a 
-              href="/admin/content/pages/create" 
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-            >
-              + Nueva
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Media Library -->
-      <div class="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-        <div class="p-6">
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-red-100 rounded-lg">
-              <div class="w-8 h-8 text-red-600 flex items-center justify-center text-lg font-bold">○</div>
-            </div>
-            <div class="ml-4">
-              <h3 class="text-lg font-semibold text-gray-900">Biblioteca de Medios</h3>
-              <p class="text-sm text-gray-600">Imágenes y archivos</p>
-            </div>
-          </div>
-          <div class="mb-4">
-            <div class="text-2xl font-bold text-gray-900">342</div>
-            <div class="text-sm text-gray-600">archivos totales</div>
-          </div>
-          <div class="flex space-x-2">
-            <a 
-              href="/admin/content/media" 
-              class="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-center text-sm font-medium"
-            >
-              Gestionar
-            </a>
-            <button 
-              onclick="document.getElementById('mediaUpload').click()" 
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-            >
-              + Subir
-            </button>
-            <input type="file" id="mediaUpload" class="hidden" accept="image/*,video/*" multiple>
-          </div>
-        </div>
-      </div>
-
-      <!-- SEO Management -->
-      <div class="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
-        <div class="p-6">
-          <div class="flex items-center mb-4">
-            <div class="p-3 bg-indigo-100 rounded-lg">
-              <div class="w-8 h-8 text-indigo-600 flex items-center justify-center text-lg font-bold">◈</div>
-            </div>
-            <div class="ml-4">
-              <h3 class="text-lg font-semibold text-gray-900">SEO y Meta Tags</h3>
-              <p class="text-sm text-gray-600">Optimización para motores</p>
-            </div>
-          </div>
-          <div class="mb-4">
-            <div class="text-2xl font-bold text-gray-900">95%</div>
-            <div class="text-sm text-gray-600">puntuación SEO</div>
-          </div>
-          <div class="flex space-x-2">
-            <a 
-              href="/admin/content/seo" 
-              class="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-center text-sm font-medium"
-            >
-              Gestionar
-            </a>
-            <a 
-              href="/admin/content/seo/audit" 
-              class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-            >
-              Auditar
-            </a>
-          </div>
-        </div>
-      </div>
+        <!-- Bottom accent bar -->
+        <div class="h-1.5 bg-gradient-to-r from-accent-blue to-accent-blue-light group-hover:h-2 transition-all"></div>
+      </a>
     </div>
 
-    <!-- Recent Content Activity -->
-    <div class="bg-white rounded-lg border border-gray-200">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-900">Actividad Reciente del Contenido</h3>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Autor</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200" id="recent-content">
-            <!-- Content will be loaded here -->
-            <tr>
-              <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                Cargando contenido reciente...
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- Info Card -->
+    <div class="mt-8 max-w-2xl bg-gradient-to-br from-accent-blue-pale to-white border border-accent-blue/20 rounded-xl p-6">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0">
+          <svg class="w-6 h-6 text-accent-blue" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-1">
+            Gestión de Contenido del Blog
+          </h3>
+          <p class="text-gray-600 text-sm leading-relaxed">
+            El blog ahora incluye todas las categorías: Tendencias, Guías, Casos de Éxito, Noticias, Tutoriales y Entrevistas.
+            Crea y administra todo el contenido desde una sola plataforma unificada.
+          </p>
+        </div>
       </div>
     </div>
   </div>
 </AdminLayout>
-
-<script>
-  // Load recent content activity
-  async function loadRecentContent() {
-    try {
-      // Placeholder data for now
-      const recentContent = document.getElementById('recent-content');
-      if (recentContent) {
-        recentContent.innerHTML = `
-        <tr>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Casa</span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Casa Moderna 120m²</td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Publicada</span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Admin</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Hace 2 horas</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Editar</a>
-            <a href="#" class="text-gray-600 hover:text-gray-900">Ver</a>
-          </td>
-        </tr>
-        <tr>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Blog</span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Tendencias en Construcción Modular 2024</td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Borrador</span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Admin</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Hace 1 día</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Editar</a>
-            <a href="#" class="text-green-600 hover:text-green-900">Publicar</a>
-          </td>
-        </tr>
-        <tr>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">Hotspot</span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Valparaíso - Costa Central</td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Activo</span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Admin</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Hace 3 días</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Editar</a>
-            <a href="#" class="text-gray-600 hover:text-gray-900">Ver</a>
-          </td>
-        </tr>
-      `;
-      }
-    } catch (error) {
-      console.error('Error loading recent content:', error);
-    }
-  }
-
-  // Load data when page loads
-  document.addEventListener('DOMContentLoaded', loadRecentContent);
-
-  // Handle media upload
-  const mediaUpload = document.getElementById('mediaUpload') as HTMLInputElement;
-  if (mediaUpload) {
-    mediaUpload.addEventListener('change', function(e) {
-      const target = e.target as HTMLInputElement;
-      const files = target.files;
-      if (files && files.length > 0) {
-        console.log('Files selected for upload:', files);
-        // Here you would implement the actual upload logic
-        alert(`${files.length} archivo(s) seleccionado(s) para subir`);
-      }
-    });
-  }
-</script>

@@ -101,24 +101,31 @@ const getCategoryColor = (categoryType: string) => {
     <!-- Header -->
     <div class="flex justify-between items-center mb-8">
       <div>
-        <h2 class="text-xl font-semibold text-gray-900">Gestión de Proveedores</h2>
-        <p class="text-gray-600 mt-1">Administra los proveedores de la plataforma MODTOK</p>
+        <h2 class="text-2xl font-bold text-gray-900">Gestión de Proveedores</h2>
+        <p class="text-gray-500 mt-1">Administra los proveedores de la plataforma MODTOK</p>
       </div>
-      <a 
+      <a
         href="/admin/providers/create"
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+        class="inline-flex items-center gap-2 bg-accent-blue text-white px-4 py-2.5 rounded-lg hover:bg-accent-blue-dark hover:-translate-y-0.5 hover:shadow-apple-md transition-all duration-200 font-semibold shadow-apple-sm"
       >
-        + Crear Proveedor
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Crear Proveedor
       </a>
     </div>
 
     <!-- Filters & Actions -->
-    <form method="GET" class="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+    <form method="GET" class="bg-white p-5 rounded-lg border border-gray-200 shadow-apple-sm mb-6">
       <div class="flex flex-wrap items-center justify-between gap-4">
-        <div class="flex flex-wrap items-center gap-4">
-          <div class="flex items-center space-x-2">
-            <label for="status" class="text-sm font-medium text-gray-700">Estado:</label>
-            <select name="status" id="status" class="border border-gray-300 rounded px-3 py-1 text-sm">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-2">
+            <label for="status" class="text-sm font-semibold text-gray-700">Estado:</label>
+            <select
+              name="status"
+              id="status"
+              class="h-9 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-accent-blue/20 focus:border-accent-blue transition-colors"
+            >
               <option value="">Todos</option>
               <option value="active" selected={status === 'active'}>Activo</option>
               <option value="pending_review" selected={status === 'pending_review'}>Pendiente</option>
@@ -126,42 +133,62 @@ const getCategoryColor = (categoryType: string) => {
               <option value="rejected" selected={status === 'rejected'}>Rechazado</option>
             </select>
           </div>
-          
-          <div class="flex items-center space-x-2">
-            <label for="tier" class="text-sm font-medium text-gray-700">Nivel:</label>
-            <select name="tier" id="tier" class="border border-gray-300 rounded px-3 py-1 text-sm">
+
+          <div class="flex items-center gap-2">
+            <label for="tier" class="text-sm font-semibold text-gray-700">Nivel:</label>
+            <select
+              name="tier"
+              id="tier"
+              class="h-9 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-accent-blue/20 focus:border-accent-blue transition-colors"
+            >
               <option value="">Todos</option>
               <option value="standard" selected={tier === 'standard'}>Estándar</option>
               <option value="premium" selected={tier === 'premium'}>Premium</option>
               <option value="destacado" selected={tier === 'destacado'}>Destacado</option>
             </select>
           </div>
-          
-          <div class="flex items-center space-x-2">
+
+          <div class="flex items-center gap-2">
             <input
               type="text"
               name="search"
               id="search"
               placeholder="Buscar por nombre o email..."
-              class="border border-gray-300 rounded px-3 py-1 text-sm w-64"
+              class="h-9 w-64 px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-blue/20 focus:border-accent-blue transition-colors"
               value={search}
             />
           </div>
-          
-          <button type="submit" class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700">
+
+          <button
+            type="submit"
+            class="inline-flex items-center gap-2 h-9 px-4 py-2 text-sm bg-accent-blue text-white rounded-lg hover:bg-accent-blue-dark transition-colors font-semibold shadow-apple-sm"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
             Filtrar
           </button>
-          
+
           {(status || tier || search) && (
-            <a href="/admin/providers" class="px-3 py-1 text-sm text-gray-600 hover:text-gray-900">
+            <a
+              href="/admin/providers"
+              class="inline-flex items-center gap-1 h-9 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
               Limpiar
             </a>
           )}
         </div>
-        
+
         <!-- Bulk Actions -->
-        <div class="flex items-center space-x-2">
-          <select id="bulk_action" class="border border-gray-300 rounded px-3 py-1 text-sm" disabled>
+        <div class="flex items-center gap-2">
+          <select
+            id="bulk_action"
+            class="h-9 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-accent-blue/20 focus:border-accent-blue"
+            disabled
+          >
             <option value="">Acciones en lote...</option>
             <option value="approve">Aprobar seleccionados</option>
             <option value="reject">Rechazar seleccionados</option>
@@ -171,7 +198,7 @@ const getCategoryColor = (categoryType: string) => {
           <button
             type="button"
             id="apply_bulk"
-            class="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="h-9 px-4 py-2 text-sm bg-brand-green text-white rounded-lg hover:bg-brand-green-dark transition-colors font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-apple-sm"
             disabled
           >
             Aplicar
@@ -181,11 +208,11 @@ const getCategoryColor = (categoryType: string) => {
     </form>
 
     <!-- Providers List -->
-    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200">
+    <div class="bg-white rounded-lg border border-gray-200 shadow-apple-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
         <div class="flex justify-between items-center">
-          <h3 class="text-lg font-medium text-gray-900">Lista de Proveedores</h3>
-          <span class="text-sm text-gray-500">
+          <h3 class="text-lg font-bold text-gray-900">Lista de Proveedores</h3>
+          <span class="text-sm font-medium text-gray-600">
             {providers ? `${providers.length} de ${count || 0} proveedores` : 'Cargando...'}
           </span>
         </div>

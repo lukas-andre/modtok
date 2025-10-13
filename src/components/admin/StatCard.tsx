@@ -17,35 +17,38 @@ interface StatCardProps {
 
 export function StatCard({ title, value, trend, icon, className, onClick }: StatCardProps) {
   return (
-    <Card 
+    <Card
+      clickable
       className={cn(
-        "hover:shadow-md transition-shadow cursor-pointer", 
+        "group hover:border-accent-blue/30 transition-all duration-200",
         className
-      )} 
+      )}
       onClick={onClick}
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+        <CardTitle className="text-sm font-semibold text-gray-600">
           {title}
         </CardTitle>
-        <div className="text-muted-foreground">
+        <div className="w-10 h-10 rounded-lg bg-accent-blue-pale text-accent-blue flex items-center justify-center group-hover:bg-accent-blue group-hover:text-white transition-all duration-200 shadow-apple-sm">
           {icon}
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{formatNumber(value)}</div>
+        <div className="text-3xl font-bold text-gray-900">{formatNumber(value)}</div>
         {trend && (
-          <p className="text-xs text-muted-foreground mt-1">
+          <div className="flex items-center gap-1.5 mt-2">
             <span
               className={cn(
-                "font-medium",
-                trend.isPositive ? "text-green-600" : "text-red-600"
+                "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold",
+                trend.isPositive
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
               )}
             >
-              {trend.isPositive ? "+" : ""}{trend.value}%
-            </span>{" "}
-            {trend.label}
-          </p>
+              {trend.isPositive ? "↑" : "↓"} {trend.value}%
+            </span>
+            <span className="text-xs text-gray-500">{trend.label}</span>
+          </div>
         )}
       </CardContent>
     </Card>

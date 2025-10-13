@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  ChevronUpIcon, 
-  ChevronDownIcon, 
+import {
+  ChevronUpIcon,
+  ChevronDownIcon,
   MagnifyingGlassIcon,
   PencilIcon,
   TrashIcon,
@@ -10,6 +10,9 @@ import {
   ArrowDownTrayIcon,
   FunnelIcon
 } from '@heroicons/react/24/outline';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 interface Column {
   key: string;
@@ -133,89 +136,90 @@ export default function DataTable({
     }).format(value);
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusVariant = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return 'success' as const;
       case 'inactive':
-        return 'bg-gray-100 text-gray-800';
+        return 'neutral' as const;
       case 'draft':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'warning' as const;
       case 'pending_review':
-        return 'bg-blue-100 text-blue-800';
+        return 'info' as const;
       case 'rejected':
-        return 'bg-red-100 text-red-800';
+        return 'error' as const;
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'neutral' as const;
     }
   };
 
-  const getTierColor = (tier: string) => {
+  const getTierVariant = (tier: string) => {
     switch (tier) {
       case 'premium':
-        return 'bg-purple-100 text-purple-800';
+        return 'gold' as const;
       case 'destacado':
-        return 'bg-blue-100 text-blue-800';
+        return 'primary' as const;
       case 'standard':
-        return 'bg-gray-100 text-gray-800';
+        return 'neutral' as const;
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'neutral' as const;
     }
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="bg-white rounded-lg border border-gray-200 shadow-apple-sm">
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-accent-blue border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-sm text-gray-500">Cargando datos...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="bg-white rounded-lg shadow-apple-sm border border-gray-200">
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4 flex-1">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-1">
             {searchable && (
-              <div className="relative flex-1 max-w-md">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
+              <div className="flex-1 max-w-md">
+                <Input
                   type="text"
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Buscar..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  leadingIcon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                  inputSize="sm"
                 />
               </div>
             )}
-            
-            <button
+
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               <FunnelIcon className="h-4 w-4 mr-2" />
               Filtros
-            </button>
+            </Button>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-3">
             {selectedRows.size > 0 && (
-              <span className="text-sm text-gray-500">
+              <Badge variant="primary" size="sm">
                 {selectedRows.size} seleccionado(s)
-              </span>
+              </Badge>
             )}
-            
+
             {onExport && (
-              <button
-                onClick={onExport}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
+              <Button variant="outline" size="sm" onClick={onExport}>
                 <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
                 Exportar
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -230,7 +234,7 @@ export default function DataTable({
                 <th scope="col" className="relative px-6 py-3">
                   <input
                     type="checkbox"
-                    className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-300 text-accent-blue focus:ring-accent-blue/20"
                     onChange={handleSelectAll}
                     checked={selectedRows.size === paginatedData.length && paginatedData.length > 0}
                   />
@@ -274,37 +278,37 @@ export default function DataTable({
           
           <tbody className="bg-white divide-y divide-gray-200">
             {paginatedData.map((row) => (
-              <tr key={row.id} className="hover:bg-gray-50">
+              <tr key={row.id} className="hover:bg-accent-blue-pale transition-colors duration-150">
                 {selectable && (
                   <td className="px-6 py-4 whitespace-nowrap">
                     <input
                       type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="h-4 w-4 rounded border-gray-300 text-accent-blue focus:ring-accent-blue/20"
                       checked={selectedRows.has(row.id)}
                       onChange={() => handleSelectRow(row.id)}
                     />
                   </td>
                 )}
-                
+
                 {columns.map((column) => (
                   <td key={column.key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {column.render ? (
                       column.render(row[column.key], row)
                     ) : column.key === 'status' ? (
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(row[column.key])}`}>
+                      <Badge variant={getStatusVariant(row[column.key])} size="sm">
                         {row[column.key]}
-                      </span>
+                      </Badge>
                     ) : column.key === 'tier' ? (
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getTierColor(row[column.key])}`}>
+                      <Badge variant={getTierVariant(row[column.key])} size="sm">
                         {row[column.key]}
-                      </span>
+                      </Badge>
                     ) : column.key === 'price' || column.key.includes('price') || column.key.includes('cost') ? (
                       formatCurrency(row[column.key] || 0)
                     ) : column.key === 'main_image_url' || column.key === 'logo_url' ? (
                       row[column.key] ? (
-                        <img src={row[column.key]} alt="" className="h-10 w-10 rounded-full object-cover" />
+                        <img src={row[column.key]} alt="" className="h-10 w-10 rounded-lg object-cover shadow-apple-sm" />
                       ) : (
-                        <div className="h-10 w-10 rounded-full bg-gray-200" />
+                        <div className="h-10 w-10 rounded-lg bg-gray-200" />
                       )
                     ) : (
                       row[column.key]
@@ -313,41 +317,41 @@ export default function DataTable({
                 ))}
                 
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div className="flex items-center justify-end space-x-2">
+                  <div className="flex items-center justify-end gap-1">
                     {onView && (
                       <button
                         onClick={() => onView(row)}
-                        className="text-gray-400 hover:text-gray-500"
+                        className="p-1.5 text-gray-400 hover:text-accent-blue hover:bg-accent-blue-pale rounded-lg transition-colors"
                         title="Ver"
                       >
-                        <EyeIcon className="h-5 w-5" />
+                        <EyeIcon className="h-4 w-4" />
                       </button>
                     )}
                     {onEdit && (
                       <button
                         onClick={() => onEdit(row)}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="p-1.5 text-accent-blue hover:bg-accent-blue-pale rounded-lg transition-colors"
                         title="Editar"
                       >
-                        <PencilIcon className="h-5 w-5" />
+                        <PencilIcon className="h-4 w-4" />
                       </button>
                     )}
                     {onDuplicate && (
                       <button
                         onClick={() => onDuplicate(row)}
-                        className="text-gray-400 hover:text-gray-500"
+                        className="p-1.5 text-gray-400 hover:text-accent-blue hover:bg-accent-blue-pale rounded-lg transition-colors"
                         title="Duplicar"
                       >
-                        <DocumentDuplicateIcon className="h-5 w-5" />
+                        <DocumentDuplicateIcon className="h-4 w-4" />
                       </button>
                     )}
                     {onDelete && (
                       <button
                         onClick={() => onDelete(row)}
-                        className="text-red-600 hover:text-red-900"
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         title="Eliminar"
                       >
-                        <TrashIcon className="h-5 w-5" />
+                        <TrashIcon className="h-4 w-4" />
                       </button>
                     )}
                   </div>
@@ -359,61 +363,67 @@ export default function DataTable({
       </div>
 
       {/* Pagination */}
-      <div className="px-6 py-4 border-t border-gray-200">
+      <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-700">
-              Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, processedData.length)} de {processedData.length} resultados
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-600">
+              Mostrando <span className="font-medium text-gray-900">{((currentPage - 1) * itemsPerPage) + 1}</span> a{' '}
+              <span className="font-medium text-gray-900">{Math.min(currentPage * itemsPerPage, processedData.length)}</span> de{' '}
+              <span className="font-medium text-gray-900">{processedData.length}</span> resultados
             </span>
-            
+
             <select
               value={itemsPerPage}
               onChange={(e) => {
                 setItemsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="ml-4 border-gray-300 rounded-md text-sm"
+              className="h-9 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-accent-blue/20 focus:border-accent-blue"
             >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
+              <option value={10}>10 por página</option>
+              <option value={25}>25 por página</option>
+              <option value={50}>50 por página</option>
+              <option value={100}>100 por página</option>
             </select>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <button
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Anterior
-            </button>
-            
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              const pageNum = i + 1;
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={`px-3 py-1 border rounded-md text-sm font-medium ${
-                    currentPage === pageNum
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
-            
-            <button
+            </Button>
+
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const pageNum = i + 1;
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === pageNum
+                        ? 'bg-accent-blue text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Siguiente
-            </button>
+            </Button>
           </div>
         </div>
       </div>
