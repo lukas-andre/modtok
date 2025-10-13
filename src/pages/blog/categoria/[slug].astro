@@ -1,0 +1,215 @@
+---
+import { createSupabaseClient } from '@/lib/supabase';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SEOHead from '@/components/SEOHead.astro';
+
+export async function getStaticPaths() {
+  return [
+    { params: { slug: 'tendencias' } },
+    { params: { slug: 'guias' } },
+    { params: { slug: 'casos_exito' } },
+    { params: { slug: 'noticias' } },
+    { params: { slug: 'tutoriales' } },
+  ];
+}
+
+const { slug } = Astro.params;
+const supabase = createSupabaseClient(Astro);
+
+const categories = {
+  'tendencias': {
+    name: 'Tendencias',
+    description: 'Últimas tendencias en construcción modular y prefabricada en Chile',
+    icon: '📈',
+    gradient: 'from-purple-600 to-purple-800'
+  },
+  'guias': {
+    name: 'Guías',
+    description: 'Guías prácticas para construir tu casa modular en Chile',
+    icon: '📚',
+    gradient: 'from-accent-blue to-accent-blue-dark'
+  },
+  'casos_exito': {
+    name: 'Casos de Éxito',
+    description: 'Proyectos exitosos de casas modulares en diferentes regiones de Chile',
+    icon: '🏆',
+    gradient: 'from-green-600 to-green-800'
+  },
+  'noticias': {
+    name: 'Noticias',
+    description: 'Noticias del sector de construcción modular en Chile',
+    icon: '📰',
+    gradient: 'from-red-600 to-red-800'
+  },
+  'tutoriales': {
+    name: 'Tutoriales',
+    description: 'Tutoriales paso a paso para tu proyecto de construcción modular',
+    icon: '🎓',
+    gradient: 'from-orange-600 to-orange-800'
+  }
+};
+
+const category = categories[slug];
+
+// Fetch posts by category
+const { data: posts } = await supabase
+  .from('blog_posts')
+  .select(`
+    *,
+    author:profiles!blog_posts_author_id_fkey(full_name, avatar_url)
+  `)
+  .eq('category', slug)
+  .eq('status', 'published')
+  .lte('published_at', new Date().toISOString())
+  .order('published_at', { ascending: false })
+  .limit(20);
+
+const siteUrl = Astro.site?.href || 'https://modtok.cl';
+---
+
+<BaseLayout>
+  <SEOHead
+    slot="head"
+    title={`${category.name} - Blog de Construcción Modular en Chile`}
+    description={category.description}
+    type="website"
+    url={`${siteUrl}blog/categoria/${slug}`}
+    keywords={[`${category.name.toLowerCase()} construcción modular`, 'casas prefabricadas Chile']}
+  />
+
+  <main class="min-h-screen bg-gray-50">
+    <!-- Hero Section -->
+    <section class={`bg-gradient-to-br ${category.gradient} text-white py-20`}>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumb -->
+        <nav class="mb-8">
+          <div class="flex items-center space-x-2 text-sm text-blue-100">
+            <a href="/" class="hover:text-white transition-colors">Inicio</a>
+            <span>/</span>
+            <a href="/blog" class="hover:text-white transition-colors">Blog</a>
+            <span>/</span>
+            <span class="text-white font-medium">{category.name}</span>
+          </div>
+        </nav>
+
+        <div class="text-center">
+          <div class="text-6xl mb-6">{category.icon}</div>
+          <h1 class="text-4xl md:text-5xl font-bold mb-6">{category.name}</h1>
+          <p class="text-xl text-blue-100 max-w-3xl mx-auto">{category.description}</p>
+
+          <div class="mt-8 flex items-center justify-center space-x-4 text-sm">
+            <span class="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+              {posts?.length || 0} artículos
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Posts Grid -->
+    <section class="py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {posts && posts.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {posts.map((post) => (
+              <article class="bg-white rounded-xl shadow-apple-sm overflow-hidden hover:shadow-apple-lg transition-all duration-300 hover:-translate-y-1">
+                <div class="relative">
+                  {post.featured_image_url ? (
+                    <img
+                      src={post.featured_image_url}
+                      alt={post.title}
+                      class="w-full h-48 object-cover"
+                    />
+                  ) : (
+                    <div class={`w-full h-48 bg-gradient-to-br ${category.gradient} flex items-center justify-center`}>
+                      <div class="text-4xl">{category.icon}</div>
+                    </div>
+                  )}
+                </div>
+
+                <div class="p-6">
+                  <div class="flex items-center space-x-2 mb-3">
+                    <time class="text-sm text-gray-500">
+                      {new Date(post.published_at!).toLocaleDateString('es-CL', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </time>
+                    <span class="text-gray-300">•</span>
+                    <span class="text-sm text-gray-500">{post.reading_time_minutes} min lectura</span>
+                  </div>
+
+                  <h3 class="text-xl font-bold text-gray-900 mb-3 hover:text-accent-blue transition-colors">
+                    <a href={`/blog/${post.slug}`}>{post.title}</a>
+                  </h3>
+
+                  {post.excerpt && (
+                    <p class="text-gray-600 mb-4 leading-relaxed line-clamp-3">{post.excerpt}</p>
+                  )}
+
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                      {post.author?.avatar_url ? (
+                        <img
+                          src={post.author.avatar_url}
+                          alt={post.author.full_name}
+                          class="w-8 h-8 rounded-full"
+                        />
+                      ) : (
+                        <div class="w-8 h-8 bg-accent-blue rounded-full flex items-center justify-center text-white text-xs font-medium">
+                          {post.author?.full_name?.charAt(0) || 'M'}
+                        </div>
+                      )}
+                      <span class="text-sm text-gray-700">{post.author?.full_name || 'MODTOK'}</span>
+                    </div>
+
+                    <a
+                      href={`/blog/${post.slug}`}
+                      class="text-accent-blue hover:text-accent-blue-dark font-medium text-sm inline-flex items-center group"
+                    >
+                      Leer más
+                      <svg class="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-16">
+            <div class="text-6xl mb-4">{category.icon}</div>
+            <h3 class="text-2xl font-semibold text-gray-900 mb-2">No hay artículos en esta categoría aún</h3>
+            <p class="text-gray-600 mb-6">Pronto publicaremos contenido sobre {category.name.toLowerCase()}.</p>
+            <a
+              href="/blog"
+              class="inline-flex items-center px-6 py-3 bg-accent-blue text-white rounded-lg hover:bg-accent-blue-dark transition-colors font-medium shadow-apple-sm hover:shadow-apple-md hover:-translate-y-0.5 transition-all duration-200"
+            >
+              Ver todos los artículos
+            </a>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <!-- Other Categories -->
+    <section class="py-16 bg-white">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8 text-center">Explorar Otras Categorías</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {Object.entries(categories).filter(([key]) => key !== slug).map(([key, cat]) => (
+            <a
+              href={`/blog/categoria/${key}`}
+              class="group p-6 bg-gray-50 rounded-xl border-2 border-transparent hover:border-accent-blue hover:shadow-apple-md transition-all duration-200"
+            >
+              <div class="text-4xl mb-3 group-hover:scale-110 transition-transform">{cat.icon}</div>
+              <h3 class="font-semibold text-gray-900 group-hover:text-accent-blue transition-colors">{cat.name}</h3>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

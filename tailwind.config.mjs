@@ -7,6 +7,24 @@ export default {
   theme: {
     extend: {
       colors: {
+        // ===== MODTOK Design System v2.0 =====
+        'brand-green': {
+          DEFAULT: '#31453A',
+          dark: '#283A30',
+          light: '#3D5546',
+        },
+        'accent-blue': {
+          DEFAULT: '#4DA1F5',
+          dark: '#3B8FE3',
+          light: '#6BB3F7',
+          pale: 'rgba(77, 161, 245, 0.1)',
+        },
+        'accent-gold': {
+          DEFAULT: '#B48C36',
+          dark: '#A1792F',
+        },
+
+        // ===== Legacy Compatibility (shadcn/ui) =====
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -40,11 +58,6 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Custom app colors
-        'brand-black': "hsl(var(--app-black))",
-        'brand-grey': "hsl(var(--app-grey))",
-        'brand-blue': "hsl(var(--app-blue))",
-        'brand-white': "hsl(var(--app-white))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -52,9 +65,21 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["TeXGyreHeros", "Helvetica Neue", "Helvetica", "Arial", "system-ui", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        'tex-gyre': ["TeXGyreHeros", "Helvetica Neue", "Helvetica", "sans-serif"],
-        'tex-gyre-condensed': ["TeXGyreHerosCondensed", "Helvetica Neue", "Helvetica", "sans-serif"],
+        sans: ['Tex Gyre Heros', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'],
+      },
+      boxShadow: {
+        'apple-sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'apple-md': '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+        'apple-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+        'apple-xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+      },
+      transitionDuration: {
+        '150': '150ms',
+        '200': '200ms',
+        '300': '300ms',
+      },
+      transitionTimingFunction: {
+        'spring': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
       },
     },
   },
