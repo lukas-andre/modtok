@@ -1,0 +1,151 @@
+---
+import AdminLayout from '../../../../layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '../../../../lib/auth';
+import { createSupabaseClient } from '../../../../lib/supabase';
+import HouseForm from '../../../../components/admin/HouseForm';
+
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/houses');
+}
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/admin/houses');
+}
+
+// Fetch house data
+const supabase = createSupabaseClient(Astro);
+const { data: house, error } = await supabase
+  .from('houses')
+  .select('*')
+  .eq('id', id)
+  .single();
+
+if (error || !house) {
+  return Astro.redirect('/admin/houses?error=Casa no encontrada');
+}
+
+// Prepare initial data
+const initialData = {
+  name: house.name,
+  slug: house.slug,
+  model_code: house.model_code || '',
+  sku: house.sku || '',
+  description: house.description || '',
+  description_long: house.description_long || '',
+  provider_id: house.provider_id || '',
+  topology_code: house.topology_code || '',
+  bedrooms: house.bedrooms || 0,
+  bathrooms: house.bathrooms || 0,
+  area_m2: house.area_m2 || 0,
+  floors: house.floors || 1,
+  price: house.price || 0,
+  price_opportunity: house.price_opportunity || 0,
+  price_per_m2: house.price_per_m2 || 0,
+  currency: house.currency || 'CLP',
+  main_image_url: house.main_image_url || '',
+  gallery_images: house.gallery_images || [],
+  floor_plans: house.floor_plans || [],
+  videos: house.videos || [],
+  virtual_tour_url: house.virtual_tour_url || '',
+  brochure_pdf_url: house.brochure_pdf_url || '',
+  location_city: house.location_city || '',
+  location_region: house.location_region || '',
+  latitude: house.latitude,
+  longitude: house.longitude,
+  features: house.features || {},
+  tier: house.tier || 'standard',
+  status: house.status || 'draft',
+  has_quality_images: house.has_quality_images || false,
+  has_complete_info: house.has_complete_info || false,
+  editor_approved_for_premium: house.editor_approved_for_premium || false,
+  has_landing_page: house.has_landing_page || false,
+  landing_slug: house.landing_slug || '',
+  is_available: house.is_available ?? true,
+  stock_status: house.stock_status || 'in_stock',
+  stock_quantity: house.stock_quantity || 0,
+  delivery_time_days: house.delivery_time_days || 0,
+  assembly_time_days: house.assembly_time_days || 0,
+  warranty_years: house.warranty_years || 0,
+  meta_title: house.meta_title || '',
+  meta_description: house.meta_description || '',
+  keywords: house.keywords || [],
+  has_variants: house.has_variants || false,
+  parent_house_id: house.parent_house_id,
+  variant_attributes: house.variant_attributes || {},
+};
+---
+
+<AdminLayout title={`Editar ${house.name}`} user={user} currentPage="/admin/houses">
+  <div class="p-6">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <a
+          href={`/admin/houses/${id}`}
+          class="text-gray-600 hover:text-gray-900 flex items-center"
+        >
+          <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Volver a la Casa
+        </a>
+
+        <!-- Status Badge -->
+        <span class={`px-3 py-1 text-sm font-medium rounded-full ${
+          house.status === 'active' ? 'bg-green-100 text-green-800' :
+          house.status === 'pending_review' ? 'bg-yellow-100 text-yellow-800' :
+          house.status === 'draft' ? 'bg-gray-100 text-gray-800' :
+          house.status === 'inactive' ? 'bg-gray-100 text-gray-600' :
+          'bg-red-100 text-red-800'
+        }`}>
+          {house.status === 'active' ? '✓ Activo' :
+           house.status === 'pending_review' ? '⏳ Pendiente' :
+           house.status === 'draft' ? '📝 Borrador' :
+           house.status === 'inactive' ? '⏸ Inactivo' :
+           '✗ Rechazado'}
+        </span>
+      </div>
+
+      <h2 class="text-2xl font-bold text-gray-900">Editar Casa</h2>
+      <p class="text-gray-600 mt-1">{house.name}</p>
+
+      <!-- Info Badges -->
+      <div class="flex items-center space-x-2 mt-3">
+        <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          house.tier === 'premium' ? 'bg-purple-100 text-purple-800' :
+          house.tier === 'destacado' ? 'bg-yellow-100 text-yellow-800' :
+          'bg-gray-100 text-gray-800'
+        }`}>
+          {house.tier === 'premium' ? '👑 Premium' :
+           house.tier === 'destacado' ? '⭐ Destacado' :
+           '📦 Standard'}
+        </span>
+
+        {house.has_landing_page && (
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            🌐 Landing Page
+          </span>
+        )}
+
+        {house.editor_approved_for_premium && (
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            ✓ Aprobado Premium
+          </span>
+        )}
+      </div>
+    </div>
+
+    <!-- Form Component -->
+    <HouseForm
+      client:load
+      mode="edit"
+      houseId={id}
+      initialData={initialData}
+    />
+  </div>
+</AdminLayout>

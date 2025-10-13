@@ -150,22 +150,28 @@ export type Database = {
       blog_posts: {
         Row: {
           author_id: string | null
+          author_name: string | null
+          canonical_url: string | null
           category: string | null
           content: string
           created_at: string | null
           editor_id: string | null
           excerpt: string | null
+          featured_image_alt: string | null
           featured_image_url: string | null
           id: string
           keywords: string[] | null
           likes_count: number | null
           meta_description: string | null
           meta_title: string | null
+          og_image_url: string | null
           published_at: string | null
           reading_time_minutes: number | null
+          scheduled_for: string | null
           shares_count: number | null
           slug: string
           status: Database["public"]["Enums"]["content_status"] | null
+          structured_data: Json | null
           tags: string[] | null
           title: string
           updated_at: string | null
@@ -173,22 +179,28 @@ export type Database = {
         }
         Insert: {
           author_id?: string | null
+          author_name?: string | null
+          canonical_url?: string | null
           category?: string | null
           content: string
           created_at?: string | null
           editor_id?: string | null
           excerpt?: string | null
+          featured_image_alt?: string | null
           featured_image_url?: string | null
           id?: string
           keywords?: string[] | null
           likes_count?: number | null
           meta_description?: string | null
           meta_title?: string | null
+          og_image_url?: string | null
           published_at?: string | null
           reading_time_minutes?: number | null
+          scheduled_for?: string | null
           shares_count?: number | null
           slug: string
           status?: Database["public"]["Enums"]["content_status"] | null
+          structured_data?: Json | null
           tags?: string[] | null
           title: string
           updated_at?: string | null
@@ -196,22 +208,28 @@ export type Database = {
         }
         Update: {
           author_id?: string | null
+          author_name?: string | null
+          canonical_url?: string | null
           category?: string | null
           content?: string
           created_at?: string | null
           editor_id?: string | null
           excerpt?: string | null
+          featured_image_alt?: string | null
           featured_image_url?: string | null
           id?: string
           keywords?: string[] | null
           likes_count?: number | null
           meta_description?: string | null
           meta_title?: string | null
+          og_image_url?: string | null
           published_at?: string | null
           reading_time_minutes?: number | null
+          scheduled_for?: string | null
           shares_count?: number | null
           slug?: string
           status?: Database["public"]["Enums"]["content_status"] | null
+          structured_data?: Json | null
           tags?: string[] | null
           title?: string
           updated_at?: string | null
@@ -233,6 +251,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      content_views: {
+        Row: {
+          content_id: string
+          content_type: string
+          id: string
+          referrer: string | null
+          viewed_at: string | null
+          viewer_ip: string | null
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          id?: string
+          referrer?: string | null
+          viewed_at?: string | null
+          viewer_ip?: string | null
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          id?: string
+          referrer?: string | null
+          viewed_at?: string | null
+          viewer_ip?: string | null
+        }
+        Relationships: []
       }
       feature_definitions: {
         Row: {
@@ -318,6 +363,51 @@ export type Database = {
         }
         Relationships: []
       }
+      homepage_slots: {
+        Row: {
+          content_id: string | null
+          content_type: string | null
+          created_at: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          monthly_price: number | null
+          rotation_order: number | null
+          slot_position: number
+          slot_type: string
+          start_date: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content_id?: string | null
+          content_type?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          monthly_price?: number | null
+          rotation_order?: number | null
+          slot_position: number
+          slot_type: string
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content_id?: string | null
+          content_type?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          monthly_price?: number | null
+          rotation_order?: number | null
+          slot_position?: number
+          slot_type?: string
+          start_date?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       house_topologies: {
         Row: {
           bathrooms: number
@@ -361,15 +451,20 @@ export type Database = {
           delivery_time_days: number | null
           description: string | null
           description_long: string | null
+          editor_approved_for_premium: boolean | null
           features: Json | null
           floor_plans: string[] | null
           floors: number | null
           gallery_images: string[] | null
+          has_complete_info: boolean | null
+          has_landing_page: boolean | null
+          has_quality_images: boolean | null
           has_variants: boolean | null
           id: string
           inquiries_count: number | null
           is_available: boolean | null
           keywords: string[] | null
+          landing_slug: string | null
           latitude: number | null
           location_city: string | null
           location_region: string | null
@@ -413,15 +508,20 @@ export type Database = {
           delivery_time_days?: number | null
           description?: string | null
           description_long?: string | null
+          editor_approved_for_premium?: boolean | null
           features?: Json | null
           floor_plans?: string[] | null
           floors?: number | null
           gallery_images?: string[] | null
+          has_complete_info?: boolean | null
+          has_landing_page?: boolean | null
+          has_quality_images?: boolean | null
           has_variants?: boolean | null
           id?: string
           inquiries_count?: number | null
           is_available?: boolean | null
           keywords?: string[] | null
+          landing_slug?: string | null
           latitude?: number | null
           location_city?: string | null
           location_region?: string | null
@@ -465,15 +565,20 @@ export type Database = {
           delivery_time_days?: number | null
           description?: string | null
           description_long?: string | null
+          editor_approved_for_premium?: boolean | null
           features?: Json | null
           floor_plans?: string[] | null
           floors?: number | null
           gallery_images?: string[] | null
+          has_complete_info?: boolean | null
+          has_landing_page?: boolean | null
+          has_quality_images?: boolean | null
           has_variants?: boolean | null
           id?: string
           inquiries_count?: number | null
           is_available?: boolean | null
           keywords?: string[] | null
+          landing_slug?: string | null
           latitude?: number | null
           location_city?: string | null
           location_region?: string | null
@@ -611,6 +716,101 @@ export type Database = {
           },
         ]
       }
+      news_posts: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          canonical_url: string | null
+          content: string
+          created_at: string | null
+          expires_at: string | null
+          featured_image_alt: string | null
+          featured_image_url: string | null
+          id: string
+          is_breaking: boolean | null
+          keywords: string[] | null
+          meta_description: string | null
+          meta_title: string | null
+          news_type: string | null
+          og_image_url: string | null
+          published_at: string | null
+          reading_time_minutes: number | null
+          scheduled_for: string | null
+          slug: string
+          status: string | null
+          structured_data: Json | null
+          summary: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          views_count: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          canonical_url?: string | null
+          content: string
+          created_at?: string | null
+          expires_at?: string | null
+          featured_image_alt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          is_breaking?: boolean | null
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          news_type?: string | null
+          og_image_url?: string | null
+          published_at?: string | null
+          reading_time_minutes?: number | null
+          scheduled_for?: string | null
+          slug: string
+          status?: string | null
+          structured_data?: Json | null
+          summary?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          canonical_url?: string | null
+          content?: string
+          created_at?: string | null
+          expires_at?: string | null
+          featured_image_alt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          is_breaking?: boolean | null
+          keywords?: string[] | null
+          meta_description?: string | null
+          meta_title?: string | null
+          news_type?: string | null
+          og_image_url?: string | null
+          published_at?: string | null
+          reading_time_minutes?: number | null
+          scheduled_for?: string | null
+          slug?: string
+          status?: string | null
+          structured_data?: Json | null
+          summary?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -736,11 +936,15 @@ export type Database = {
           features: Json | null
           gallery_images: string[] | null
           has_complete_info: boolean | null
+          has_landing_page: boolean | null
           has_quality_images: boolean | null
           id: string
           inquiries_count: number | null
           internal_rating: number | null
+          is_manufacturer: boolean | null
+          is_service_provider: boolean | null
           keywords: string[] | null
+          landing_slug: string | null
           logo_url: string | null
           meta_description: string | null
           meta_title: string | null
@@ -779,11 +983,15 @@ export type Database = {
           features?: Json | null
           gallery_images?: string[] | null
           has_complete_info?: boolean | null
+          has_landing_page?: boolean | null
           has_quality_images?: boolean | null
           id?: string
           inquiries_count?: number | null
           internal_rating?: number | null
+          is_manufacturer?: boolean | null
+          is_service_provider?: boolean | null
           keywords?: string[] | null
+          landing_slug?: string | null
           logo_url?: string | null
           meta_description?: string | null
           meta_title?: string | null
@@ -822,11 +1030,15 @@ export type Database = {
           features?: Json | null
           gallery_images?: string[] | null
           has_complete_info?: boolean | null
+          has_landing_page?: boolean | null
           has_quality_images?: boolean | null
           id?: string
           inquiries_count?: number | null
           internal_rating?: number | null
+          is_manufacturer?: boolean | null
+          is_service_provider?: boolean | null
           keywords?: string[] | null
+          landing_slug?: string | null
           logo_url?: string | null
           meta_description?: string | null
           meta_title?: string | null
@@ -873,12 +1085,17 @@ export type Database = {
           current_bookings: number | null
           description: string | null
           description_long: string | null
+          editor_approved_for_premium: boolean | null
           features: Json | null
           gallery_images: string[] | null
+          has_complete_info: boolean | null
+          has_landing_page: boolean | null
+          has_quality_images: boolean | null
           id: string
           inquiries_count: number | null
           is_available: boolean | null
           keywords: string[] | null
+          landing_slug: string | null
           main_image_url: string | null
           max_bookings: number | null
           meta_description: string | null
@@ -909,12 +1126,17 @@ export type Database = {
           current_bookings?: number | null
           description?: string | null
           description_long?: string | null
+          editor_approved_for_premium?: boolean | null
           features?: Json | null
           gallery_images?: string[] | null
+          has_complete_info?: boolean | null
+          has_landing_page?: boolean | null
+          has_quality_images?: boolean | null
           id?: string
           inquiries_count?: number | null
           is_available?: boolean | null
           keywords?: string[] | null
+          landing_slug?: string | null
           main_image_url?: string | null
           max_bookings?: number | null
           meta_description?: string | null
@@ -945,12 +1167,17 @@ export type Database = {
           current_bookings?: number | null
           description?: string | null
           description_long?: string | null
+          editor_approved_for_premium?: boolean | null
           features?: Json | null
           gallery_images?: string[] | null
+          has_complete_info?: boolean | null
+          has_landing_page?: boolean | null
+          has_quality_images?: boolean | null
           id?: string
           inquiries_count?: number | null
           is_available?: boolean | null
           keywords?: string[] | null
+          landing_slug?: string | null
           main_image_url?: string | null
           max_bookings?: number | null
           meta_description?: string | null
@@ -1194,6 +1421,14 @@ export type Database = {
         Args: { p_features: Json; p_group: string; p_key: string }
         Returns: Json
       }
+      get_provider_services: {
+        Args: { provider_uuid: string }
+        Returns: {
+          is_manufacturer: boolean
+          is_service_provider: boolean
+          services_offered: string[]
+        }[]
+      }
       get_providers_by_category: {
         Args: {
           p_category: Database["public"]["Enums"]["category_type"]
@@ -1242,7 +1477,12 @@ export type Database = {
     }
     Enums: {
       category_type: "fabrica" | "casas" | "habilitacion_servicios"
-      content_status: "draft" | "pending_review" | "published" | "archived"
+      content_status:
+        | "draft"
+        | "pending_review"
+        | "published"
+        | "archived"
+        | "scheduled"
       feature_data_type: "boolean" | "number" | "text" | "text_array" | "json"
       filter_type: "checklist" | "slider" | "checkbox" | "radio" | "select"
       listing_status:
@@ -1382,7 +1622,13 @@ export const Constants = {
   public: {
     Enums: {
       category_type: ["fabrica", "casas", "habilitacion_servicios"],
-      content_status: ["draft", "pending_review", "published", "archived"],
+      content_status: [
+        "draft",
+        "pending_review",
+        "published",
+        "archived",
+        "scheduled",
+      ],
       feature_data_type: ["boolean", "number", "text", "text_array", "json"],
       filter_type: ["checklist", "slider", "checkbox", "radio", "select"],
       listing_status: [
@@ -1398,3 +1644,28 @@ export const Constants = {
     },
   },
 } as const
+
+// Convenience type aliases
+export type BlogPost = Tables<'blog_posts'>
+export type BlogPostInsert = TablesInsert<'blog_posts'>
+export type BlogPostUpdate = TablesUpdate<'blog_posts'>
+
+export type NewsPost = Tables<'news_posts'>
+export type NewsPostInsert = TablesInsert<'news_posts'>
+export type NewsPostUpdate = TablesUpdate<'news_posts'>
+
+export type Profile = Tables<'profiles'>
+export type ProfileInsert = TablesInsert<'profiles'>
+export type ProfileUpdate = TablesUpdate<'profiles'>
+
+export type Provider = Tables<'providers'>
+export type ProviderInsert = TablesInsert<'providers'>
+export type ProviderUpdate = TablesUpdate<'providers'>
+
+export type House = Tables<'houses'>
+export type HouseInsert = TablesInsert<'houses'>
+export type HouseUpdate = TablesUpdate<'houses'>
+
+export type ServiceProduct = Tables<'service_products'>
+export type ServiceProductInsert = TablesInsert<'service_products'>
+export type ServiceProductUpdate = TablesUpdate<'service_products'>

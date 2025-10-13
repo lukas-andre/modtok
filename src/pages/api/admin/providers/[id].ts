@@ -95,7 +95,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       company_name,
       email,
       phone,
-      categories,
+      categories, // DEPRECATED - use is_manufacturer and is_service_provider instead
       description,
       description_long,
       whatsapp,
@@ -103,6 +103,11 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       address,
       city,
       region,
+
+      // NEW: Multiple services support
+      is_manufacturer,
+      is_service_provider,
+
       years_experience,
       certifications,
       specialties,
@@ -121,6 +126,14 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       premium_until,
       featured_order,
       internal_rating,
+
+      // NEW: Editorial flags
+      has_quality_images,
+      has_complete_info,
+      editor_approved_for_premium,
+      has_landing_page,
+      landing_slug,
+
       meta_title,
       meta_description,
       keywords,
@@ -155,13 +168,32 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       }
     }
 
+    // Validation: At least one service must be selected
+    const finalIsManufacturer = is_manufacturer !== undefined ? is_manufacturer : currentProvider.is_manufacturer;
+    const finalIsServiceProvider = is_service_provider !== undefined ? is_service_provider : currentProvider.is_service_provider;
+
+    if (!finalIsManufacturer && !finalIsServiceProvider) {
+      return new Response(
+        JSON.stringify({ error: 'Provider must offer at least one service (Manufacturer or H&S)' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' }}
+      );
+    }
+
     // Prepare update data
     const updateData: ProviderUpdate = {
       ...(company_name !== undefined && { company_name }),
       ...(slug !== currentProvider.slug && { slug }),
       ...(email !== undefined && { email }),
       ...(phone !== undefined && { phone }),
-      // Note: category_type is deprecated - use provider_categories table instead
+
+      // NEW: Multiple services support
+      ...(is_manufacturer !== undefined && { is_manufacturer: Boolean(is_manufacturer) }),
+      ...(is_service_provider !== undefined && { is_service_provider: Boolean(is_service_provider) }),
+
+      // Update primary_category based on services
+      ...(is_manufacturer !== undefined && { category_type: finalIsManufacturer ? 'fabrica' : 'habilitacion_servicios' }),
+
+      // Note: category_type is deprecated - use is_manufacturer/is_service_provider instead
       ...(description !== undefined && { description }),
       ...(description_long !== undefined && { description_long }),
       ...(whatsapp !== undefined && { whatsapp }),
@@ -187,6 +219,14 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       ...(premium_until !== undefined && { premium_until: premium_until ? new Date(premium_until).toISOString() : null }),
       ...(featured_order !== undefined && { featured_order: featured_order ? parseInt(featured_order) : null }),
       ...(internal_rating !== undefined && { internal_rating: internal_rating ? parseInt(internal_rating) : null }),
+
+      // NEW: Editorial flags
+      ...(has_quality_images !== undefined && { has_quality_images: Boolean(has_quality_images) }),
+      ...(has_complete_info !== undefined && { has_complete_info: Boolean(has_complete_info) }),
+      ...(editor_approved_for_premium !== undefined && { editor_approved_for_premium: Boolean(editor_approved_for_premium) }),
+      ...(has_landing_page !== undefined && { has_landing_page: Boolean(has_landing_page) }),
+      ...(landing_slug !== undefined && { landing_slug: landing_slug || null }),
+
       ...(meta_title !== undefined && { meta_title }),
       ...(meta_description !== undefined && { meta_description }),
       ...(keywords !== undefined && { keywords }),

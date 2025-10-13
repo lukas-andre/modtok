@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { createSupabaseClient } from '@/lib/supabase';
 import { getAdminAuth, requireAdmin } from '@/lib/auth';
 
-// GET /api/admin/blog/[id] - Get single blog post
+// GET /api/admin/noticias/[id] - Get single news post
 export const GET: APIRoute = async ({ params, request, cookies }) => {
   const auth = await getAdminAuth({ request, cookies } as any);
   const user = requireAdmin(auth);
@@ -15,24 +15,16 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
   }
 
   const { id } = params;
-
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Post ID is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
   const supabase = createSupabaseClient({ request, cookies } as any);
 
   const { data: post, error } = await supabase
-    .from('blog_posts')
+    .from('news_posts')
     .select('*')
     .eq('id', id)
     .single();
 
   if (error || !post) {
-    return new Response(JSON.stringify({ error: 'Post not found' }), {
+    return new Response(JSON.stringify({ error: 'News post not found' }), {
       status: 404,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -44,7 +36,7 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
   });
 };
 
-// PUT /api/admin/blog/[id] - Update blog post
+// PUT /api/admin/noticias/[id] - Update news post
 export const PUT: APIRoute = async ({ params, request, cookies }) => {
   const auth = await getAdminAuth({ request, cookies } as any);
   const user = requireAdmin(auth);
@@ -58,20 +50,13 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
 
   const { id } = params;
 
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Post ID is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
   try {
     const body = await request.json();
     const supabase = createSupabaseClient({ request, cookies } as any);
 
     // Update post
     const { data: post, error } = await supabase
-      .from('blog_posts')
+      .from('news_posts')
       .update({
         ...body,
         updated_at: new Date().toISOString()
@@ -99,7 +84,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
   }
 };
 
-// DELETE /api/admin/blog/[id] - Delete blog post
+// DELETE /api/admin/noticias/[id] - Delete news post
 export const DELETE: APIRoute = async ({ params, request, cookies }) => {
   const auth = await getAdminAuth({ request, cookies } as any);
   const user = requireAdmin(auth);
@@ -112,27 +97,19 @@ export const DELETE: APIRoute = async ({ params, request, cookies }) => {
   }
 
   const { id } = params;
-
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Post ID is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
   const supabase = createSupabaseClient({ request, cookies } as any);
 
   try {
     // Get post details before deleting for admin log
     const { data: post } = await supabase
-      .from('blog_posts')
+      .from('news_posts')
       .select('id, title, slug')
       .eq('id', id)
       .single();
 
     // Delete the post
     const { error } = await supabase
-      .from('blog_posts')
+      .from('news_posts')
       .delete()
       .eq('id', id);
 
@@ -150,7 +127,7 @@ export const DELETE: APIRoute = async ({ params, request, cookies }) => {
         .insert({
           admin_id: auth.user.id,
           action_type: 'delete',
-          target_type: 'blog_post',
+          target_type: 'news_post',
           target_id: id,
           changes: {
             deleted: post
@@ -160,7 +137,7 @@ export const DELETE: APIRoute = async ({ params, request, cookies }) => {
 
     return new Response(JSON.stringify({
       success: true,
-      message: 'Blog post deleted successfully'
+      message: 'News post deleted successfully'
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }

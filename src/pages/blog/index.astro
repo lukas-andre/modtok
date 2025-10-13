@@ -1,8 +1,8 @@
 ---
-import { createSupabaseClient } from '../../lib/supabase';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import { createSupabaseClient } from '@/lib/supabase';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import SEOHead from '@/components/SEOHead.astro';
 
-// Fetch published blog posts
 const supabase = createSupabaseClient(Astro);
 
 const { data: posts, error } = await supabase
@@ -60,16 +60,18 @@ const categories = [
   }
 ];
 
-// Chile-specific SEO data
-const seoTitle = "Blog de Construcción Modular en Chile | MODTOK";
-const seoDescription = "Descubre las últimas tendencias, guías y casos de éxito en construcción modular y casas prefabricadas en Chile. Contenido especializado para el mercado chileno.";
-const seoKeywords = "construcción modular Chile, casas prefabricadas Chile, blog construcción, vivienda modular, arquitectura modular Chile";
+const siteUrl = Astro.site?.href || 'https://modtok.cl';
 ---
 
-<BaseLayout 
-  title={seoTitle}
-  description={seoDescription}
->
+<BaseLayout>
+  <SEOHead
+    slot="head"
+    title="Blog de Construcción Modular en Chile"
+    description="Descubre las últimas tendencias, guías y casos de éxito en construcción modular y casas prefabricadas en Chile. Contenido especializado para el mercado chileno."
+    type="website"
+    url={`${siteUrl}blog`}
+    keywords={['construcción modular Chile', 'casas prefabricadas Chile', 'blog construcción', 'vivienda modular']}
+  />
   <main class="min-h-screen bg-gray-50">
     <!-- Hero Section -->
     <section class="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 text-white py-16">
@@ -341,44 +343,4 @@ const seoKeywords = "construcción modular Chile, casas prefabricadas Chile, blo
       </div>
     </section>
   </main>
-
-  <!-- Structured Data for SEO -->
-  <script type="application/ld+json" is:inline>
-    {
-      "@context": "https://schema.org",
-      "@type": "Blog",
-      "name": "Blog MODTOK - Construcción Modular en Chile",
-      "description": "Blog especializado en construcción modular y casas prefabricadas en Chile",
-      "url": "https://modtok.cl/blog",
-      "publisher": {
-        "@type": "Organization",
-        "name": "MODTOK",
-        "url": "https://modtok.cl",
-        "logo": "https://modtok.cl/logo.png"
-      },
-      "blogPost": [
-        {posts && posts.slice(0, 5).map(post => ({
-          "@type": "BlogPosting",
-          "headline": post.title,
-          "description": post.excerpt || post.title,
-          "url": `https://modtok.cl/blog/${post.slug}`,
-          "datePublished": post.published_at,
-          "dateModified": post.updated_at,
-          "author": {
-            "@type": "Person",
-            "name": post.author?.full_name || "MODTOK"
-          },
-          "publisher": {
-            "@type": "Organization",
-            "name": "MODTOK"
-          },
-          "image": post.featured_image_url || "https://modtok.cl/default-blog-image.jpg",
-          "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": `https://modtok.cl/blog/${post.slug}`
-          }
-        }))}
-      ]
-    }
-  </script>
 </BaseLayout>

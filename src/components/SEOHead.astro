@@ -1,0 +1,111 @@
+---
+/**
+ * SEOHead Component - Complete SEO metadata for Blog & Noticias
+ *
+ * Includes:
+ * - Open Graph (Facebook, LinkedIn)
+ * - Twitter Cards
+ * - JSON-LD Structured Data (Article schema)
+ * - Standard meta tags
+ */
+
+export interface Props {
+  title: string;
+  description: string;
+  type?: 'website' | 'article';
+  image?: string;
+  imageAlt?: string;
+  url?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
+  author?: string;
+  keywords?: string[];
+  canonical?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  type = 'website',
+  image = '/og-default.jpg',
+  imageAlt = 'MODTOK - Marketplace de construcción modular',
+  url = Astro.url.href,
+  publishedTime,
+  modifiedTime,
+  author = 'MODTOK Editorial',
+  keywords = [],
+  canonical = Astro.url.href,
+  noindex = false
+} = Astro.props;
+
+const siteUrl = Astro.site?.href || 'https://modtok.cl';
+const fullImageUrl = image.startsWith('http') ? image : `${siteUrl}${image}`;
+
+// JSON-LD Structured Data for Article
+const structuredData = type === 'article' ? {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": title,
+  "description": description,
+  "image": fullImageUrl,
+  "datePublished": publishedTime,
+  "dateModified": modifiedTime || publishedTime,
+  "author": {
+    "@type": "Organization",
+    "name": author,
+    "url": siteUrl
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "MODTOK",
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteUrl}/logo.png`
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": url
+  }
+} : null;
+---
+
+<!-- Primary Meta Tags -->
+<title>{title} | MODTOK</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+{keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={url} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={fullImageUrl} />
+<meta property="og:image:alt" content={imageAlt} />
+<meta property="og:site_name" content="MODTOK" />
+<meta property="og:locale" content="es_CL" />
+
+{type === 'article' && publishedTime && (
+  <>
+    <meta property="article:published_time" content={publishedTime} />
+    {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
+    <meta property="article:author" content={author} />
+  </>
+)}
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:url" content={url} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={fullImageUrl} />
+<meta name="twitter:image:alt" content={imageAlt} />
+
+<!-- JSON-LD Structured Data -->
+{structuredData && (
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+)}
