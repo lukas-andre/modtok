@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     const contentType = url.searchParams.get('content_type') as 'provider' | 'house' | 'service_product' | null;
 
     let query = supabase
-      .from('homepage_slots')
+      .from('slot_orders')
       .select('*')
       .order('slot_type', { ascending: true })
       .order('rotation_order', { ascending: true });
@@ -118,7 +118,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const body = await request.json();
 
     // Validate required fields
-    if (!body.slot_type || !body.slot_position || !body.start_date || !body.end_date) {
+    if (!body.slot_type || !body.start_date || !body.end_date) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
@@ -150,9 +150,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     const { data: slot, error } = await supabase
-      .from('homepage_slots')
+      .from('slot_orders')
       .insert({
-        slot_position: body.slot_position,
         slot_type: body.slot_type,
         content_type: body.content_type || null,
         content_id: body.content_id || null,
@@ -178,9 +177,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       await supabase.from('admin_actions').insert({
         admin_id: user.id,
         action_type: 'create',
-        entity_type: 'homepage_slot',
+        entity_type: 'slot_order',
         entity_id: slot.id,
-        description: `Created ${body.slot_type} slot at position ${body.slot_position}`
+        description: `Created ${body.slot_type} slot order`
       });
     }
 

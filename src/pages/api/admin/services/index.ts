@@ -22,17 +22,44 @@ export const GET: APIRoute = async ({ request, cookies }) => {
   const tier = url.searchParams.get('tier') as 'premium' | 'destacado' | 'standard' | null;
   const is_available = url.searchParams.get('is_available');
   const search = url.searchParams.get('search');
+  const region = url.searchParams.get('region'); // NEW: filter by effective coverage region
   const page = parseInt(url.searchParams.get('page') || '1');
   const limit = parseInt(url.searchParams.get('limit') || '10');
   const offset = (page - 1) * limit;
 
   try {
+    // Filter by region using service_product_effective_regions view
+    let serviceIdsInRegion: string[] | null = null;
+    if (region) {
+      const { data: regionServices } = await supabase
+        .from('service_product_effective_regions')
+        .select('service_product_id')
+        .eq('region_code', region);
+
+      serviceIdsInRegion = (regionServices || []).map((r: any) => r.service_product_id);
+
+      // If no services match region, return empty result early
+      if (serviceIdsInRegion.length === 0) {
+        return new Response(JSON.stringify({
+          data: [],
+          pagination: {
+            page,
+            limit,
+            total: 0,
+            totalPages: 0
+          }
+        }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
     let query = supabase
-      .from('services')
+      .from('service_products')
       .select(`
         *,
-        provider:providers(id, company_name, slug),
-        category:categories(id, name, slug)
+        provider:providers(id, company_name, slug)
       `, { count: 'exact' });
 
     // Apply filters
@@ -42,7 +69,8 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     if (status) query = query.eq('status', status);
     if (tier) query = query.eq('tier', tier);
     if (is_available !== null) query = query.eq('is_available', is_available === 'true');
-    
+    if (serviceIdsInRegion !== null) query = query.in('id', serviceIdsInRegion);
+
     if (search) {
       query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%,service_type.ilike.%${search}%,description.ilike.%${search}%`);
     }
@@ -57,8 +85,25 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       throw error;
     }
 
+    // Enrich each service with effective_tier from catalog_visibility_effective
+    const servicesWithEffectiveTier = await Promise.all(
+      (data || []).map(async (service: any) => {
+        const { data: visibilityData } = await supabase
+          .from('catalog_visibility_effective')
+          .select('effective_tier')
+          .eq('entity_type', 'service_product')
+          .eq('entity_id', service.id)
+          .single();
+
+        return {
+          ...service,
+          effective_tier: visibilityData?.effective_tier || service.tier
+        };
+      })
+    );
+
     return new Response(JSON.stringify({
-      data,
+      data: servicesWithEffectiveTier,
       pagination: {
         page,
         limit,
@@ -118,7 +163,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       
       // Check if slug exists and make it unique
       const { data: existing } = await supabase
-        .from('services')
+        .from('service_products')
         .select('slug')
         .eq('slug', body.slug)
         .single();
@@ -147,7 +192,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     const { data, error } = await supabase
-      .from('services')
+      .from('service_products')
       .insert([body])
       .select()
       .single();
@@ -208,7 +253,7 @@ export const PUT: APIRoute = async ({ request, cookies }) => {
     }
 
     const { data, error } = await supabase
-      .from('services')
+      .from('service_products')
       .update(updates)
       .in('id', ids)
       .select();
@@ -271,7 +316,7 @@ export const DELETE: APIRoute = async ({ request, cookies }) => {
     }
 
     const { error } = await supabase
-      .from('services')
+      .from('service_products')
       .delete()
       .in('id', ids);
 

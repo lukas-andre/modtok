@@ -22,24 +22,41 @@ export const GET: APIRoute = async ({ request, cookies }) => {
 
     // Filters
     const status = searchParams.get('status') as 'draft' | 'pending_review' | 'active' | 'inactive' | 'rejected' | null;
-    const tier = searchParams.get('tier') as 'premium' | 'destacado' | 'standard' | null;
-    const category_type = searchParams.get('category_type') as 'casas' | 'fabrica' | 'habilitacion_servicios' | null;
-    const region = searchParams.get('region');
+    const is_manufacturer = searchParams.get('is_manufacturer');
+    const is_service_provider = searchParams.get('is_service_provider');
+    const hq_region_code = searchParams.get('hq_region_code');
     const search = searchParams.get('search');
 
     // Sorting
     const sortBy = searchParams.get('sort_by') || 'created_at';
     const sortOrder = searchParams.get('sort_order') === 'asc' ? 'asc' : 'desc';
 
-    // Build query
+    // Build query - Provider minimalista model
     let query = supabase
       .from('providers')
       .select(`
-        *,
-        profile:profiles(id, full_name, email, avatar_url),
-        approved_by_profile:profiles!providers_approved_by_fkey(full_name),
-        created_by_profile:profiles!providers_created_by_fkey(full_name),
-        provider_categories(category_type, is_primary)
+        id,
+        company_name,
+        slug,
+        email,
+        phone,
+        whatsapp,
+        website,
+        description,
+        address,
+        city,
+        hq_region_code,
+        is_manufacturer,
+        is_service_provider,
+        status,
+        approved_by,
+        approved_at,
+        rejection_reason,
+        admin_notes,
+        created_at,
+        updated_at,
+        profile:profiles!providers_profile_id_fkey(id, full_name, email, avatar_url),
+        approved_by_profile:profiles!providers_approved_by_fkey(full_name)
       `, { count: 'exact' });
 
     // Apply filters
@@ -47,45 +64,36 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       query = query.eq('status', status);
     }
 
-    if (tier && ['premium', 'destacado', 'standard'].includes(tier)) {
-      query = query.eq('tier', tier);
+    if (is_manufacturer === 'true') {
+      query = query.eq('is_manufacturer', true);
+    } else if (is_manufacturer === 'false') {
+      query = query.eq('is_manufacturer', false);
     }
 
-    if (category_type && ['casas', 'fabrica', 'habilitacion_servicios'].includes(category_type)) {
-      query = query.eq('category_type', category_type);
+    if (is_service_provider === 'true') {
+      query = query.eq('is_service_provider', true);
+    } else if (is_service_provider === 'false') {
+      query = query.eq('is_service_provider', false);
     }
 
-    if (region) {
-      query = query.eq('region', region);
+    if (hq_region_code) {
+      query = query.eq('hq_region_code', hq_region_code);
     }
 
     if (search) {
       query = query.or(`company_name.ilike.%${search}%,email.ilike.%${search}%,description.ilike.%${search}%`);
     }
 
-    // Apply sorting
+    // Apply sorting - Provider minimalista fields only
     const validSortFields = [
-      'created_at', 
-      'updated_at', 
-      'company_name', 
-      'tier', 
-      'status', 
-      'views_count', 
-      'inquiries_count',
-      'internal_rating',
-      'featured_order'
+      'created_at',
+      'updated_at',
+      'company_name',
+      'status'
     ];
-    
+
     if (validSortFields.includes(sortBy)) {
-      if (sortBy === 'featured_order') {
-        // Handle featured order with nulls last
-        query = query.order('featured_order', { 
-          ascending: sortOrder === 'asc', 
-          nullsFirst: false 
-        });
-      } else {
-        query = query.order(sortBy, { ascending: sortOrder === 'asc' });
-      }
+      query = query.order(sortBy, { ascending: sortOrder === 'asc' });
     }
 
     // Apply pagination
@@ -177,41 +185,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
             };
             break;
 
-          case 'change_tier':
-            if (!data?.tier || !['premium', 'destacado', 'standard'].includes(data.tier)) {
-              throw new Error('Invalid tier');
-            }
-            updateData = {
-              ...updateData,
-              tier: data.tier as 'premium' | 'destacado' | 'standard',
-              ...(data.tier === 'premium' && data.premium_until && {
-                premium_until: new Date(data.premium_until).toISOString()
-              }),
-              ...(data.tier === 'destacado' && data.featured_until && {
-                featured_until: new Date(data.featured_until).toISOString(),
-                featured_order: data.featured_order ? parseInt(data.featured_order) : null
-              })
-            };
-            break;
-
-          case 'set_featured':
-            updateData = {
-              ...updateData,
-              featured_until: data?.featured_until ? new Date(data.featured_until).toISOString() : null,
-              featured_order: data?.featured_order ? parseInt(data.featured_order) : null
-            };
-            break;
-
-          case 'set_rating':
-            if (!data?.internal_rating || data.internal_rating < 1 || data.internal_rating > 5) {
-              throw new Error('Invalid rating (must be 1-5)');
-            }
-            updateData = {
-              ...updateData,
-              internal_rating: parseInt(data.internal_rating)
-            };
-            break;
-
           default:
             throw new Error('Invalid action');
         }
@@ -220,7 +193,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           .from('providers')
           .update(updateData)
           .eq('id', providerId)
-          .select('id, company_name, status, tier')
+          .select('id, company_name, status')
           .single();
 
         if (error) {

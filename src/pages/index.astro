@@ -1,8 +1,21 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import ErrorBanner from '@/components/ErrorBanner.astro';
 import { getUser } from '@/lib/supabase';
 
 const user = await getUser(Astro);
+
+// Get error from URL params
+const url = new URL(Astro.request.url);
+const error = url.searchParams.get('error');
+const errorType = url.searchParams.get('type');
+const errorSlug = url.searchParams.get('slug');
+
+// Build custom error message
+let errorMessage = undefined;
+if (error === 'not-found' && errorType && errorSlug) {
+  errorMessage = `No encontramos ${errorType === 'casa' ? 'la casa' : 'el fabricante'} "${errorSlug}". Puede que haya sido eliminado o el enlace sea incorrecto.`;
+}
 ---
 
 <BaseLayout>
@@ -42,6 +55,11 @@ const user = await getUser(Astro);
     </header>
 
     <main>
+      {error && (
+        <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+          <ErrorBanner errorType={error} message={errorMessage} />
+        </div>
+      )}
       <div class="relative">
         <div class="mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8">
           <div class="text-center">

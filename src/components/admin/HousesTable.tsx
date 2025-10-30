@@ -19,23 +19,27 @@ interface House {
   clicks_count: number | null;
   inquiries_count: number | null;
   saves_count: number | null;
+  topology_code: string | null;
   provider: {
     company_name: string;
     slug: string;
   } | null;
-  topology: {
-    code: string;
-    bedrooms: number;
-    bathrooms: number;
-  } | null;
+}
+
+interface Topology {
+  code: string;
+  description: string;
+  bedrooms: number;
+  bathrooms: number;
 }
 
 interface HousesTableProps {
   houses: House[];
+  topologyMap: Record<string, Topology>;
   userRole: string;
 }
 
-export default function HousesTable({ houses, userRole }: HousesTableProps) {
+export default function HousesTable({ houses, topologyMap, userRole }: HousesTableProps) {
   const columns = [
     {
       key: 'name',
@@ -60,7 +64,7 @@ export default function HousesTable({ houses, userRole }: HousesTableProps) {
           </div>
           <div className="min-w-0 flex-1">
             <a
-              href={`/admin/catalog/houses/${row.id}/edit`}
+              href={`/admin/houses/${row.id}/edit`}
               className="text-sm font-semibold text-gray-900 hover:text-accent-blue transition-colors block truncate"
             >
               {row.name}
@@ -102,31 +106,34 @@ export default function HousesTable({ houses, userRole }: HousesTableProps) {
     {
       key: 'topology',
       label: 'Topología',
-      render: (_: any, row: House) => (
-        <div className="text-sm">
-          {row.topology ? (
-            <div>
-              <div className="font-semibold text-gray-900">{row.topology.code}</div>
-              <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
-                <span className="flex items-center gap-0.5">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
-                  {row.topology.bedrooms}
-                </span>
-                <span className="flex items-center gap-0.5">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  {row.topology.bathrooms}
-                </span>
+      render: (_: any, row: House) => {
+        const topology = row.topology_code ? topologyMap[row.topology_code] : null;
+        return (
+          <div className="text-sm">
+            {topology ? (
+              <div>
+                <div className="font-semibold text-gray-900">{topology.code}</div>
+                <div className="text-xs text-gray-500 mt-0.5 flex items-center gap-2">
+                  <span className="flex items-center gap-0.5">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    {topology.bedrooms}
+                  </span>
+                  <span className="flex items-center gap-0.5">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    {topology.bathrooms}
+                  </span>
+                </div>
               </div>
-            </div>
-          ) : (
-            <span className="text-gray-400 italic">N/A</span>
-          )}
-        </div>
-      ),
+            ) : (
+              <span className="text-gray-400 italic">N/A</span>
+            )}
+          </div>
+        );
+      },
       width: '140px'
     },
     {
@@ -208,7 +215,7 @@ export default function HousesTable({ houses, userRole }: HousesTableProps) {
   };
 
   const handleEdit = (house: House) => {
-    window.location.href = `/admin/catalog/houses/${house.id}/edit`;
+    window.location.href = `/admin/houses/${house.id}/edit`;
   };
 
   const handleDuplicate = async (house: House) => {

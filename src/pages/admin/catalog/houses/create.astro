@@ -13,17 +13,16 @@ if (!user) {
 
 const supabase = createSupabaseClient(Astro);
 
-// Get providers that offer houses (have "casas" category)
+// Read provider_id from query parameter for pre-selection
+const url = new URL(Astro.request.url);
+const preselectedProviderId = url.searchParams.get('provider_id');
+
+// Get manufacturers (Provider minimalista model)
 const { data: providers } = await supabase
   .from('providers')
-  .select(`
-    id,
-    company_name,
-    tier,
-    provider_categories!inner(category_type)
-  `)
+  .select('id, company_name')
   .eq('status', 'active')
-  .eq('provider_categories.category_type', 'casas')
+  .eq('is_manufacturer', true)
   .order('company_name');
 
 // Get topologies for dropdown
@@ -61,6 +60,7 @@ const { data: topologies } = await supabase
       providers={providers || []}
       topologies={topologies || []}
       mode="create"
+      initialData={preselectedProviderId ? { provider_id: preselectedProviderId } : undefined}
     />
   </div>
 </AdminLayout>

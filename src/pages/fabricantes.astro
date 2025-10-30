@@ -1,0 +1,93 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ManufacturersGrid from '@/components/manufacturers/ManufacturersGrid';
+---
+
+<BaseLayout
+  title="Fabricantes de Casas Modulares en Chile | MODTOK"
+  description="Encuentra los mejores fabricantes de casas modulares y prefabricadas en Chile. Compara servicios, especialidades, precios y regiones de cobertura."
+>
+  <!-- Hero Section -->
+  <div class="bg-gradient-to-b from-primary/5 to-white">
+    <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+          Fabricantes de Casas Modulares
+        </h1>
+        <p class="mx-auto mt-6 max-w-2xl text-xl text-gray-600">
+          Conecta con los mejores fabricantes de casas modulares y prefabricadas de Chile.
+          Filtra por región, servicios, especialidad y más.
+        </p>
+      </div>
+
+      <!-- Stats -->
+      <div class="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+          <div class="text-3xl font-bold text-primary">100+</div>
+          <div class="mt-1 text-sm text-gray-600">Fabricantes</div>
+        </div>
+        <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+          <div class="text-3xl font-bold text-primary">16</div>
+          <div class="mt-1 text-sm text-gray-600">Regiones</div>
+        </div>
+        <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+          <div class="text-3xl font-bold text-primary">10+</div>
+          <div class="mt-1 text-sm text-gray-600">Servicios</div>
+        </div>
+        <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+          <div class="text-3xl font-bold text-primary">500+</div>
+          <div class="mt-1 text-sm text-gray-600">Modelos</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <ManufacturersGrid client:load />
+  </div>
+
+  <!-- SEO Content -->
+  <div class="bg-gray-50 py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="prose max-w-none">
+        <h2 class="text-3xl font-bold text-gray-900">¿Por qué elegir un fabricante en MODTOK?</h2>
+
+        <div class="mt-8 grid gap-8 md:grid-cols-3">
+          <div>
+            <h3 class="text-xl font-semibold text-gray-900">✅ Verificados</h3>
+            <p class="mt-2 text-gray-600">
+              Fabricantes con casas publicadas y verificadas. Transparencia total en capacidades y precios.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-gray-900">🗺️ Cobertura Nacional</h3>
+            <p class="mt-2 text-gray-600">
+              Filtra por región para encontrar fabricantes que operan en tu zona. Desde Arica a Punta Arenas.
+            </p>
+          </div>
+          <div>
+            <h3 class="text-xl font-semibold text-gray-900">💰 Compara Precios</h3>
+            <p class="mt-2 text-gray-600">
+              Precios referenciales por m² para que puedas comparar y tomar la mejor decisión.
+            </p>
+          </div>
+        </div>
+
+        <h3 class="mt-12 text-2xl font-bold text-gray-900">Tipos de Casas Modulares</h3>
+        <p class="mt-4 text-gray-700">
+          En MODTOK encontrarás fabricantes especializados en diferentes tecnologías: <strong>Tiny Houses</strong>,
+          <strong>Modulares SIP</strong>, <strong>Modulares Container</strong>, <strong>Modulares de Hormigón</strong>,
+          <strong>Modulares de Madera</strong>, <strong>Prefabricadas Tradicionales</strong> y <strong>Oficinas Modulares</strong>.
+        </p>
+
+        <h3 class="mt-8 text-2xl font-bold text-gray-900">Servicios Disponibles</h3>
+        <p class="mt-4 text-gray-700">
+          Nuestros fabricantes ofrecen servicios integrales: diseño estándar y personalizado, instalación premontada,
+          construcción en terreno, kits de autoconstrucción, asesoría técnica y legal, logística y transporte,
+          y financiamiento. Encuentra el servicio perfecto para tu proyecto.
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

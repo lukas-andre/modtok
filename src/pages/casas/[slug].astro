@@ -1,0 +1,375 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ErrorBanner from '@/components/ErrorBanner.astro';
+import { createSupabaseClient } from '@/lib/supabase';
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/?error=invalid-slug');
+}
+
+const supabase = createSupabaseClient(Astro);
+
+// Fetch house by slug with provider info
+const { data: house, error } = await supabase
+  .from('houses')
+  .select(`
+    *,
+    provider:providers(id, company_name, slug, logo_url, is_manufacturer, hq_region_code)
+  `)
+  .eq('slug', slug)
+  .eq('status', 'active')
+  .single();
+
+if (error || !house) {
+  return Astro.redirect(`/?error=not-found&type=casa&slug=${slug}`);
+}
+
+// Fetch topology info separately (no FK relationship)
+let topology = null;
+if (house.topology_code) {
+  const { data: topologyData } = await supabase
+    .from('house_topologies')
+    .select('code, description, bedrooms, bathrooms')
+    .eq('code', house.topology_code)
+    .eq('is_active', true)
+    .single();
+
+  topology = topologyData;
+}
+
+// Format price
+const formatPrice = (price: number | null) => {
+  if (!price) return 'Consultar';
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    maximumFractionDigits: 0
+  }).format(price);
+};
+
+// Format area
+const formatArea = (area: number | null) => {
+  if (!area) return 'N/A';
+  return `${area}m²`;
+};
+
+// Get gallery images (main_image_url + gallery_images array)
+const galleryImages = [
+  house.main_image_url,
+  ...(house.gallery_images || [])
+].filter(Boolean);
+
+// Fetch related houses (same topology or same provider, excluding current house)
+const { data: relatedHouses } = await supabase
+  .from('houses')
+  .select('id, name, slug, main_image_url, area_m2, price, topology_code, bedrooms, bathrooms')
+  .or(`topology_code.eq.${house.topology_code},provider_id.eq.${house.provider_id}`)
+  .neq('id', house.id)
+  .eq('status', 'active')
+  .order('created_at', { ascending: false })
+  .limit(3);
+
+const pageTitle = `${house.name} - Casas Modulares y Prefabricadas | MODTOK`;
+const pageDescription = house.description || `Casa ${house.name} - ${topology?.description || ''} disponible en MODTOK`;
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+      <ol class="flex items-center space-x-2 text-gray-500">
+        <li><a href="/" class="hover:text-accent-blue">Inicio</a></li>
+        <li>&gt;</li>
+        <li><a href="/casas" class="hover:text-accent-blue">Casas</a></li>
+        <li>&gt;</li>
+        <li class="text-gray-900 font-medium">{house.name}</li>
+      </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Left Column - Images & Details -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- Main Image Gallery -->
+        {galleryImages.length > 0 ? (
+          <div class="rounded-xl overflow-hidden shadow-lg">
+            <img
+              src={galleryImages[0]}
+              alt={house.name}
+              class="w-full h-96 object-cover"
+            />
+            {galleryImages.length > 1 && (
+              <div class="grid grid-cols-4 gap-2 p-4 bg-white">
+                {galleryImages.slice(1, 5).map((img: string) => (
+                  <img
+                    src={img}
+                    alt={house.name}
+                    class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75 transition"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div class="rounded-xl bg-gray-100 h-96 flex items-center justify-center">
+            <span class="text-gray-400">Sin imágenes disponibles</span>
+          </div>
+        )}
+
+        <!-- House Title & Basic Info -->
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">{house.name}</h1>
+          {house.model_code && (
+            <p class="text-gray-600 mb-4">Modelo: {house.model_code}</p>
+          )}
+
+          <!-- Quick Stats -->
+          <div class="flex flex-wrap gap-4 mb-6">
+            {house.area_m2 && (
+              <div class="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+                </svg>
+                <span class="font-semibold text-blue-900">{formatArea(house.area_m2)}</span>
+              </div>
+            )}
+
+            {topology && (
+              <div class="flex items-center gap-4">
+                {topology.bedrooms && (
+                  <div class="flex items-center gap-2 px-4 py-2 bg-green-50 rounded-lg">
+                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span class="font-semibold text-green-900">{topology.bedrooms} Dorm.</span>
+                  </div>
+                )}
+                {topology.bathrooms && (
+                  <div class="flex items-center gap-2 px-4 py-2 bg-purple-50 rounded-lg">
+                    <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="font-semibold text-purple-900">{topology.bathrooms} Baños</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <!-- Description -->
+          {house.description && (
+            <div class="prose prose-gray max-w-none">
+              <p>{house.description}</p>
+            </div>
+          )}
+        </div>
+
+        <!-- Features -->
+        {house.features && Object.keys(house.features).length > 0 && (
+          <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Características</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {Object.entries(house.features).map(([key, value]) => (
+                <div class="flex items-center gap-2">
+                  <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                  <span class="text-gray-700">{key}: <strong>{value}</strong></span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Technical Details -->
+        {house.delivery_time_weeks && (
+          <div class="bg-blue-50 rounded-xl p-6">
+            <h3 class="font-semibold text-blue-900 mb-2">Tiempo de Entrega</h3>
+            <p class="text-blue-700">{house.delivery_time_weeks} semanas</p>
+          </div>
+        )}
+
+      </div>
+
+      <!-- Right Column - Provider & Contact -->
+      <div class="space-y-6">
+
+        <!-- Price Card -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-lg sticky top-4">
+          <div class="text-center mb-6">
+            <p class="text-sm text-gray-500 mb-1">Precio</p>
+            <p class="text-3xl font-bold text-accent-blue">{formatPrice(house.price)}</p>
+            {house.price_per_m2 && (
+              <p class="text-sm text-gray-500 mt-1">{formatPrice(house.price_per_m2)}/m²</p>
+            )}
+          </div>
+
+          <div class="space-y-3">
+            <a
+              href={`#contacto`}
+              class="block w-full bg-accent-blue text-white text-center py-3 rounded-lg font-semibold hover:bg-accent-blue-dark transition shadow-sm"
+            >
+              Solicitar Cotización
+            </a>
+            <a
+              href={`tel:${house.provider?.phone || ''}`}
+              class="block w-full bg-green-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-green-700 transition shadow-sm"
+            >
+              Llamar Ahora
+            </a>
+          </div>
+        </div>
+
+        <!-- Provider Card -->
+        {house.provider && (
+          <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Fabricante</h3>
+            <div class="flex items-center gap-4 mb-4">
+              {house.provider.logo_url ? (
+                <img
+                  src={house.provider.logo_url}
+                  alt={house.provider.company_name}
+                  class="w-16 h-16 rounded-lg object-cover"
+                />
+              ) : (
+                <div class="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center">
+                  <span class="text-2xl font-bold text-gray-400">
+                    {house.provider.company_name.charAt(0)}
+                  </span>
+                </div>
+              )}
+              <div>
+                <h4 class="font-semibold text-gray-900">{house.provider.company_name}</h4>
+                {house.provider.hq_region_code && (
+                  <p class="text-sm text-gray-500">{house.provider.hq_region_code}</p>
+                )}
+              </div>
+            </div>
+            <a
+              href={`/fabricantes/${house.provider.slug}`}
+              class="block w-full text-center py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm font-medium"
+            >
+              Ver Perfil del Fabricante
+            </a>
+          </div>
+        )}
+
+        <!-- Trust Badges -->
+        <div class="bg-gray-50 rounded-xl p-6">
+          <h3 class="font-semibold text-gray-900 mb-4">Garantías</h3>
+          <div class="space-y-3 text-sm text-gray-600">
+            <div class="flex items-start gap-2">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span>Fabricantes Verificados</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span>Garantía Estructural</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span>Entrega Certificada</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Related Houses -->
+    {relatedHouses && relatedHouses.length > 0 && (
+      <div class="mt-16">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Casas Similares</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedHouses.map((relatedHouse: any) => (
+            <a
+              href={`/casas/${relatedHouse.slug}`}
+              class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
+            >
+              {/* Image */}
+              {relatedHouse.main_image_url ? (
+                <div class="aspect-video overflow-hidden bg-gray-100">
+                  <img
+                    src={relatedHouse.main_image_url}
+                    alt={relatedHouse.name}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              ) : (
+                <div class="aspect-video bg-gray-200 flex items-center justify-center">
+                  <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                </div>
+              )}
+
+              {/* Content */}
+              <div class="p-4">
+                <h3 class="font-bold text-gray-900 group-hover:text-accent-blue transition mb-2">
+                  {relatedHouse.name}
+                </h3>
+
+                {/* Stats */}
+                <div class="flex items-center gap-3 text-sm text-gray-600 mb-3">
+                  {relatedHouse.area_m2 && (
+                    <span class="flex items-center gap-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
+                      </svg>
+                      {formatArea(relatedHouse.area_m2)}
+                    </span>
+                  )}
+                  {relatedHouse.bedrooms && (
+                    <span class="flex items-center gap-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
+                      {relatedHouse.bedrooms}D
+                    </span>
+                  )}
+                  {relatedHouse.bathrooms && (
+                    <span class="flex items-center gap-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {relatedHouse.bathrooms}B
+                    </span>
+                  )}
+                </div>
+
+                {/* Price */}
+                <div class="text-lg font-bold text-accent-blue">
+                  {formatPrice(relatedHouse.price)}
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        {/* View All Link */}
+        <div class="mt-6 text-center">
+          <a
+            href="/casas"
+            class="inline-flex items-center gap-2 text-accent-blue hover:text-accent-blue-dark font-semibold transition"
+          >
+            Ver Todas las Casas
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    )}
+
+  </div>
+</BaseLayout>

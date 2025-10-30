@@ -27,8 +27,7 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
       .from('houses')
       .select(`
         *,
-        provider:providers(id, company_name, slug),
-        topology:house_topologies(id, code, bedrooms, bathrooms, description)
+        provider:providers(id, company_name, slug)
       `)
       .eq('id', houseId)
       .single();
@@ -43,7 +42,20 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
       throw error;
     }
 
-    return new Response(JSON.stringify(data), {
+    // Get effective tier from catalog_visibility_effective view
+    const { data: visibilityData } = await supabase
+      .from('catalog_visibility_effective')
+      .select('effective_tier')
+      .eq('entity_type', 'house')
+      .eq('entity_id', houseId)
+      .single();
+
+    const houseWithEffectiveTier = {
+      ...data,
+      effective_tier: visibilityData?.effective_tier || data.tier
+    };
+
+    return new Response(JSON.stringify(houseWithEffectiveTier), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });

@@ -12,17 +12,12 @@ if (!user) {
 
 const supabase = createSupabaseClient(Astro);
 
-// Get providers that offer fabrication services (have "fabricantes" category)
+// Get manufacturers (Provider minimalista: is_manufacturer=true)
 const { data: providers } = await supabase
   .from('providers')
-  .select(`
-    id,
-    company_name,
-    tier,
-    provider_categories!inner(category_type)
-  `)
+  .select('id, company_name')
   .eq('status', 'active')
-  .eq('provider_categories.category_type', 'fabricantes')
+  .eq('is_manufacturer', true)
   .order('company_name');
 
 // Get Chilean regions for dropdown

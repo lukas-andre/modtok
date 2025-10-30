@@ -37,13 +37,10 @@ if (error || !provider) {
   return Astro.redirect('/admin/providers?error=Provider not found');
 }
 
-// Fetch provider categories
-const { data: providerCategoriesData } = await supabase
-  .from('provider_categories')
-  .select('category_type')
-  .eq('provider_id', id);
-
-const providerCategories = providerCategoriesData?.map(pc => pc.category_type) || [];
+// Get provider roles (Provider minimalista model)
+const providerRoles = [];
+if (provider.is_manufacturer) providerRoles.push('Fabricante');
+if (provider.is_service_provider) providerRoles.push('Servicios');
 
 // Helper function to format date
 const formatDate = (dateString: string | null) => {
@@ -212,18 +209,18 @@ const formatCategoryName = (categoryType: string) => {
                 </div>
               )}
               <div>
-                <dt class="text-sm font-medium text-gray-500">Categorías</dt>
+                <dt class="text-sm font-medium text-gray-500">Roles</dt>
                 <dd class="mt-1">
-                  {providerCategories.length > 0 ? (
+                  {providerRoles.length > 0 ? (
                     <div class="flex flex-wrap gap-2">
-                      {providerCategories.map(category => (
+                      {providerRoles.map((role: string) => (
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {formatCategoryName(category)}
+                          {role}
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <span class="text-sm text-gray-500">No hay categorías asignadas</span>
+                    <span class="text-sm text-gray-500">No hay roles asignados</span>
                   )}
                 </dd>
               </div>

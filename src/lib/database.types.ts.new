@@ -1,0 +1,14 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+// ... (types auto-generated por mcp__supabase__generate_typescript_types)
+
+// P0.5: Service Coverage Type Aliases
+export type ServiceProductCoverageDelta = Tables<'service_product_coverage_deltas'>
+export type ServiceProductCoverageDeltaInsert = TablesInsert<'service_product_coverage_deltas'>
+export type ServiceProductEffectiveRegion = Tables<'service_product_effective_regions'>

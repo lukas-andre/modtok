@@ -1,8 +1,9 @@
 ---
-import AdminLayout from '../../../../layouts/AdminLayout.astro';
-import { getAdminAuth, requireAdmin } from '../../../../lib/auth';
-import { createSupabaseClient } from '../../../../lib/supabase';
-import ProviderMultipleServicesForm from '../../../../components/admin/ProviderMultipleServicesForm';
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '@/lib/auth';
+import { createSupabaseClient } from '@/lib/supabase';
+import ProviderForm from '@/components/admin/forms/ProviderForm';
+import ManufacturerProfileEditor from '@/components/admin/forms/ManufacturerProfileEditor';
 
 // Protect this page - only admins can access
 const auth = await getAdminAuth(Astro);
@@ -30,50 +31,39 @@ if (error || !provider) {
   return Astro.redirect('/admin/providers?error=Provider not found');
 }
 
-// Prepare initial data for the form
+// Fetch coverage regions
+const { data: coverageData } = await supabase
+  .from('provider_coverage_regions')
+  .select('region_code')
+  .eq('provider_id', id);
+
+const coverage_regions = coverageData?.map(r => r.region_code) || [];
+
+// Prepare initial data for the form - Provider minimalista
 const initialData = {
+  // Identity
   company_name: provider.company_name,
+  slug: provider.slug,
   email: provider.email,
   phone: provider.phone,
   website: provider.website,
   whatsapp: provider.whatsapp,
   description: provider.description,
+
+  // HQ Location
   address: provider.address,
   city: provider.city,
-  region: provider.region,
+  hq_region_code: provider.hq_region_code,
 
-  // Services (NEW)
+  // Capabilities
   is_manufacturer: provider.is_manufacturer || false,
   is_service_provider: provider.is_service_provider || false,
 
-  features: provider.features || {},
+  // Coverage
+  coverage_regions: coverage_regions,
 
-  years_experience: provider.years_experience,
-  specialties: provider.specialties || [],
-  services_offered: provider.services_offered || [],
-  coverage_areas: provider.coverage_areas || [],
-  price_range_min: provider.price_range_min,
-  price_range_max: provider.price_range_max,
-  price_per_m2_min: provider.price_per_m2_min,
-  price_per_m2_max: provider.price_per_m2_max,
-  llave_en_mano: provider.llave_en_mano || false,
-  financing_available: provider.financing_available || false,
-
-  tier: provider.tier,
+  // Moderation
   status: provider.status,
-
-  // Editorial Flags (NEW)
-  has_quality_images: provider.has_quality_images || false,
-  has_complete_info: provider.has_complete_info || false,
-  editor_approved_for_premium: provider.editor_approved_for_premium || false,
-  has_landing_page: provider.has_landing_page || false,
-  landing_slug: provider.landing_slug || '',
-
-  featured_until: provider.featured_until,
-  premium_until: provider.premium_until,
-  featured_order: provider.featured_order,
-  internal_rating: provider.internal_rating,
-
   admin_notes: provider.admin_notes || ''
 };
 ---
@@ -132,7 +122,7 @@ const initialData = {
       </div>
     </div>
 
-    <!-- Info Box -->}
+    <!-- Info Box -->
     <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
       <div class="flex items-start">
         <svg class="w-5 h-5 text-blue-400 mt-0.5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,11 +138,31 @@ const initialData = {
     </div>
 
     <!-- Form Component -->
-    <ProviderMultipleServicesForm
+    <ProviderForm
       client:load
       mode="edit"
       providerId={id}
       initialData={initialData}
     />
+
+    <!-- Manufacturer Profile Editor (solo para fabricantes) -->
+    {provider.is_manufacturer && (
+      <div class="mt-12 pt-8 border-t border-gray-300">
+        <div class="mb-6">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">
+            🏭 Perfil de Fabricante
+          </h3>
+          <p class="text-gray-600">
+            Gestiona las capacidades declaradas del fabricante. Estas capacidades se combinan con las verificadas desde las casas publicadas.
+          </p>
+        </div>
+
+        <ManufacturerProfileEditor
+          client:load
+          providerId={id}
+          companyName={provider.company_name}
+        />
+      </div>
+    )}
   </div>
 </AdminLayout>

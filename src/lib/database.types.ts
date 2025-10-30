@@ -21,7 +21,7 @@ export type Database = {
           changes: Json | null
           created_at: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           target_id: string | null
           target_type: string
           user_agent: string | null
@@ -32,7 +32,7 @@ export type Database = {
           changes?: Json | null
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_id?: string | null
           target_type: string
           user_agent?: string | null
@@ -43,7 +43,7 @@ export type Database = {
           changes?: Json | null
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_id?: string | null
           target_type?: string
           user_agent?: string | null
@@ -71,7 +71,7 @@ export type Database = {
           event_type: string
           event_value: number | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           os: string | null
           page_url: string | null
           referrer_url: string | null
@@ -97,7 +97,7 @@ export type Database = {
           event_type: string
           event_value?: number | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           os?: string | null
           page_url?: string | null
           referrer_url?: string | null
@@ -123,7 +123,7 @@ export type Database = {
           event_type?: string
           event_value?: number | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           os?: string | null
           page_url?: string | null
           referrer_url?: string | null
@@ -363,51 +363,6 @@ export type Database = {
         }
         Relationships: []
       }
-      homepage_slots: {
-        Row: {
-          content_id: string | null
-          content_type: string | null
-          created_at: string | null
-          end_date: string | null
-          id: string
-          is_active: boolean | null
-          monthly_price: number | null
-          rotation_order: number | null
-          slot_position: number
-          slot_type: string
-          start_date: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          content_id?: string | null
-          content_type?: string | null
-          created_at?: string | null
-          end_date?: string | null
-          id?: string
-          is_active?: boolean | null
-          monthly_price?: number | null
-          rotation_order?: number | null
-          slot_position: number
-          slot_type: string
-          start_date?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          content_id?: string | null
-          content_type?: string | null
-          created_at?: string | null
-          end_date?: string | null
-          id?: string
-          is_active?: boolean | null
-          monthly_price?: number | null
-          rotation_order?: number | null
-          slot_position?: number
-          slot_type?: string
-          start_date?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       house_topologies: {
         Row: {
           bathrooms: number
@@ -479,7 +434,7 @@ export type Database = {
           price: number | null
           price_opportunity: number | null
           price_per_m2: number | null
-          provider_id: string | null
+          provider_id: string
           sales_count: number | null
           saves_count: number | null
           sku: string | null
@@ -536,7 +491,7 @@ export type Database = {
           price?: number | null
           price_opportunity?: number | null
           price_per_m2?: number | null
-          provider_id?: string | null
+          provider_id: string
           sales_count?: number | null
           saves_count?: number | null
           sku?: string | null
@@ -593,7 +548,7 @@ export type Database = {
           price?: number | null
           price_opportunity?: number | null
           price_per_m2?: number | null
-          provider_id?: string | null
+          provider_id?: string
           sales_count?: number | null
           saves_count?: number | null
           sku?: string | null
@@ -617,6 +572,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "houses"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "houses_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturer_facets_effective"
+            referencedColumns: ["provider_id"]
           },
           {
             foreignKeyName: "houses_provider_id_fkey"
@@ -697,6 +659,13 @@ export type Database = {
             foreignKeyName: "inquiries_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
+            referencedRelation: "manufacturer_facets_effective"
+            referencedColumns: ["provider_id"]
+          },
+          {
+            foreignKeyName: "inquiries_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
             referencedRelation: "providers"
             referencedColumns: ["id"]
           },
@@ -715,6 +684,170 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      manufacturer_profiles: {
+        Row: {
+          ases_legal: boolean | null
+          ases_tecnica: boolean | null
+          contr_terreno: boolean | null
+          created_at: string | null
+          declared_at: string | null
+          declared_by: string | null
+          dise_pers: boolean | null
+          dise_std: boolean | null
+          experiencia_years: number | null
+          financiamiento: boolean | null
+          insta_premontada: boolean | null
+          instalacion: boolean | null
+          kit_autocons: boolean | null
+          llave_en_mano: boolean | null
+          logist_transporte: boolean | null
+          modulares_container: boolean | null
+          modulares_hormigon: boolean | null
+          modulares_madera: boolean | null
+          modulares_sip: boolean | null
+          oficinas_modulares: boolean | null
+          precio_ref_max_m2: number | null
+          precio_ref_min_m2: number | null
+          prefabricada_tradicional: boolean | null
+          provider_id: string
+          publica_precios: boolean | null
+          tiny_houses: boolean | null
+          updated_at: string | null
+          verified_by_admin: boolean | null
+        }
+        Insert: {
+          ases_legal?: boolean | null
+          ases_tecnica?: boolean | null
+          contr_terreno?: boolean | null
+          created_at?: string | null
+          declared_at?: string | null
+          declared_by?: string | null
+          dise_pers?: boolean | null
+          dise_std?: boolean | null
+          experiencia_years?: number | null
+          financiamiento?: boolean | null
+          insta_premontada?: boolean | null
+          instalacion?: boolean | null
+          kit_autocons?: boolean | null
+          llave_en_mano?: boolean | null
+          logist_transporte?: boolean | null
+          modulares_container?: boolean | null
+          modulares_hormigon?: boolean | null
+          modulares_madera?: boolean | null
+          modulares_sip?: boolean | null
+          oficinas_modulares?: boolean | null
+          precio_ref_max_m2?: number | null
+          precio_ref_min_m2?: number | null
+          prefabricada_tradicional?: boolean | null
+          provider_id: string
+          publica_precios?: boolean | null
+          tiny_houses?: boolean | null
+          updated_at?: string | null
+          verified_by_admin?: boolean | null
+        }
+        Update: {
+          ases_legal?: boolean | null
+          ases_tecnica?: boolean | null
+          contr_terreno?: boolean | null
+          created_at?: string | null
+          declared_at?: string | null
+          declared_by?: string | null
+          dise_pers?: boolean | null
+          dise_std?: boolean | null
+          experiencia_years?: number | null
+          financiamiento?: boolean | null
+          insta_premontada?: boolean | null
+          instalacion?: boolean | null
+          kit_autocons?: boolean | null
+          llave_en_mano?: boolean | null
+          logist_transporte?: boolean | null
+          modulares_container?: boolean | null
+          modulares_hormigon?: boolean | null
+          modulares_madera?: boolean | null
+          modulares_sip?: boolean | null
+          oficinas_modulares?: boolean | null
+          precio_ref_max_m2?: number | null
+          precio_ref_min_m2?: number | null
+          prefabricada_tradicional?: boolean | null
+          provider_id?: string
+          publica_precios?: boolean | null
+          tiny_houses?: boolean | null
+          updated_at?: string | null
+          verified_by_admin?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manufacturer_profiles_declared_by_fkey"
+            columns: ["declared_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manufacturer_profiles_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "manufacturer_facets_effective"
+            referencedColumns: ["provider_id"]
+          },
+          {
+            foreignKeyName: "manufacturer_profiles_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manufacturer_profiles_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "providers_with_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_assets: {
+        Row: {
+          alt_text: string | null
+          caption: string | null
+          created_at: string | null
+          id: string
+          kind: string
+          meta: Json | null
+          owner_id: string
+          owner_type: string
+          sort_order: number | null
+          updated_at: string | null
+          url: string
+        }
+        Insert: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string | null
+          id?: string
+          kind: string
+          meta?: Json | null
+          owner_id: string
+          owner_type: string
+          sort_order?: number | null
+          updated_at?: string | null
+          url: string
+        }
+        Update: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string | null
+          id?: string
+          kind?: string
+          meta?: Json | null
+          owner_id?: string
+          owner_type?: string
+          sort_order?: number | null
+          updated_at?: string | null
+          url?: string
+        }
+        Relationships: []
       }
       news_posts: {
         Row: {
@@ -877,7 +1010,53 @@ export type Database = {
         }
         Relationships: []
       }
-      provider_categories: {
+      provider_aliases: {
+        Row: {
+          created_at: string | null
+          id: string
+          kind: string
+          provider_id: string
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          kind: string
+          provider_id: string
+          value: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          kind?: string
+          provider_id?: string
+          value?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_aliases_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturer_facets_effective"
+            referencedColumns: ["provider_id"]
+          },
+          {
+            foreignKeyName: "provider_aliases_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_aliases_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers_with_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_categories_deprecated_20251029: {
         Row: {
           category: Database["public"]["Enums"]["category_type"]
           created_at: string | null
@@ -904,6 +1083,13 @@ export type Database = {
             foreignKeyName: "provider_categories_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
+            referencedRelation: "manufacturer_facets_effective"
+            referencedColumns: ["provider_id"]
+          },
+          {
+            foreignKeyName: "provider_categories_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
             referencedRelation: "providers"
             referencedColumns: ["id"]
           },
@@ -916,6 +1102,56 @@ export type Database = {
           },
         ]
       }
+      provider_coverage_regions: {
+        Row: {
+          created_at: string | null
+          id: string
+          provider_id: string
+          region_code: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          provider_id: string
+          region_code: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          provider_id?: string
+          region_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_coverage_regions_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturer_facets_effective"
+            referencedColumns: ["provider_id"]
+          },
+          {
+            foreignKeyName: "provider_coverage_regions_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_coverage_regions_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers_with_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_coverage_regions_region_code_fkey"
+            columns: ["region_code"]
+            isOneToOne: false
+            referencedRelation: "regions_lkp"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       providers: {
         Row: {
           address: string | null
@@ -923,14 +1159,123 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           city: string | null
-          clicks_count: number | null
           company_name: string
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          email: string
+          has_complete_info: boolean | null
+          has_quality_images: boolean | null
+          hq_region_code: string | null
+          id: string
+          is_manufacturer: boolean | null
+          is_service_provider: boolean | null
+          logo_url: string | null
+          metadata: Json | null
+          phone: string | null
+          profile_id: string | null
+          rejection_reason: string | null
+          slug: string
+          status: Database["public"]["Enums"]["listing_status"] | null
+          updated_at: string | null
+          website: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          admin_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          city?: string | null
+          company_name: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          email: string
+          has_complete_info?: boolean | null
+          has_quality_images?: boolean | null
+          hq_region_code?: string | null
+          id?: string
+          is_manufacturer?: boolean | null
+          is_service_provider?: boolean | null
+          logo_url?: string | null
+          metadata?: Json | null
+          phone?: string | null
+          profile_id?: string | null
+          rejection_reason?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          updated_at?: string | null
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          admin_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          city?: string | null
+          company_name?: string
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string
+          has_complete_info?: boolean | null
+          has_quality_images?: boolean | null
+          hq_region_code?: string | null
+          id?: string
+          is_manufacturer?: boolean | null
+          is_service_provider?: boolean | null
+          logo_url?: string | null
+          metadata?: Json | null
+          phone?: string | null
+          profile_id?: string | null
+          rejection_reason?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          updated_at?: string | null
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "providers_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "providers_hq_region_code_fkey"
+            columns: ["hq_region_code"]
+            isOneToOne: false
+            referencedRelation: "regions_lkp"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "providers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      providers_backup_20251029: {
+        Row: {
+          address: string | null
+          admin_notes: string | null
+          approved_at: string | null
+          approved_by: string | null
+          city: string | null
+          clicks_count: number | null
+          company_name: string | null
           cover_image_url: string | null
           created_at: string | null
           description: string | null
           description_long: string | null
           editor_approved_for_premium: boolean | null
-          email: string
+          email: string | null
           featured_order: number | null
           featured_until: string | null
           features: Json | null
@@ -938,7 +1283,8 @@ export type Database = {
           has_complete_info: boolean | null
           has_landing_page: boolean | null
           has_quality_images: boolean | null
-          id: string
+          hq_region_code: string | null
+          id: string | null
           inquiries_count: number | null
           internal_rating: number | null
           is_manufacturer: boolean | null
@@ -951,11 +1297,11 @@ export type Database = {
           metadata: Json | null
           phone: string | null
           premium_until: string | null
-          primary_category: Database["public"]["Enums"]["category_type"]
+          primary_category: Database["public"]["Enums"]["category_type"] | null
           profile_id: string | null
           region: string | null
           rejection_reason: string | null
-          slug: string
+          slug: string | null
           status: Database["public"]["Enums"]["listing_status"] | null
           tier: Database["public"]["Enums"]["listing_tier"] | null
           updated_at: string | null
@@ -971,13 +1317,13 @@ export type Database = {
           approved_by?: string | null
           city?: string | null
           clicks_count?: number | null
-          company_name: string
+          company_name?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
           description_long?: string | null
           editor_approved_for_premium?: boolean | null
-          email: string
+          email?: string | null
           featured_order?: number | null
           featured_until?: string | null
           features?: Json | null
@@ -985,7 +1331,8 @@ export type Database = {
           has_complete_info?: boolean | null
           has_landing_page?: boolean | null
           has_quality_images?: boolean | null
-          id?: string
+          hq_region_code?: string | null
+          id?: string | null
           inquiries_count?: number | null
           internal_rating?: number | null
           is_manufacturer?: boolean | null
@@ -998,11 +1345,11 @@ export type Database = {
           metadata?: Json | null
           phone?: string | null
           premium_until?: string | null
-          primary_category: Database["public"]["Enums"]["category_type"]
+          primary_category?: Database["public"]["Enums"]["category_type"] | null
           profile_id?: string | null
           region?: string | null
           rejection_reason?: string | null
-          slug: string
+          slug?: string | null
           status?: Database["public"]["Enums"]["listing_status"] | null
           tier?: Database["public"]["Enums"]["listing_tier"] | null
           updated_at?: string | null
@@ -1018,13 +1365,13 @@ export type Database = {
           approved_by?: string | null
           city?: string | null
           clicks_count?: number | null
-          company_name?: string
+          company_name?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           description?: string | null
           description_long?: string | null
           editor_approved_for_premium?: boolean | null
-          email?: string
+          email?: string | null
           featured_order?: number | null
           featured_until?: string | null
           features?: Json | null
@@ -1032,7 +1379,8 @@ export type Database = {
           has_complete_info?: boolean | null
           has_landing_page?: boolean | null
           has_quality_images?: boolean | null
-          id?: string
+          hq_region_code?: string | null
+          id?: string | null
           inquiries_count?: number | null
           internal_rating?: number | null
           is_manufacturer?: boolean | null
@@ -1045,11 +1393,11 @@ export type Database = {
           metadata?: Json | null
           phone?: string | null
           premium_until?: string | null
-          primary_category?: Database["public"]["Enums"]["category_type"]
+          primary_category?: Database["public"]["Enums"]["category_type"] | null
           profile_id?: string | null
           region?: string | null
           rejection_reason?: string | null
-          slug?: string
+          slug?: string | null
           status?: Database["public"]["Enums"]["listing_status"] | null
           tier?: Database["public"]["Enums"]["listing_tier"] | null
           updated_at?: string | null
@@ -1058,19 +1406,116 @@ export type Database = {
           website?: string | null
           whatsapp?: string | null
         }
+        Relationships: []
+      }
+      raw_provider_leads: {
+        Row: {
+          created_at: string | null
+          error: string | null
+          id: string
+          idempotency_key: string | null
+          normalized: Json | null
+          payload: Json
+          provider_id: string | null
+          received_at: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error?: string | null
+          id?: string
+          idempotency_key?: string | null
+          normalized?: Json | null
+          payload: Json
+          provider_id?: string | null
+          received_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error?: string | null
+          id?: string
+          idempotency_key?: string | null
+          normalized?: Json | null
+          payload?: Json
+          provider_id?: string | null
+          received_at?: string | null
+          status?: string | null
+        }
         Relationships: [
           {
-            foreignKeyName: "providers_approved_by_fkey"
-            columns: ["approved_by"]
+            foreignKeyName: "raw_provider_leads_provider_id_fkey"
+            columns: ["provider_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "manufacturer_facets_effective"
+            referencedColumns: ["provider_id"]
+          },
+          {
+            foreignKeyName: "raw_provider_leads_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "providers_profile_id_fkey"
-            columns: ["profile_id"]
+            foreignKeyName: "raw_provider_leads_provider_id_fkey"
+            columns: ["provider_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "providers_with_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      regions_lkp: {
+        Row: {
+          code: string
+          name: string
+        }
+        Insert: {
+          code: string
+          name: string
+        }
+        Update: {
+          code?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      service_product_coverage_deltas: {
+        Row: {
+          created_at: string
+          id: string
+          op: string
+          region_code: string
+          service_product_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          op: string
+          region_code: string
+          service_product_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          op?: string
+          region_code?: string
+          service_product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_product_coverage_deltas_region_code_fkey"
+            columns: ["region_code"]
+            isOneToOne: false
+            referencedRelation: "regions_lkp"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "service_product_coverage_deltas_service_product_id_fkey"
+            columns: ["service_product_id"]
+            isOneToOne: false
+            referencedRelation: "service_products"
             referencedColumns: ["id"]
           },
         ]
@@ -1079,7 +1524,7 @@ export type Database = {
         Row: {
           booking_calendar: Json | null
           clicks_count: number | null
-          coverage_areas: string[] | null
+          coverage_mode: string
           created_at: string | null
           currency: string | null
           current_bookings: number | null
@@ -1105,7 +1550,7 @@ export type Database = {
           price_from: number | null
           price_to: number | null
           price_unit: string | null
-          provider_id: string | null
+          provider_id: string
           sales_count: number | null
           service_family: string | null
           service_type: string | null
@@ -1120,7 +1565,7 @@ export type Database = {
         Insert: {
           booking_calendar?: Json | null
           clicks_count?: number | null
-          coverage_areas?: string[] | null
+          coverage_mode?: string
           created_at?: string | null
           currency?: string | null
           current_bookings?: number | null
@@ -1146,7 +1591,7 @@ export type Database = {
           price_from?: number | null
           price_to?: number | null
           price_unit?: string | null
-          provider_id?: string | null
+          provider_id: string
           sales_count?: number | null
           service_family?: string | null
           service_type?: string | null
@@ -1161,7 +1606,7 @@ export type Database = {
         Update: {
           booking_calendar?: Json | null
           clicks_count?: number | null
-          coverage_areas?: string[] | null
+          coverage_mode?: string
           created_at?: string | null
           currency?: string | null
           current_bookings?: number | null
@@ -1187,7 +1632,7 @@ export type Database = {
           price_from?: number | null
           price_to?: number | null
           price_unit?: string | null
-          provider_id?: string | null
+          provider_id?: string
           sales_count?: number | null
           service_family?: string | null
           service_type?: string | null
@@ -1204,6 +1649,13 @@ export type Database = {
             foreignKeyName: "service_products_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
+            referencedRelation: "manufacturer_facets_effective"
+            referencedColumns: ["provider_id"]
+          },
+          {
+            foreignKeyName: "service_products_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
             referencedRelation: "providers"
             referencedColumns: ["id"]
           },
@@ -1215,6 +1667,90 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      slot_orders: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string | null
+          end_date: string
+          id: string
+          is_active: boolean
+          monthly_price: number
+          notes: string | null
+          rotation_order: number
+          slot_type: string
+          start_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string | null
+          end_date: string
+          id?: string
+          is_active?: boolean
+          monthly_price: number
+          notes?: string | null
+          rotation_order?: number
+          slot_type: string
+          start_date: string
+          updated_at?: string | null
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string | null
+          end_date?: string
+          id?: string
+          is_active?: boolean
+          monthly_price?: number
+          notes?: string | null
+          rotation_order?: number
+          slot_type?: string
+          start_date?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      slot_positions: {
+        Row: {
+          id: number
+          slot_type: string
+          updated_at: string | null
+          visible_count: number
+        }
+        Insert: {
+          id?: number
+          slot_type: string
+          updated_at?: string | null
+          visible_count: number
+        }
+        Update: {
+          id?: number
+          slot_type?: string
+          updated_at?: string | null
+          visible_count?: number
+        }
+        Relationships: []
+      }
+      slot_rotation_state: {
+        Row: {
+          last_pointer: number | null
+          last_rotation_at: string | null
+          slot_type: string
+        }
+        Insert: {
+          last_pointer?: number | null
+          last_rotation_at?: string | null
+          slot_type: string
+        }
+        Update: {
+          last_pointer?: number | null
+          last_rotation_at?: string | null
+          slot_type?: string
+        }
+        Relationships: []
       }
       static_pages: {
         Row: {
@@ -1346,53 +1882,201 @@ export type Database = {
       }
     }
     Views: {
+      house_facets_by_provider: {
+        Row: {
+          house_count: number | null
+          house_destacado_count: number | null
+          house_premium_count: number | null
+          provider_id: string | null
+          v_ases_legal: boolean | null
+          v_ases_tecnica: boolean | null
+          v_contr_terreno: boolean | null
+          v_dise_pers: boolean | null
+          v_dise_std: boolean | null
+          v_financiamiento: boolean | null
+          v_insta_premontada: boolean | null
+          v_instalacion: boolean | null
+          v_kit_autocons: boolean | null
+          v_llave_en_mano: boolean | null
+          v_logist_transporte: boolean | null
+          v_modulares_container: boolean | null
+          v_modulares_hormigon: boolean | null
+          v_modulares_madera: boolean | null
+          v_modulares_sip: boolean | null
+          v_oficinas_modulares: boolean | null
+          v_prefabricada_tradicional: boolean | null
+          v_price_m2_max: number | null
+          v_price_m2_min: number | null
+          v_publica_precios: boolean | null
+          v_tiny_houses: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "houses_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturer_facets_effective"
+            referencedColumns: ["provider_id"]
+          },
+          {
+            foreignKeyName: "houses_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "houses_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers_with_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manufacturer_facets_effective: {
+        Row: {
+          ases_legal: boolean | null
+          ases_tecnica: boolean | null
+          company_name: string | null
+          contr_terreno: boolean | null
+          cover_image_url: string | null
+          created_at: string | null
+          declared_at: string | null
+          dise_pers: boolean | null
+          dise_std: boolean | null
+          experiencia_years: number | null
+          financiamiento: boolean | null
+          has_verified: boolean | null
+          house_count: number | null
+          house_destacado_count: number | null
+          house_premium_count: number | null
+          hq_region_code: string | null
+          insta_premontada: boolean | null
+          instalacion: boolean | null
+          is_manufacturer: boolean | null
+          is_service_provider: boolean | null
+          kit_autocons: boolean | null
+          llave_en_mano: boolean | null
+          logist_transporte: boolean | null
+          logo_url: string | null
+          modulares_container: boolean | null
+          modulares_hormigon: boolean | null
+          modulares_madera: boolean | null
+          modulares_sip: boolean | null
+          oficinas_modulares: boolean | null
+          prefabricada_tradicional: boolean | null
+          price_m2_max: number | null
+          price_m2_min: number | null
+          provider_id: string | null
+          publica_precios: boolean | null
+          regions: string[] | null
+          slug: string | null
+          status: Database["public"]["Enums"]["listing_status"] | null
+          tiny_houses: boolean | null
+          updated_at: string | null
+          verified_by_admin: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "providers_hq_region_code_fkey"
+            columns: ["hq_region_code"]
+            isOneToOne: false
+            referencedRelation: "regions_lkp"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       providers_with_categories: {
         Row: {
           address: string | null
           admin_notes: string | null
           approved_at: string | null
           approved_by: string | null
-          categories: Database["public"]["Enums"]["category_type"][] | null
+          categories: string[] | null
           city: string | null
-          clicks_count: number | null
           company_name: string | null
           cover_image_url: string | null
           created_at: string | null
           description: string | null
-          description_long: string | null
-          editor_approved_for_premium: boolean | null
           email: string | null
-          featured_order: number | null
-          featured_until: string | null
-          features: Json | null
-          gallery_images: string[] | null
           has_complete_info: boolean | null
           has_quality_images: boolean | null
+          hq_region_code: string | null
           id: string | null
-          inquiries_count: number | null
-          internal_rating: number | null
-          keywords: string[] | null
+          is_manufacturer: boolean | null
+          is_service_provider: boolean | null
           logo_url: string | null
-          meta_description: string | null
-          meta_title: string | null
           metadata: Json | null
           phone: string | null
-          premium_until: string | null
-          primary_category: Database["public"]["Enums"]["category_type"] | null
-          primary_category_from_junction:
-            | Database["public"]["Enums"]["category_type"]
-            | null
+          primary_category_from_roles: string | null
           profile_id: string | null
-          region: string | null
           rejection_reason: string | null
           slug: string | null
           status: Database["public"]["Enums"]["listing_status"] | null
-          tier: Database["public"]["Enums"]["listing_tier"] | null
           updated_at: string | null
-          videos: string[] | null
-          views_count: number | null
           website: string | null
           whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          admin_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          categories?: never
+          city?: string | null
+          company_name?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          has_complete_info?: boolean | null
+          has_quality_images?: boolean | null
+          hq_region_code?: string | null
+          id?: string | null
+          is_manufacturer?: boolean | null
+          is_service_provider?: boolean | null
+          logo_url?: string | null
+          metadata?: Json | null
+          phone?: string | null
+          primary_category_from_roles?: never
+          profile_id?: string | null
+          rejection_reason?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          updated_at?: string | null
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          admin_notes?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          categories?: never
+          city?: string | null
+          company_name?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          has_complete_info?: boolean | null
+          has_quality_images?: boolean | null
+          hq_region_code?: string | null
+          id?: string | null
+          is_manufacturer?: boolean | null
+          is_service_provider?: boolean | null
+          logo_url?: string | null
+          metadata?: Json | null
+          phone?: string | null
+          primary_category_from_roles?: never
+          profile_id?: string | null
+          rejection_reason?: string | null
+          slug?: string | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+          updated_at?: string | null
+          website?: string | null
+          whatsapp?: string | null
         }
         Relationships: [
           {
@@ -1403,6 +2087,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "providers_hq_region_code_fkey"
+            columns: ["hq_region_code"]
+            isOneToOne: false
+            referencedRelation: "regions_lkp"
+            referencedColumns: ["code"]
+          },
+          {
             foreignKeyName: "providers_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
@@ -1411,12 +2102,16 @@ export type Database = {
           },
         ]
       }
+      service_product_effective_regions: {
+        Row: {
+          region_code: string | null
+          service_product_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      generate_slug: {
-        Args: { input_text: string }
-        Returns: string
-      }
+      generate_slug: { Args: { input_text: string }; Returns: string }
       get_feature_value: {
         Args: { p_features: Json; p_group: string; p_key: string }
         Returns: Json
@@ -1446,10 +2141,7 @@ export type Database = {
           tier: Database["public"]["Enums"]["listing_tier"]
         }[]
       }
-      is_admin: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { user_id: string }; Returns: boolean }
       log_admin_action: {
         Args: {
           p_action_type: string
@@ -1645,27 +2337,64 @@ export const Constants = {
   },
 } as const
 
-// Convenience type aliases
-export type BlogPost = Tables<'blog_posts'>
-export type BlogPostInsert = TablesInsert<'blog_posts'>
-export type BlogPostUpdate = TablesUpdate<'blog_posts'>
+// ============================================================================
+// TYPE ALIASES - Provider Minimalista Model
+// ============================================================================
 
-export type NewsPost = Tables<'news_posts'>
-export type NewsPostInsert = TablesInsert<'news_posts'>
-export type NewsPostUpdate = TablesUpdate<'news_posts'>
-
-export type Profile = Tables<'profiles'>
-export type ProfileInsert = TablesInsert<'profiles'>
-export type ProfileUpdate = TablesUpdate<'profiles'>
-
+// Core entities
 export type Provider = Tables<'providers'>
-export type ProviderInsert = TablesInsert<'providers'>
-export type ProviderUpdate = TablesUpdate<'providers'>
-
 export type House = Tables<'houses'>
-export type HouseInsert = TablesInsert<'houses'>
-export type HouseUpdate = TablesUpdate<'houses'>
-
 export type ServiceProduct = Tables<'service_products'>
+export type Profile = Tables<'profiles'>
+
+// Provider Minimalista - New tables
+export type ManufacturerProfile = Tables<'manufacturer_profiles'>
+export type Region = Tables<'regions_lkp'>
+export type ProviderCoverageRegion = Tables<'provider_coverage_regions'>
+export type MediaAsset = Tables<'media_assets'>
+export type ProviderAlias = Tables<'provider_aliases'>
+
+// Provider Minimalista - Views
+export type ManufacturerFacetsEffective = Tables<'manufacturer_facets_effective'>
+export type HouseFacetsByProvider = Tables<'house_facets_by_provider'>
+export type ProviderWithCategories = Tables<'providers_with_categories'>
+export type ServiceProductEffectiveRegions = Tables<'service_product_effective_regions'>
+
+// Slots System
+export type SlotPosition = Tables<'slot_positions'>
+export type SlotOrder = Tables<'slot_orders'>
+export type SlotRotationState = Tables<'slot_rotation_state'>
+
+// Ingestion System
+export type RawProviderLead = Tables<'raw_provider_leads'>
+
+// Insert types
+export type ProviderInsert = TablesInsert<'providers'>
+export type ManufacturerProfileInsert = TablesInsert<'manufacturer_profiles'>
+export type HouseInsert = TablesInsert<'houses'>
 export type ServiceProductInsert = TablesInsert<'service_products'>
+export type ProfileInsert = TablesInsert<'profiles'>
+export type MediaAssetInsert = TablesInsert<'media_assets'>
+export type ProviderCoverageRegionInsert = TablesInsert<'provider_coverage_regions'>
+export type ProviderAliasInsert = TablesInsert<'provider_aliases'>
+export type SlotOrderInsert = TablesInsert<'slot_orders'>
+export type RawProviderLeadInsert = TablesInsert<'raw_provider_leads'>
+
+// Update types
+export type ProviderUpdate = TablesUpdate<'providers'>
+export type ManufacturerProfileUpdate = TablesUpdate<'manufacturer_profiles'>
+export type HouseUpdate = TablesUpdate<'houses'>
 export type ServiceProductUpdate = TablesUpdate<'service_products'>
+export type ProfileUpdate = TablesUpdate<'profiles'>
+export type MediaAssetUpdate = TablesUpdate<'media_assets'>
+export type SlotOrderUpdate = TablesUpdate<'slot_orders'>
+
+// Enums
+export type UserRole = Database['public']['Enums']['user_role']
+export type UserStatus = Database['public']['Enums']['user_status']
+export type CategoryType = Database['public']['Enums']['category_type']
+export type ListingStatus = Database['public']['Enums']['listing_status']
+export type ListingTier = Database['public']['Enums']['listing_tier']
+export type ContentStatus = Database['public']['Enums']['content_status']
+export type FeatureDataType = Database['public']['Enums']['feature_data_type']
+export type FilterType = Database['public']['Enums']['filter_type']
