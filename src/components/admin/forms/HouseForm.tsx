@@ -4,6 +4,8 @@ import { SelectField } from '@/components/ui/select';
 import { TextAreaField } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FormSection } from '@/components/admin/FormSection';
+import FeatureFormBuilder from '@/components/admin/FeatureFormBuilder';
+import MediaGalleryManager from '@/components/admin/MediaGalleryManager';
 
 interface Provider {
   id: string;
@@ -38,7 +40,8 @@ export default function HouseForm({
     stock_status: 'available',
     floors: 1,
     stock_quantity: 0,
-    is_available: true
+    is_available: true,
+    features: {} // JSONB features from FeatureFormBuilder
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -122,6 +125,10 @@ export default function HouseForm({
     }
   };
 
+  const handleFeaturesChange = (features: Record<string, any>) => {
+    setFormData(prev => ({ ...prev, features }));
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Información Básica */}
@@ -181,13 +188,13 @@ export default function HouseForm({
 
           <SelectField
             label="Topología"
-            name="topology_id"
-            value={formData.topology_id || ''}
-            onChange={(e) => handleChange('topology_id', e.target.value)}
+            name="topology_code"
+            value={formData.topology_code || ''}
+            onChange={(e) => handleChange('topology_code', e.target.value)}
             options={[
               { value: '', label: 'Seleccionar topología' },
               ...topologies.map(t => ({
-                value: t.id,
+                value: t.code,
                 label: `${t.code} - ${t.description}`
               }))
             ]}
@@ -429,6 +436,85 @@ export default function HouseForm({
           />
         </div>
       </FormSection>
+
+      {/* Características y Features Dinámicas */}
+      <FormSection
+        title="Características del Producto"
+        description="Features dinámicas según categoría casas"
+      >
+        <FeatureFormBuilder
+          category="casas"
+          currentFeatures={formData.features || {}}
+          onChange={handleFeaturesChange}
+          disabled={loading}
+        />
+      </FormSection>
+
+      {/* Imágenes y Multimedia */}
+      {houseId && (
+        <FormSection
+          title="Imágenes y Multimedia"
+          description="Gestión de imágenes, planos y documentos"
+        >
+          <div className="space-y-6">
+            {/* Galería de Imágenes */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Galería de Imágenes</h4>
+              <p className="text-sm text-gray-500 mb-3">
+                Imágenes del producto. La primera imagen será la imagen principal.
+              </p>
+              <MediaGalleryManager
+                ownerType="house"
+                ownerId={houseId}
+                allowedKinds={['image']}
+                maxFiles={15}
+                maxSizeMB={5}
+                disabled={loading}
+              />
+            </div>
+
+            {/* Planos */}
+            <div className="pt-4 border-t border-gray-200">
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Planos de Planta</h4>
+              <p className="text-sm text-gray-500 mb-3">
+                Archivos PDF o imágenes de los planos de la casa.
+              </p>
+              <MediaGalleryManager
+                ownerType="house"
+                ownerId={houseId}
+                allowedKinds={['plan', 'pdf']}
+                maxFiles={5}
+                maxSizeMB={10}
+                disabled={loading}
+              />
+            </div>
+
+            {/* Brochure */}
+            <div className="pt-4 border-t border-gray-200">
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Brochure / Catálogo</h4>
+              <p className="text-sm text-gray-500 mb-3">
+                PDF con información técnica completa.
+              </p>
+              <MediaGalleryManager
+                ownerType="house"
+                ownerId={houseId}
+                allowedKinds={['pdf']}
+                maxFiles={2}
+                maxSizeMB={15}
+                disabled={loading}
+              />
+            </div>
+          </div>
+        </FormSection>
+      )}
+
+      {!houseId && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-sm text-blue-800">
+            💡 <strong>Nota:</strong> Guarde la casa primero para poder agregar imágenes y documentos.
+          </p>
+        </div>
+      )}
 
       {/* SEO y Estado */}
       <FormSection

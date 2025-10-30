@@ -1,72 +1,79 @@
-// Re-export all database types for convenience
+// ============================================================================
+// RE-EXPORTS - Database Types (P0.3 - Schema v3)
+// ============================================================================
+
+// Base database types
 export type {
   Database,
   Json,
-  Profile,
-  ProfileInsert,
-  ProfileUpdate,
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+  Enums
+} from './database.types';
+
+// Core entities
+export type {
   Provider,
   ProviderInsert,
   ProviderUpdate,
   House,
   HouseInsert,
   HouseUpdate,
-  Service,
-  ServiceInsert,
-  ServiceUpdate,
-  Inquiry,
-  InquiryInsert,
-  InquiryUpdate,
-  Category,
-  CategoryInsert,
-  CategoryUpdate,
-  BlogPost,
-  BlogPostInsert,
-  BlogPostUpdate,
-  BlogComment,
-  BlogCommentInsert,
-  BlogCommentUpdate,
-  UserFavorite,
-  UserFavoriteInsert,
-  UserFavoriteUpdate,
-  UserSearch,
-  UserSearchInsert,
-  UserSearchUpdate,
-  Hotspot,
-  HotspotInsert,
-  HotspotUpdate,
-  HouseTopology,
-  HouseTopologyInsert,
-  HouseTopologyUpdate,
-  Feature,
-  FeatureInsert,
-  FeatureUpdate,
-  AdminAction,
-  AdminActionInsert,
-  AdminActionUpdate,
-  AdminLog,
-  AdminLogInsert,
-  AdminLogUpdate,
-  AnalyticsDaily,
-  AnalyticsDailyInsert,
-  AnalyticsDailyUpdate,
-  AnalyticsEvent,
-  AnalyticsEventInsert,
-  AnalyticsEventUpdate,
-  ContentReview,
-  ContentReviewInsert,
-  ContentReviewUpdate,
+  ServiceProduct,
+  ServiceProductInsert,
+  ServiceProductUpdate,
+} from './database.types';
+
+// Schema v3 - Lookups & Normalization
+export type {
+  Region,
+  ProviderCoverageRegion,
+  ProviderCoverageRegionInsert,
+  MediaAsset,
+  MediaAssetInsert,
+  MediaAssetUpdate,
+} from './database.types';
+
+// Schema v3 - Slots System
+export type {
+  SlotPosition,
+  SlotOrder,
+  SlotOrderInsert,
+  SlotOrderUpdate,
+  SlotRotationState,
+} from './database.types';
+
+// Schema v3 - Ingestion System
+export type {
+  RawProviderLead,
+  RawProviderLeadInsert,
+  ProviderAlias,
+  ProviderAliasInsert,
+} from './database.types';
+
+// Schema v3 - Views
+export type {
+  CatalogVisibility,
+} from './database.types';
+
+// User/Auth types
+export type {
+  Profile,
+  ProfileInsert,
+  ProfileUpdate,
+} from './database.types';
+
+// Enums
+export type {
   UserRole,
   UserStatus,
   CategoryType,
   ListingStatus,
   ListingTier,
-  BlogStatus,
-  BlogCategory,
-  Tables,
-  TablesInsert,
-  TablesUpdate,
-  Enums
+  ContentStatus,
+  FeatureDataType,
+  FilterType,
 } from './database.types';
 
 // Import for use in local interfaces

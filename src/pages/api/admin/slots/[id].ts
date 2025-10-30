@@ -26,7 +26,7 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
     const supabase = createSupabaseClient({ request, cookies } as any);
 
     const { data: slot, error } = await supabase
-      .from('homepage_slots')
+      .from('slot_orders')
       .select('*')
       .eq('id', id)
       .single();
@@ -134,7 +134,6 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       updated_at: new Date().toISOString()
     };
 
-    if (body.slot_position !== undefined) updateData.slot_position = body.slot_position;
     if (body.slot_type !== undefined) updateData.slot_type = body.slot_type;
     if (body.content_type !== undefined) updateData.content_type = body.content_type || null;
     if (body.content_id !== undefined) updateData.content_id = body.content_id || null;
@@ -145,7 +144,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     if (body.is_active !== undefined) updateData.is_active = body.is_active;
 
     const { data: slot, error } = await supabase
-      .from('homepage_slots')
+      .from('slot_orders')
       .update(updateData)
       .eq('id', id)
       .select()
@@ -171,9 +170,9 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       await supabase.from('admin_actions').insert({
         admin_id: user.id,
         action_type: 'update',
-        entity_type: 'homepage_slot',
+        entity_type: 'slot_order',
         entity_id: slot.id,
-        description: `Updated ${slot.slot_type} slot`
+        description: `Updated ${slot.slot_type} slot order`
       });
     }
 
@@ -215,13 +214,13 @@ export const DELETE: APIRoute = async ({ params, request, cookies }) => {
 
     // Get slot info before deletion for logging
     const { data: slotInfo } = await supabase
-      .from('homepage_slots')
-      .select('slot_type, slot_position')
+      .from('slot_orders')
+      .select('slot_type')
       .eq('id', id)
       .single();
 
     const { error } = await supabase
-      .from('homepage_slots')
+      .from('slot_orders')
       .delete()
       .eq('id', id);
 
@@ -238,9 +237,9 @@ export const DELETE: APIRoute = async ({ params, request, cookies }) => {
       await supabase.from('admin_actions').insert({
         admin_id: user.id,
         action_type: 'delete',
-        entity_type: 'homepage_slot',
+        entity_type: 'slot_order',
         entity_id: id,
-        description: `Deleted ${slotInfo.slot_type} slot at position ${slotInfo.slot_position}`
+        description: `Deleted ${slotInfo.slot_type} slot order`
       });
     }
 

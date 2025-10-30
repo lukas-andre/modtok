@@ -29,8 +29,7 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       .from('houses')
       .select(`
         *,
-        provider:providers(id, company_name, slug),
-        topology:house_topologies(id, code, bedrooms, bathrooms, description)
+        provider:providers(id, company_name, slug)
       `, { count: 'exact' });
 
     // Apply filters

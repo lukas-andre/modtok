@@ -11,16 +11,26 @@ if (!user) {
   return Astro.redirect('/auth/login?redirect=/admin/catalog/houses');
 }
 
-// Fetch all houses (we'll let the client component handle filtering/pagination)
+// Fetch all houses with provider info (topology info viene del campo topology_code)
 const supabase = createSupabaseClient(Astro);
 const { data: houses, error } = await supabase
   .from('houses')
   .select(`
     *,
-    provider:providers(company_name, slug),
-    topology:house_topologies(code, bedrooms, bathrooms)
+    provider:providers(company_name, slug)
   `)
   .order('created_at', { ascending: false });
+
+// Fetch topologies separately for reference
+const { data: topologies } = await supabase
+  .from('house_topologies')
+  .select('code, description, bedrooms, bathrooms')
+  .eq('is_active', true);
+
+// Create topology lookup map
+const topologyMap = new Map(
+  topologies?.map(t => [t.code, t]) || []
+);
 
 if (error) {
   console.error('Error fetching houses:', error);
@@ -61,6 +71,7 @@ if (error) {
     <HousesTable
       client:load
       houses={houses || []}
+      topologyMap={Object.fromEntries(topologyMap)}
       userRole={user.role}
     />
   </div>

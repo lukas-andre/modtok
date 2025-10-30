@@ -13,27 +13,13 @@ if (!user) {
 
 const supabase = createSupabaseClient(Astro);
 
-// Get providers that offer services (have "habilitacion_servicios" category)
+// Get providers that offer services (Provider minimalista: is_service_provider=true)
 const { data: providers } = await supabase
   .from('providers')
-  .select(`
-    id,
-    company_name,
-    tier,
-    provider_categories!inner(category_type)
-  `)
+  .select('id, company_name')
   .eq('status', 'active')
-  .eq('provider_categories.category_type', 'habilitacion_servicios')
+  .eq('is_service_provider', true)
   .order('company_name');
-
-// Get sub-categories for services
-const { data: subCategories } = await supabase
-  .from('categories')
-  .select('*')
-  .eq('type', 'habilitacion_servicios')
-  .not('parent_id', 'is', null)
-  .eq('is_active', true)
-  .order('display_order');
 ---
 
 <AdminLayout title="Nuevo Servicio" user={user} currentPage="/admin/catalog/services">
@@ -61,7 +47,6 @@ const { data: subCategories } = await supabase
     <ServiceForm
       client:load
       providers={providers || []}
-      categories={subCategories || []}
       mode="create"
     />
   </div>

@@ -2,7 +2,7 @@
 import AdminLayout from '../../../../layouts/AdminLayout.astro';
 import { getAdminAuth, requireAdmin } from '../../../../lib/auth';
 import { createSupabaseClient } from '../../../../lib/supabase';
-import HouseForm from '../../../../components/admin/HouseForm';
+import HouseForm from '../../../../components/admin/forms/HouseForm';
 
 const auth = await getAdminAuth(Astro);
 const user = requireAdmin(auth);
@@ -17,13 +17,31 @@ if (!id) {
   return Astro.redirect('/admin/houses');
 }
 
-// Fetch house data
+// Fetch house data with provider info
 const supabase = createSupabaseClient(Astro);
 const { data: house, error } = await supabase
   .from('houses')
-  .select('*')
+  .select(`
+    *,
+    provider:providers(id, company_name, slug)
+  `)
   .eq('id', id)
   .single();
+
+// Fetch providers for the form
+const { data: providers } = await supabase
+  .from('providers')
+  .select('id, company_name')
+  .eq('status', 'active')
+  .eq('is_manufacturer', true)
+  .order('company_name');
+
+// Fetch topologies for the form
+const { data: topologies } = await supabase
+  .from('house_topologies')
+  .select('code, description, bedrooms, bathrooms')
+  .eq('is_active', true)
+  .order('display_order');
 
 if (error || !house) {
   return Astro.redirect('/admin/houses?error=Casa no encontrada');
@@ -146,6 +164,8 @@ const initialData = {
       mode="edit"
       houseId={id}
       initialData={initialData}
+      providers={providers || []}
+      topologies={topologies || []}
     />
   </div>
 </AdminLayout>

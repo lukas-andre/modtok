@@ -4,47 +4,42 @@ import { SelectField } from '@/components/ui/select';
 import { TextAreaField } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FormSection } from '@/components/admin/FormSection';
+import FeatureFormBuilder from '@/components/admin/FeatureFormBuilder';
+import MediaGalleryManager from '@/components/admin/MediaGalleryManager';
 
 interface Provider {
   id: string;
   company_name: string;
 }
 
-interface Category {
-  id: string;
-  name: string;
-}
-
 interface ServiceFormProps {
   providers: Provider[];
-  categories: Category[];
   mode: 'create' | 'edit';
   initialData?: any;
   serviceId?: string;
 }
 
 const CHILEAN_REGIONS = [
-  'Región Metropolitana',
-  'Valparaíso',
-  'Biobío',
-  'La Araucanía',
-  'Los Lagos',
-  'Los Ríos',
-  'Maule',
-  'Ñuble',
-  "O'Higgins",
-  'Coquimbo',
-  'Atacama',
-  'Antofagasta',
-  'Tarapacá',
-  'Arica y Parinacota',
-  'Aysén',
-  'Magallanes'
+  { code: 'RM', name: 'Región Metropolitana' },
+  { code: 'V', name: 'Valparaíso' },
+  { code: 'VIII', name: 'Biobío' },
+  { code: 'IX', name: 'La Araucanía' },
+  { code: 'X', name: 'Los Lagos' },
+  { code: 'XIV', name: 'Los Ríos' },
+  { code: 'VII', name: 'Maule' },
+  { code: 'XVI', name: 'Ñuble' },
+  { code: 'VI', name: "O'Higgins" },
+  { code: 'IV', name: 'Coquimbo' },
+  { code: 'III', name: 'Atacama' },
+  { code: 'II', name: 'Antofagasta' },
+  { code: 'I', name: 'Tarapacá' },
+  { code: 'XV', name: 'Arica y Parinacota' },
+  { code: 'XI', name: 'Aysén' },
+  { code: 'XII', name: 'Magallanes' }
 ];
 
 export default function ServiceForm({
   providers,
-  categories,
   mode,
   initialData,
   serviceId
@@ -55,10 +50,14 @@ export default function ServiceForm({
     price_unit: 'per_project',
     current_bookings: 0,
     is_available: true,
-    coverage_areas: []
+    coverage_mode: 'inherit', // P0.5: inherit (use provider coverage) or override (define own)
+    coverage_deltas: [], // P0.5: [{region_code: 'RM', op: 'include'|'exclude'}]
+    features: {} // JSONB features from FeatureFormBuilder
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [providerRegions, setProviderRegions] = useState<string[]>([]);
+  const [effectiveCoverage, setEffectiveCoverage] = useState<string[]>([]);
 
   // Auto-generate slug from name
   useEffect(() => {
@@ -79,6 +78,46 @@ export default function ServiceForm({
       }
     }
   }, [formData.name]);
+
+  // Fetch provider coverage regions when provider changes
+  useEffect(() => {
+    if (formData.provider_id) {
+      fetch(`/api/admin/providers/${formData.provider_id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.coverage_regions) {
+            const regions = data.coverage_regions.map((cr: any) => cr.region_code);
+            setProviderRegions(regions);
+          }
+        })
+        .catch(err => console.error('Error fetching provider regions:', err));
+    }
+  }, [formData.provider_id]);
+
+  // Update effective coverage when coverage_mode or deltas change
+  useEffect(() => {
+    if (formData.coverage_mode === 'inherit') {
+      // Start with provider regions
+      let effective = [...providerRegions];
+
+      // Apply deltas
+      (formData.coverage_deltas || []).forEach((delta: any) => {
+        if (delta.op === 'exclude') {
+          effective = effective.filter(r => r !== delta.region_code);
+        } else if (delta.op === 'include' && !effective.includes(delta.region_code)) {
+          effective.push(delta.region_code);
+        }
+      });
+
+      setEffectiveCoverage(effective);
+    } else {
+      // Override mode: only includes
+      const effective = (formData.coverage_deltas || [])
+        .filter((d: any) => d.op === 'include')
+        .map((d: any) => d.region_code);
+      setEffectiveCoverage(effective);
+    }
+  }, [formData.coverage_mode, formData.coverage_deltas, providerRegions]);
 
   const handleSubmit = async (e: React.FormEvent, saveAs?: string) => {
     e.preventDefault();
@@ -129,19 +168,35 @@ export default function ServiceForm({
     }
   };
 
-  const handleCoverageChange = (region: string, checked: boolean) => {
-    const currentCoverage = formData.coverage_areas || [];
-    if (checked) {
+  // P0.5: Handle coverage region changes with inherit/override/delta logic
+  const handleRegionChange = (regionCode: string, state: 'neutral' | 'include' | 'exclude') => {
+    const currentDeltas = formData.coverage_deltas || [];
+
+    if (state === 'neutral') {
+      // Remove any delta for this region
       setFormData(prev => ({
         ...prev,
-        coverage_areas: [...currentCoverage, region]
+        coverage_deltas: currentDeltas.filter((d: any) => d.region_code !== regionCode)
       }));
     } else {
+      // Remove existing delta for this region, then add new one
+      const filtered = currentDeltas.filter((d: any) => d.region_code !== regionCode);
       setFormData(prev => ({
         ...prev,
-        coverage_areas: currentCoverage.filter((r: string) => r !== region)
+        coverage_deltas: [...filtered, { region_code: regionCode, op: state }]
       }));
     }
+  };
+
+  // Get region state for tri-state selector (inherit mode only)
+  const getRegionState = (regionCode: string): 'neutral' | 'include' | 'exclude' => {
+    const delta = (formData.coverage_deltas || []).find((d: any) => d.region_code === regionCode);
+    if (!delta) return 'neutral';
+    return delta.op as 'include' | 'exclude';
+  };
+
+  const handleFeaturesChange = (features: Record<string, any>) => {
+    setFormData(prev => ({ ...prev, features }));
   };
 
   return (
@@ -191,19 +246,6 @@ export default function ServiceForm({
               ...providers.map(p => ({ value: p.id, label: p.company_name }))
             ]}
             errorMessage={errors.provider_id}
-          />
-
-          <SelectField
-            label="Categoría"
-            name="category_id"
-            value={formData.category_id || ''}
-            onChange={(e) => handleChange('category_id', e.target.value)}
-            required
-            options={[
-              { value: '', label: 'Seleccionar categoría' },
-              ...categories.map(c => ({ value: c.id, label: c.name }))
-            ]}
-            errorMessage={errors.category_id}
           />
         </div>
 
@@ -304,31 +346,171 @@ export default function ServiceForm({
         </div>
       </FormSection>
 
-      {/* Áreas de Cobertura */}
+      {/* P0.5: Áreas de Cobertura con inherit/override */}
       <FormSection
         title="Áreas de Cobertura"
         description="Regiones donde se ofrece el servicio"
       >
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {CHILEAN_REGIONS.map(region => (
-            <div key={region} className="flex items-center">
+        <div className="space-y-4">
+          {/* Coverage Mode Radio Buttons */}
+          <div className="flex items-center space-x-6">
+            <label className="flex items-center cursor-pointer">
               <input
-                type="checkbox"
-                id={`coverage_${region}`}
-                checked={(formData.coverage_areas || []).includes(region)}
-                onChange={(e) => handleCoverageChange(region, e.target.checked)}
-                className="h-4 w-4 text-accent-blue focus:ring-accent-blue/20 border-gray-300 rounded"
+                type="radio"
+                name="coverage_mode"
+                value="inherit"
+                checked={formData.coverage_mode === 'inherit'}
+                onChange={(e) => handleChange('coverage_mode', e.target.value)}
+                className="h-4 w-4 text-accent-blue focus:ring-accent-blue/20 border-gray-300"
               />
-              <label
-                htmlFor={`coverage_${region}`}
-                className="ml-2 block text-sm text-gray-900 cursor-pointer"
-              >
-                {region}
-              </label>
+              <span className="ml-2 text-sm text-gray-900">
+                Usar cobertura del proveedor (recomendado)
+              </span>
+            </label>
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name="coverage_mode"
+                value="override"
+                checked={formData.coverage_mode === 'override'}
+                onChange={(e) => handleChange('coverage_mode', e.target.value)}
+                className="h-4 w-4 text-accent-blue focus:ring-accent-blue/20 border-gray-300"
+              />
+              <span className="ml-2 text-sm text-gray-900">
+                Definir cobertura para este servicio
+              </span>
+            </label>
+          </div>
+
+          {/* Region Selector */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {CHILEAN_REGIONS.map(region => {
+              const isIncluded = effectiveCoverage.includes(region.code);
+              const state = formData.coverage_mode === 'inherit'
+                ? getRegionState(region.code)
+                : (formData.coverage_deltas || []).some((d: any) => d.region_code === region.code && d.op === 'include') ? 'include' : 'neutral';
+
+              if (formData.coverage_mode === 'inherit') {
+                // Tri-state selector for inherit mode
+                const isProviderRegion = providerRegions.includes(region.code);
+                return (
+                  <div key={region.code} className="flex items-center space-x-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (state === 'neutral') {
+                          handleRegionChange(region.code, isProviderRegion ? 'exclude' : 'include');
+                        } else if (state === 'include') {
+                          handleRegionChange(region.code, 'exclude');
+                        } else {
+                          handleRegionChange(region.code, 'neutral');
+                        }
+                      }}
+                      className={`flex items-center justify-center w-6 h-6 rounded border ${
+                        state === 'include' ? 'bg-green-100 border-green-500 text-green-700' :
+                        state === 'exclude' ? 'bg-red-100 border-red-500 text-red-700' :
+                        isProviderRegion ? 'bg-gray-100 border-gray-400 text-gray-600' :
+                        'bg-white border-gray-300 text-gray-400'
+                      }`}
+                      title={
+                        state === 'include' ? 'Incluido (click para excluir)' :
+                        state === 'exclude' ? 'Excluido (click para neutral)' :
+                        isProviderRegion ? 'Heredado del proveedor (click para excluir)' :
+                        'No heredado (click para incluir)'
+                      }
+                    >
+                      {state === 'include' && '+'}
+                      {state === 'exclude' && '−'}
+                      {state === 'neutral' && (isProviderRegion ? '○' : '·')}
+                    </button>
+                    <label className="text-sm text-gray-900">
+                      {region.name}
+                    </label>
+                  </div>
+                );
+              } else {
+                // Simple checkbox for override mode
+                return (
+                  <div key={region.code} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={`coverage_${region.code}`}
+                      checked={state === 'include'}
+                      onChange={(e) => handleRegionChange(region.code, e.target.checked ? 'include' : 'neutral')}
+                      className="h-4 w-4 text-accent-blue focus:ring-accent-blue/20 border-gray-300 rounded"
+                    />
+                    <label
+                      htmlFor={`coverage_${region.code}`}
+                      className="ml-2 block text-sm text-gray-900 cursor-pointer"
+                    >
+                      {region.name}
+                    </label>
+                  </div>
+                );
+              }
+            })}
+          </div>
+
+          {/* Effective Coverage Chip */}
+          {effectiveCoverage.length > 0 && (
+            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
+              <p className="text-sm font-medium text-blue-900 mb-1">
+                Cobertura efectiva:
+              </p>
+              <p className="text-sm text-blue-700">
+                {effectiveCoverage.map(code => CHILEAN_REGIONS.find(r => r.code === code)?.name || code).join(', ')}
+              </p>
             </div>
-          ))}
+          )}
         </div>
       </FormSection>
+
+      {/* Características y Features Dinámicas */}
+      <FormSection
+        title="Características del Servicio"
+        description="Features dinámicas para servicios de habilitación"
+      >
+        <FeatureFormBuilder
+          category="habilitacion_servicios"
+          currentFeatures={formData.features || {}}
+          onChange={handleFeaturesChange}
+          disabled={loading}
+        />
+      </FormSection>
+
+      {/* Imágenes y Multimedia */}
+      {serviceId && (
+        <FormSection
+          title="Imágenes y Multimedia"
+          description="Gestión de imágenes del servicio"
+        >
+          <div className="space-y-6">
+            {/* Galería de Imágenes */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Galería de Imágenes</h4>
+              <p className="text-sm text-gray-500 mb-3">
+                Imágenes del servicio. La primera imagen será la imagen principal.
+              </p>
+              <MediaGalleryManager
+                ownerType="service_product"
+                ownerId={serviceId}
+                allowedKinds={['image']}
+                maxFiles={10}
+                maxSizeMB={5}
+                disabled={loading}
+              />
+            </div>
+          </div>
+        </FormSection>
+      )}
+
+      {!serviceId && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-sm text-blue-800">
+            💡 <strong>Nota:</strong> Guarde el servicio primero para poder agregar imágenes.
+          </p>
+        </div>
+      )}
 
       {/* SEO y Estado */}
       <FormSection

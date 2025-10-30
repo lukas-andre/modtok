@@ -37,22 +37,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       is_manufacturer,
       is_service_provider,
 
-      // Business details
-      years_experience,
-      certifications,
-      specialties,
-      services_offered,
-      coverage_areas,
+      // Coverage regions (Schema v3)
+      coverage_regions, // NEW Schema v3: array of region codes
 
-      // Pricing
-      price_range_min,
-      price_range_max,
-      price_per_m2_min,
-      price_per_m2_max,
-
-      // Features
-      llave_en_mano,
-      financing_available,
+      // Features (JSONB)
       features,
 
       // Tier and status
@@ -78,8 +66,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       keywords,
 
       // Admin fields
-      admin_notes,
-      temp_password
+      admin_notes
     } = formData;
 
     // Validation
@@ -107,16 +94,6 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (!['premium', 'destacado', 'standard'].includes(tier)) {
       return new Response(
         JSON.stringify({ error: 'Invalid tier' }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    if (temp_password && temp_password.length < 8) {
-      return new Response(
-        JSON.stringify({ error: 'Temporary password must be at least 8 characters' }),
         {
           status: 400,
           headers: { 'Content-Type': 'application/json' }
@@ -172,7 +149,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       is_service_provider: Boolean(is_service_provider),
 
       // Keep primary_category for backward compatibility
-      category_type: primary_category as 'fabrica' | 'habilitacion_servicios',
+      primary_category: primary_category as 'fabrica' | 'habilitacion_servicios' | 'casas',
 
       description,
       description_long,
@@ -181,18 +158,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       address,
       city,
       region,
-      years_experience: years_experience ? parseInt(years_experience) : null,
-      certifications: certifications || [],
-      specialties: specialties || [],
-      services_offered: services_offered || [],
-      coverage_areas: coverage_areas || [],
-      price_range_min: price_range_min ? parseFloat(price_range_min) : null,
-      price_range_max: price_range_max ? parseFloat(price_range_max) : null,
-      price_per_m2_min: price_per_m2_min ? parseFloat(price_per_m2_min) : null,
-      price_per_m2_max: price_per_m2_max ? parseFloat(price_per_m2_max) : null,
-      llave_en_mano: Boolean(llave_en_mano),
-      financing_available: Boolean(financing_available),
+
+      // Features stored as JSONB
       features: features || {},
+
       tier: tier as 'premium' | 'destacado' | 'standard',
       status: status as 'draft' | 'pending_review' | 'active' | 'inactive' | 'rejected',
       featured_until: featured_until ? new Date(featured_until).toISOString() : null,
@@ -200,20 +169,18 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       featured_order: featured_order ? parseInt(featured_order) : null,
       internal_rating: internal_rating ? parseInt(internal_rating) : null,
 
-      // NEW FIELDS: Editorial flags
+      // Editorial flags
       has_quality_images: Boolean(has_quality_images),
       has_complete_info: Boolean(has_complete_info),
       editor_approved_for_premium: Boolean(editor_approved_for_premium),
       has_landing_page: Boolean(has_landing_page),
       landing_slug: landing_slug || null,
 
+      // SEO
       meta_title,
       meta_description,
       keywords: keywords || [],
-      admin_notes,
-      temp_password: temp_password ? await hashPassword(temp_password) : null,
-      created_by: auth?.user?.id || null,
-      onboarding_completed: false
+      admin_notes
     };
 
     // Set approval if status is active
@@ -238,6 +205,24 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           headers: { 'Content-Type': 'application/json' }
         }
       );
+    }
+
+    // Insert coverage regions if provided (NEW Schema v3)
+    if (coverage_regions && Array.isArray(coverage_regions) && coverage_regions.length > 0) {
+      const regionInserts = coverage_regions.map((region_code: string) => ({
+        provider_id: provider.id,
+        region_code: region_code
+      }));
+
+      const { error: regionError } = await supabase
+        .from('provider_coverage_regions')
+        .insert(regionInserts);
+
+      if (regionError) {
+        console.error('Error creating provider coverage regions:', regionError);
+        // Note: We don't fail the entire request if coverage regions fail
+        // The provider was already created successfully
+      }
     }
 
     // Log admin action
@@ -295,13 +280,3 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   }
 };
-
-// Simple password hashing function (in production, use bcrypt or similar)
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
-}
