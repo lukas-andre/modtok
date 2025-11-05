@@ -4,6 +4,7 @@ import { getAdminAuth, requireAdmin } from '@/lib/auth';
 import { createSupabaseClient } from '@/lib/supabase';
 import ProviderForm from '@/components/admin/forms/ProviderForm';
 import ManufacturerProfileEditor from '@/components/admin/forms/ManufacturerProfileEditor';
+import LandingPageManager from '@/components/admin/LandingPageManager';
 
 // Protect this page - only admins can access
 const auth = await getAdminAuth(Astro);
@@ -161,6 +162,25 @@ const initialData = {
           client:load
           providerId={id}
           companyName={provider.company_name}
+        />
+      </div>
+    )}
+
+    <!-- Landing Page Manager (solo para fabricantes) -->
+    {provider.is_manufacturer && (
+      <div class="mt-12 pt-8 border-t border-gray-300">
+        <div class="mb-6">
+          <h3 class="text-xl font-bold text-gray-900 mb-2">
+            Landing Page Configuration
+          </h3>
+          <p class="text-gray-600">
+            Manage the public landing page for this manufacturer. Landing pages are only visible for premium tier manufacturers.
+          </p>
+        </div>
+
+        <LandingPageManager
+          client:load
+          providerId={id}
         />
       </div>
     )}

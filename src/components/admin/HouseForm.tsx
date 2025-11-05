@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase-browser';
 import FeatureFormBuilder from './FeatureFormBuilder';
 import ImageGalleryManager from './ImageGalleryManager';
-import type { Database } from '@/lib/database.types';
+import type { Database } from "@/lib/database.helpers";
 
 type HouseInsert = Database['public']['Tables']['houses']['Insert'];
 type HouseUpdate = Database['public']['Tables']['houses']['Update'];

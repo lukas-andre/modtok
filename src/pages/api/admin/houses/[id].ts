@@ -113,8 +113,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     });
 
     // Convert array fields from string if needed
-    const arrayFields = ['technology_materials', 'windows_type', 'services_included', 
-                        'gallery_images', 'floor_plans', 'videos', 'keywords'];
+    const arrayFields = ['gallery_images', 'floor_plans', 'videos', 'keywords'];
     
     arrayFields.forEach(field => {
       if (typeof body[field] === 'string') {

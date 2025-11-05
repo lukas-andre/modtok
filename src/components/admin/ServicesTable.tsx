@@ -8,8 +8,6 @@ interface Service {
   slug: string;
   sku: string | null;
   main_image_url: string | null;
-  service_type: string | null;
-  service_family: string | null;
   price_from: number | null;
   price_to: number | null;
   price_unit: string | null;
@@ -61,11 +59,6 @@ export default function ServicesTable({ services, userRole }: ServicesTableProps
             >
               {row.name}
             </a>
-            {row.service_type && (
-              <div className="text-xs text-gray-500 mt-0.5">
-                Tipo: {row.service_type}
-              </div>
-            )}
             {row.coverage_areas && row.coverage_areas.length > 0 && (
               <div className="text-xs text-accent-blue mt-0.5 truncate">
                 {row.coverage_areas.slice(0, 2).join(', ')}
@@ -95,22 +88,6 @@ export default function ServicesTable({ services, userRole }: ServicesTableProps
         </div>
       ),
       width: '180px'
-    },
-    {
-      key: 'service_family',
-      label: 'Familia',
-      render: (_: any, row: Service) => (
-        <div className="text-sm">
-          {row.service_family ? (
-            <Badge variant="secondary" size="sm">
-              {row.service_family}
-            </Badge>
-          ) : (
-            <span className="text-gray-400 italic text-xs">No asignada</span>
-          )}
-        </div>
-      ),
-      width: '140px'
     },
     {
       key: 'price',

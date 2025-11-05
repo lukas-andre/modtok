@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { useFeatureDefinitions, type FeatureDefinition } from '@/hooks/useFeatureDefinitions';
 import DynamicFeatureInput from './DynamicFeatureInput';
-import type { Database } from '@/lib/database.types';
+import type { Database } from "@/lib/database.helpers";
 
 type CategoryType = Database['public']['Enums']['category_type'];
 

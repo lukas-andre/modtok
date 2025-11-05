@@ -1,13 +1,27 @@
 ---
 import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getAdminAuth, requireAdmin } from '../../../lib/auth';
-import ServiceForm from '../../../components/admin/ServiceForm';
+import { createSupabaseClient } from '../../../lib/supabase';
+import ServiceForm from '../../../components/admin/forms/ServiceForm';
 
 const auth = await getAdminAuth(Astro);
 const user = requireAdmin(auth);
 
 if (!user) {
   return Astro.redirect('/auth/login?redirect=/admin/services/create');
+}
+
+// Fetch H&S providers for the form
+const supabase = createSupabaseClient(Astro);
+const { data: providers, error: providersError } = await supabase
+  .from('providers')
+  .select('id, company_name')
+  .eq('is_service_provider', true)
+  .eq('status', 'active')
+  .order('company_name');
+
+if (providersError) {
+  console.error('Error fetching providers:', providersError);
 }
 ---
 
@@ -48,6 +62,7 @@ if (!user) {
     <ServiceForm
       client:load
       mode="create"
+      providers={providers || []}
     />
   </div>
 </AdminLayout>

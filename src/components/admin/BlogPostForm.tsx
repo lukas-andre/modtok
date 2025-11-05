@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import TipTapEditor from './TipTapEditor';
-import type { Database } from '@/lib/database.types';
+import type { Database } from "@/lib/database.helpers";
 
 type BlogPost = Database['public']['Tables']['blog_posts']['Row'];
 type BlogPostInsert = Database['public']['Tables']['blog_posts']['Insert'];

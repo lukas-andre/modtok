@@ -23,7 +23,7 @@ export type {
   ServiceProduct,
   ServiceProductInsert,
   ServiceProductUpdate,
-} from './database.types';
+} from './database.helpers';
 
 // Schema v3 - Lookups & Normalization
 export type {
@@ -33,7 +33,7 @@ export type {
   MediaAsset,
   MediaAssetInsert,
   MediaAssetUpdate,
-} from './database.types';
+} from './database.helpers';
 
 // Schema v3 - Slots System
 export type {
@@ -42,7 +42,7 @@ export type {
   SlotOrderInsert,
   SlotOrderUpdate,
   SlotRotationState,
-} from './database.types';
+} from './database.helpers';
 
 // Schema v3 - Ingestion System
 export type {
@@ -50,19 +50,19 @@ export type {
   RawProviderLeadInsert,
   ProviderAlias,
   ProviderAliasInsert,
-} from './database.types';
+} from './database.helpers';
 
 // Schema v3 - Views
 export type {
   CatalogVisibility,
-} from './database.types';
+} from './database.helpers';
 
 // User/Auth types
 export type {
   Profile,
   ProfileInsert,
   ProfileUpdate,
-} from './database.types';
+} from './database.helpers';
 
 // Enums
 export type {
@@ -74,10 +74,22 @@ export type {
   ContentStatus,
   FeatureDataType,
   FilterType,
-} from './database.types';
+} from './database.helpers';
+
+// Blog types
+export type {
+  BlogPost,
+  BlogPostInsert,
+  BlogPostUpdate,
+} from './database.helpers';
+
+// Homepage Slots
+export type {
+  HomepageSlot,
+} from './database.helpers';
 
 // Import for use in local interfaces
-import type { Profile, UserRole } from './database.types';
+import type { Profile, UserRole } from './database.helpers';
 
 // Additional app-specific types that aren't in the database
 

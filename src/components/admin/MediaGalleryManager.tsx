@@ -8,7 +8,7 @@ import {
   DocumentIcon,
   FilmIcon
 } from '@heroicons/react/24/outline';
-import type { MediaAsset } from '@/lib/database.types';
+import type { MediaAsset } from "@/lib/database.helpers";
 
 interface MediaGalleryManagerProps {
   ownerType: 'provider' | 'house' | 'service_product' | 'blog' | 'news';

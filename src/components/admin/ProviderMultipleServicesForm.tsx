@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import FeatureFormBuilder from './FeatureFormBuilder';
-import type { Database } from '@/lib/database.types';
+import type { Database } from "@/lib/database.helpers";
 
 type CategoryType = Database['public']['Enums']['category_type'];
 type ListingTier = Database['public']['Enums']['listing_tier'];

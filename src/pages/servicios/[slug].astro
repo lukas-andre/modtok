@@ -1,0 +1,415 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { createSupabaseClient } from '@/lib/supabase';
+
+const { slug } = Astro.params;
+
+if (!slug) {
+  return Astro.redirect('/?error=invalid-slug');
+}
+
+const supabase = createSupabaseClient(Astro);
+
+// Fetch service by slug with provider info
+const { data: service, error } = await supabase
+  .from('service_products')
+  .select(`
+    *,
+    provider:providers(id, company_name, slug, logo_url, is_service_provider, hq_region_code)
+  `)
+  .eq('slug', slug)
+  .eq('status', 'active')
+  .single();
+
+if (error || !service) {
+  return Astro.redirect(`/?error=not-found&type=servicio&slug=${slug}`);
+}
+
+// Only premium services with landing page enabled can have a landing page
+if (!service.has_landing_page) {
+  // Redirect to services catalog (or home for now)
+  return Astro.redirect('/');
+}
+
+// Fetch coverage regions for this service
+const { data: coverageRegions } = await supabase
+  .from('service_product_effective_regions')
+  .select('region_code')
+  .eq('service_product_id', service.id);
+
+const effectiveRegions = (coverageRegions || []).map((r: any) => r.region_code);
+
+// Format price
+const formatPrice = (price: number | null) => {
+  if (!price) return 'Consultar';
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    maximumFractionDigits: 0
+  }).format(price);
+};
+
+// Format price unit
+const formatPriceUnit = (unit: string | null) => {
+  const units: Record<string, string> = {
+    'per_project': 'por proyecto',
+    'per_m2': 'por m²',
+    'per_hour': 'por hora',
+    'per_day': 'por día',
+    'per_unit': 'por unidad',
+    'per_visit': 'por visita',
+    'monthly': 'mensual',
+    'annual': 'anual'
+  };
+  return units[unit || 'per_project'] || unit;
+};
+
+// Get price display
+const getPriceDisplay = () => {
+  if (service.price_from && service.price_to && service.price_from !== service.price_to) {
+    return `${formatPrice(service.price_from)} - ${formatPrice(service.price_to)}`;
+  } else if (service.price_from) {
+    return `Desde ${formatPrice(service.price_from)}`;
+  }
+  return 'Consultar';
+};
+
+// Get gallery images (main_image_url + gallery_images array)
+const galleryImages = [
+  service.main_image_url,
+  ...(service.gallery_images || [])
+].filter(Boolean);
+
+// Fetch related services (same provider, excluding current service)
+const { data: relatedServices } = await supabase
+  .from('service_products')
+  .select('id, name, slug, main_image_url, price_from, price_to, price_unit')
+  .eq('provider_id', service.provider_id)
+  .neq('id', service.id)
+  .eq('status', 'active')
+  .order('created_at', { ascending: false })
+  .limit(3);
+
+const pageTitle = `${service.name} - Servicios de Habilitación | MODTOK`;
+const pageDescription = service.description || `Servicio ${service.name} disponible en MODTOK`;
+---
+
+<BaseLayout title={pageTitle} description={pageDescription}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+      <ol class="flex items-center space-x-2 text-gray-500">
+        <li><a href="/" class="hover:text-accent-blue">Inicio</a></li>
+        <li>&gt;</li>
+        <li><a href="/servicios" class="hover:text-accent-blue">Servicios</a></li>
+        <li>&gt;</li>
+        <li class="text-gray-900 font-medium">{service.name}</li>
+      </ol>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Left Column - Images & Details -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- Main Image Gallery -->
+        {galleryImages.length > 0 ? (
+          <div class="rounded-xl overflow-hidden shadow-lg">
+            <img
+              src={galleryImages[0]}
+              alt={service.name}
+              class="w-full h-96 object-cover"
+            />
+            {galleryImages.length > 1 && (
+              <div class="grid grid-cols-4 gap-2 p-4 bg-white">
+                {galleryImages.slice(1, 5).map((img: string) => (
+                  <img
+                    src={img}
+                    alt={service.name}
+                    class="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-75 transition"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div class="rounded-xl bg-gray-100 h-96 flex items-center justify-center">
+            <span class="text-gray-400">Sin imágenes disponibles</span>
+          </div>
+        )}
+
+        <!-- Service Title & Basic Info -->
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">{service.name}</h1>
+          {service.sku && (
+            <p class="text-gray-600 mb-4">SKU: {service.sku}</p>
+          )}
+
+          <!-- Description -->
+          {service.description && (
+            <div class="prose prose-gray max-w-none mb-6">
+              <p>{service.description}</p>
+            </div>
+          )}
+
+          {service.description_long && (
+            <div class="prose prose-gray max-w-none">
+              <p class="text-gray-700">{service.description_long}</p>
+            </div>
+          )}
+        </div>
+
+        <!-- Coverage Regions -->
+        {effectiveRegions.length > 0 && (
+          <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Áreas de Cobertura</h2>
+            <div class="flex flex-wrap gap-2">
+              {effectiveRegions.map((regionCode: string) => (
+                <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                  {regionCode}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- Features -->
+        {service.features && Object.keys(service.features).length > 0 && (
+          <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Características</h2>
+            <div class="space-y-4">
+              {Object.entries(service.features).map(([groupKey, groupValue]) => {
+                // Check if it's a nested object (feature group)
+                if (typeof groupValue === 'object' && groupValue !== null && !Array.isArray(groupValue)) {
+                  return (
+                    <div class="border-l-4 border-blue-500 pl-4">
+                      <h3 class="font-semibold text-gray-900 mb-2 capitalize">
+                        {groupKey.replace(/_/g, ' ')}
+                      </h3>
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {Object.entries(groupValue).map(([featureKey, featureValue]) => (
+                          <div class="flex items-center gap-2">
+                            {typeof featureValue === 'boolean' ? (
+                              featureValue ? (
+                                <>
+                                  <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                  </svg>
+                                  <span class="text-gray-700 capitalize">{featureKey.replace(/_/g, ' ')}</span>
+                                </>
+                              ) : (
+                                <>
+                                  <svg class="w-5 h-5 text-gray-300 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                  </svg>
+                                  <span class="text-gray-400 capitalize line-through">{featureKey.replace(/_/g, ' ')}</span>
+                                </>
+                              )
+                            ) : (
+                              <>
+                                <svg class="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-gray-700">
+                                  <span class="capitalize">{featureKey.replace(/_/g, ' ')}</span>: <strong>{String(featureValue)}</strong>
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                } else {
+                  // Simple key-value feature
+                  return (
+                    <div class="flex items-center gap-2">
+                      <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                      </svg>
+                      <span class="text-gray-700 capitalize">
+                        {groupKey.replace(/_/g, ' ')}: <strong>{String(groupValue)}</strong>
+                      </span>
+                    </div>
+                  );
+                }
+              })}
+            </div>
+          </div>
+        )}
+
+        <!-- Availability -->
+        {service.max_bookings && (
+          <div class="bg-blue-50 rounded-xl p-6">
+            <h3 class="font-semibold text-blue-900 mb-2">Disponibilidad</h3>
+            <p class="text-blue-700">
+              {service.current_bookings || 0} de {service.max_bookings} reservas ocupadas
+            </p>
+            {service.is_available ? (
+              <p class="text-green-600 font-medium mt-2">✓ Disponible para reservar</p>
+            ) : (
+              <p class="text-red-600 font-medium mt-2">✗ No disponible actualmente</p>
+            )}
+          </div>
+        )}
+
+      </div>
+
+      <!-- Right Column - Provider & Contact -->
+      <div class="space-y-6">
+
+        <!-- Price Card -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-lg sticky top-4">
+          <div class="text-center mb-6">
+            <p class="text-sm text-gray-500 mb-1">Precio</p>
+            <p class="text-3xl font-bold text-accent-blue">{getPriceDisplay()}</p>
+            {service.price_unit && (
+              <p class="text-sm text-gray-500 mt-1">{formatPriceUnit(service.price_unit)}</p>
+            )}
+          </div>
+
+          <div class="space-y-3">
+            <a
+              href="#contacto"
+              class="block w-full bg-accent-blue text-white text-center py-3 rounded-lg font-semibold hover:bg-accent-blue-dark transition shadow-sm"
+            >
+              Solicitar Cotización
+            </a>
+            <a
+              href={`tel:${service.provider?.phone || ''}`}
+              class="block w-full bg-green-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-green-700 transition shadow-sm"
+            >
+              Llamar Ahora
+            </a>
+          </div>
+        </div>
+
+        <!-- Provider Card -->
+        {service.provider && (
+          <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Proveedor</h3>
+            <div class="flex items-center gap-4 mb-4">
+              {service.provider.logo_url ? (
+                <img
+                  src={service.provider.logo_url}
+                  alt={service.provider.company_name}
+                  class="w-16 h-16 rounded-lg object-cover"
+                />
+              ) : (
+                <div class="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center">
+                  <span class="text-2xl font-bold text-gray-400">
+                    {service.provider.company_name.charAt(0)}
+                  </span>
+                </div>
+              )}
+              <div>
+                <h4 class="font-semibold text-gray-900">{service.provider.company_name}</h4>
+                {service.provider.hq_region_code && (
+                  <p class="text-sm text-gray-500">{service.provider.hq_region_code}</p>
+                )}
+              </div>
+            </div>
+            <a
+              href={`/fabricantes/${service.provider.slug}`}
+              class="block w-full text-center py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition text-sm font-medium"
+            >
+              Ver Perfil del Proveedor
+            </a>
+          </div>
+        )}
+
+        <!-- Trust Badges -->
+        <div class="bg-gray-50 rounded-xl p-6">
+          <h3 class="font-semibold text-gray-900 mb-4">Garantías</h3>
+          <div class="space-y-3 text-sm text-gray-600">
+            <div class="flex items-start gap-2">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span>Proveedores Verificados</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span>Servicio Profesional</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              <span>Soporte Certificado</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Related Services -->
+    {relatedServices && relatedServices.length > 0 && (
+      <div class="mt-16">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Servicios Relacionados</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedServices.map((relatedService: any) => (
+            <a
+              href={`/servicios/${relatedService.slug}`}
+              class="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
+            >
+              {/* Image */}
+              {relatedService.main_image_url ? (
+                <div class="aspect-video overflow-hidden bg-gray-100">
+                  <img
+                    src={relatedService.main_image_url}
+                    alt={relatedService.name}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              ) : (
+                <div class="aspect-video bg-gray-200 flex items-center justify-center">
+                  <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              )}
+
+              {/* Content */}
+              <div class="p-4">
+                <h3 class="font-bold text-gray-900 group-hover:text-accent-blue transition mb-2">
+                  {relatedService.name}
+                </h3>
+
+                {/* Price */}
+                <div class="text-lg font-bold text-accent-blue">
+                  {relatedService.price_from && relatedService.price_to && relatedService.price_from !== relatedService.price_to
+                    ? `${formatPrice(relatedService.price_from)} - ${formatPrice(relatedService.price_to)}`
+                    : relatedService.price_from
+                    ? `Desde ${formatPrice(relatedService.price_from)}`
+                    : 'Consultar'}
+                </div>
+                {relatedService.price_unit && (
+                  <p class="text-sm text-gray-500 mt-1">{formatPriceUnit(relatedService.price_unit)}</p>
+                )}
+              </div>
+            </a>
+          ))}
+        </div>
+
+        {/* View All Link */}
+        <div class="mt-6 text-center">
+          <a
+            href="/servicios"
+            class="inline-flex items-center gap-2 text-accent-blue hover:text-accent-blue-dark font-semibold transition"
+          >
+            Ver Todos los Servicios
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    )}
+
+  </div>
+</BaseLayout>

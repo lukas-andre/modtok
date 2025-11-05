@@ -11,7 +11,7 @@ if (!slug) {
 
 const supabase = createSupabaseClient(Astro);
 
-// Fetch manufacturer using manufacturer_facets_effective view
+// Fetch manufacturer using manufacturer_facets_effective view (includes has_landing field)
 const { data: fabricante, error } = await supabase
   .from('manufacturer_facets_effective')
   .select('*')
@@ -22,6 +22,12 @@ const { data: fabricante, error } = await supabase
 
 if (error || !fabricante) {
   return Astro.redirect(`/?error=not-found&type=fabricante&slug=${slug}`);
+}
+
+// Only manufacturers with landing page enabled can have a landing page
+// (has_landing is derived from: tier='premium' + provider_landings.enabled + editorial_status='published')
+if (!fabricante.has_landing) {
+  return Astro.redirect('/fabricantes');
 }
 
 // Fetch houses from this manufacturer
