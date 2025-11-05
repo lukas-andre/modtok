@@ -2,17 +2,9 @@ import type { APIRoute } from 'astro';
 import { createSupabaseClient } from '@/lib/supabase';
 
 export const GET: APIRoute = async ({ params, request, cookies }) => {
+  const { id } = params;
   const supabase = createSupabaseClient({ request, cookies });
-  const serviceId = params.id;
-
-  // Validate required parameter
-  if (!serviceId) {
-    return new Response(JSON.stringify({ error: 'Service ID is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
+  
   // Check authentication
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -22,62 +14,61 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
     });
   }
 
+  if (!id) {
+    return new Response(JSON.stringify({ error: 'Service ID is required' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   try {
-    // Fetch service with provider info
-    const { data, error } = await supabase
+    // Fetch service
+    const { data: service, error } = await supabase
       .from('service_products')
       .select(`
         *,
         provider:providers(id, company_name, slug)
       `)
-      .eq('id', serviceId)
+      .eq('id', id)
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        return new Response(JSON.stringify({ error: 'Service not found' }), {
-          status: 404,
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
       throw error;
     }
 
-    // Fetch coverage deltas
-    const { data: coverageDeltas } = await supabase
+    if (!service) {
+      return new Response(JSON.stringify({ error: 'Service not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Fetch coverage_deltas from separate table
+    const { data: deltas } = await supabase
       .from('service_product_coverage_deltas')
       .select('region_code, op')
-      .eq('service_product_id', serviceId);
+      .eq('service_product_id', id);
 
-    // Fetch effective tier from catalog_visibility_effective view
+    // Enrich with effective_tier
     const { data: visibilityData } = await supabase
       .from('catalog_visibility_effective')
       .select('effective_tier')
       .eq('entity_type', 'service_product')
-      .eq('entity_id', serviceId)
+      .eq('entity_id', id)
       .single();
 
-    // Fetch effective coverage regions
-    const { data: effectiveRegions } = await supabase
-      .from('service_product_effective_regions')
-      .select('region_code')
-      .eq('service_product_id', serviceId);
-
-    const serviceWithEnrichedData = {
-      ...data,
-      coverage_deltas: coverageDeltas || [],
-      effective_coverage: (effectiveRegions || []).map((r: any) => r.region_code),
-      effective_tier: visibilityData?.effective_tier || data.tier
-    };
-
-    return new Response(JSON.stringify(serviceWithEnrichedData), {
+    return new Response(JSON.stringify({
+      ...service,
+      coverage_deltas: deltas || [],
+      effective_tier: visibilityData?.effective_tier || service.tier
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error: any) {
     console.error('Error fetching service:', error);
-    return new Response(JSON.stringify({
-      error: error.message || 'Failed to fetch service'
+    return new Response(JSON.stringify({ 
+      error: error.message || 'Failed to fetch service' 
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
@@ -86,17 +77,9 @@ export const GET: APIRoute = async ({ params, request, cookies }) => {
 };
 
 export const PUT: APIRoute = async ({ params, request, cookies }) => {
+  const { id } = params;
   const supabase = createSupabaseClient({ request, cookies });
-  const serviceId = params.id;
-
-  // Validate required parameter
-  if (!serviceId) {
-    return new Response(JSON.stringify({ error: 'Service ID is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
+  
   // Check authentication
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -106,47 +89,40 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     });
   }
 
+  if (!id) {
+    return new Response(JSON.stringify({ error: 'Service ID is required' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   try {
     const body = await request.json();
 
-    // Get current service data for comparison
-    const { data: currentData } = await supabase
-      .from('service_products')
-      .select('*')
-      .eq('id', serviceId)
-      .single();
-
-    // Extract coverage-related fields
-    const { coverage_mode, coverage_deltas, ...serviceUpdates } = body;
+    // Extract coverage_deltas before updating (it's not a column, it's a separate table)
+    const { coverage_deltas, ...serviceData } = body;
 
     // Convert numeric fields
     const numericFields = ['price_from', 'price_to', 'max_bookings', 'current_bookings'];
-
     numericFields.forEach(field => {
-      if (serviceUpdates[field] !== undefined && serviceUpdates[field] !== '') {
-        serviceUpdates[field] = parseFloat(serviceUpdates[field]) || null;
+      if (serviceData[field] !== undefined && serviceData[field] !== '') {
+        serviceData[field] = parseFloat(serviceData[field]) || null;
       }
     });
 
     // Convert array fields from string if needed
-    const arrayFields = ['gallery_images', 'keywords', 'videos'];
-
+    const arrayFields = ['gallery_images', 'keywords'];
     arrayFields.forEach(field => {
-      if (typeof serviceUpdates[field] === 'string') {
-        serviceUpdates[field] = serviceUpdates[field].split(',').map(s => s.trim()).filter(Boolean);
+      if (typeof serviceData[field] === 'string') {
+        serviceData[field] = serviceData[field].split(',').map(s => s.trim()).filter(Boolean);
       }
     });
 
-    // Add coverage_mode if provided
-    if (coverage_mode !== undefined) {
-      serviceUpdates.coverage_mode = coverage_mode;
-    }
-
-    // Update the service
-    const { data, error } = await supabase
+    // Update service
+    const { data: service, error } = await supabase
       .from('service_products')
-      .update(serviceUpdates)
-      .eq('id', serviceId)
+      .update(serviceData)
+      .eq('id', id)
       .select()
       .single();
 
@@ -154,74 +130,52 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
       throw error;
     }
 
-    // Handle coverage_deltas if provided
-    if (coverage_deltas !== undefined && Array.isArray(coverage_deltas)) {
-      // Delete all existing deltas first
+    // Update coverage_deltas in separate table if provided
+    if (coverage_deltas !== undefined) {
+      // Delete existing deltas
       await supabase
         .from('service_product_coverage_deltas')
         .delete()
-        .eq('service_product_id', serviceId);
+        .eq('service_product_id', id);
 
       // Insert new deltas
-      if (coverage_deltas.length > 0) {
-        const deltaInserts = coverage_deltas.map((delta: any) => ({
-          service_product_id: serviceId,
+      if (Array.isArray(coverage_deltas) && coverage_deltas.length > 0) {
+        const deltas = coverage_deltas.map(delta => ({
+          service_product_id: id,
           region_code: delta.region_code,
-          op: delta.op
+          op: delta.op // 'include' or 'exclude'
         }));
 
-        const { error: deltaError } = await supabase
+        const { error: deltasError } = await supabase
           .from('service_product_coverage_deltas')
-          .insert(deltaInserts);
+          .insert(deltas);
 
-        if (deltaError) {
-          console.error('Error updating coverage deltas:', deltaError);
-          // Don't fail the whole update, just log
+        if (deltasError) {
+          console.error('Error updating coverage deltas:', deltasError);
+          // Continue anyway - service was updated successfully
         }
       }
     }
 
-    // Log admin action with changes
-    const changes: Record<string, any> = {};
-    if (currentData) {
-      Object.keys(serviceUpdates).forEach(key => {
-        const currentValue = (currentData as any)[key];
-        const newValue = (serviceUpdates as any)[key];
-        if (JSON.stringify(currentValue) !== JSON.stringify(newValue)) {
-          changes[key] = {
-            old: currentValue,
-            new: newValue
-          };
-        }
-      });
-
-      if (coverage_deltas !== undefined) {
-        changes.coverage_deltas = { new: coverage_deltas };
-      }
-    }
-
-    if (Object.keys(changes).length > 0 && user?.id) {
+    // Log admin action
+    if (user?.id) {
       await supabase.from('admin_actions').insert({
         admin_id: user.id,
         action_type: 'update',
         target_type: 'service',
-        target_id: serviceId,
-        changes
+        target_id: id,
+        changes: { updated: serviceData }
       });
     }
 
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'Service updated successfully',
-      service: data
-    }), {
+    return new Response(JSON.stringify(service), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error: any) {
     console.error('Error updating service:', error);
-    return new Response(JSON.stringify({
-      error: error.message || 'Failed to update service'
+    return new Response(JSON.stringify({ 
+      error: error.message || 'Failed to update service' 
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
@@ -230,17 +184,9 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
 };
 
 export const DELETE: APIRoute = async ({ params, request, cookies }) => {
+  const { id } = params;
   const supabase = createSupabaseClient({ request, cookies });
-  const serviceId = params.id;
-
-  // Validate required parameter
-  if (!serviceId) {
-    return new Response(JSON.stringify({ error: 'Service ID is required' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
+  
   // Check authentication
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -250,24 +196,29 @@ export const DELETE: APIRoute = async ({ params, request, cookies }) => {
     });
   }
 
-  try {
-    // Get service data before deletion for logging
-    const { data: serviceData } = await supabase
-      .from('service_products')
-      .select('*')
-      .eq('id', serviceId)
-      .single();
+  if (!id) {
+    return new Response(JSON.stringify({ error: 'Service ID is required' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
 
+  try {
+    // Delete coverage_deltas first (if any)
+    await supabase
+      .from('service_product_coverage_deltas')
+      .delete()
+      .eq('service_product_id', id);
+
+    // Delete service
     const { error } = await supabase
       .from('service_products')
       .delete()
-      .eq('id', serviceId);
+      .eq('id', id);
 
     if (error) {
       throw error;
     }
-
-    // Coverage deltas will be deleted automatically via CASCADE
 
     // Log admin action
     if (user?.id) {
@@ -275,22 +226,19 @@ export const DELETE: APIRoute = async ({ params, request, cookies }) => {
         admin_id: user.id,
         action_type: 'delete',
         target_type: 'service',
-        target_id: serviceId,
-        changes: { deleted: serviceData }
+        target_id: id,
+        changes: { deleted: true }
       });
     }
 
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'Service deleted successfully'
-    }), {
+    return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error: any) {
     console.error('Error deleting service:', error);
-    return new Response(JSON.stringify({
-      error: error.message || 'Failed to delete service'
+    return new Response(JSON.stringify({ 
+      error: error.message || 'Failed to delete service' 
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }

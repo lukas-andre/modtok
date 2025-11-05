@@ -26,6 +26,12 @@ if (error || !house) {
   return Astro.redirect(`/?error=not-found&type=casa&slug=${slug}`);
 }
 
+// Only premium houses with landing page enabled can have a landing page
+if (!house.has_landing_page) {
+  // TODO: Create /casas catalog page - redirecting to home for now
+  return Astro.redirect('/');
+}
+
 // Fetch topology info separately (no FK relationship)
 let topology = null;
 if (house.topology_code) {
@@ -64,7 +70,7 @@ const galleryImages = [
 // Fetch related houses (same topology or same provider, excluding current house)
 const { data: relatedHouses } = await supabase
   .from('houses')
-  .select('id, name, slug, main_image_url, area_m2, price, topology_code, bedrooms, bathrooms')
+  .select('id, name, slug, main_image_url, area_m2, area_built_m2, price, topology_code, bedrooms, bathrooms')
   .or(`topology_code.eq.${house.topology_code},provider_id.eq.${house.provider_id}`)
   .neq('id', house.id)
   .eq('status', 'active')
@@ -134,7 +140,22 @@ const pageDescription = house.description || `Casa ${house.name} - ${topology?.d
                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5" />
                 </svg>
-                <span class="font-semibold text-blue-900">{formatArea(house.area_m2)}</span>
+                <div class="flex flex-col">
+                  <span class="font-semibold text-blue-900">{formatArea(house.area_m2)}</span>
+                  <span class="text-xs text-blue-700">Área Total</span>
+                </div>
+              </div>
+            )}
+
+            {house.area_built_m2 && (
+              <div class="flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-lg">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+                <div class="flex flex-col">
+                  <span class="font-semibold text-indigo-900">{formatArea(house.area_built_m2)}</span>
+                  <span class="text-xs text-indigo-700">Construida</span>
+                </div>
               </div>
             )}
 
@@ -185,11 +206,42 @@ const pageDescription = house.description || `Casa ${house.name} - ${topology?.d
           </div>
         )}
 
-        <!-- Technical Details -->
-        {house.delivery_time_weeks && (
-          <div class="bg-blue-50 rounded-xl p-6">
-            <h3 class="font-semibold text-blue-900 mb-2">Tiempo de Entrega</h3>
-            <p class="text-blue-700">{house.delivery_time_weeks} semanas</p>
+        <!-- Technical Specifications -->
+        {(house.main_material || house.energy_rating || house.warranty_years || house.delivery_time_days || house.assembly_time_days) && (
+          <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Especificaciones Técnicas</h2>
+            <div class="space-y-3">
+              {house.main_material && (
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                  <span class="text-gray-600">Material Principal</span>
+                  <span class="font-semibold text-gray-900">{house.main_material}</span>
+                </div>
+              )}
+              {house.energy_rating && (
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                  <span class="text-gray-600">Calificación Energética</span>
+                  <span class="font-semibold text-gray-900 px-3 py-1 bg-green-100 text-green-800 rounded">{house.energy_rating}</span>
+                </div>
+              )}
+              {house.warranty_years && (
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                  <span class="text-gray-600">Garantía</span>
+                  <span class="font-semibold text-gray-900">{house.warranty_years} años</span>
+                </div>
+              )}
+              {house.delivery_time_days && (
+                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                  <span class="text-gray-600">Tiempo de Entrega</span>
+                  <span class="font-semibold text-gray-900">{house.delivery_time_days} días</span>
+                </div>
+              )}
+              {house.assembly_time_days && (
+                <div class="flex items-center justify-between py-2">
+                  <span class="text-gray-600">Tiempo de Montaje</span>
+                  <span class="font-semibold text-gray-900">{house.assembly_time_days} días</span>
+                </div>
+              )}
+            </div>
           </div>
         )}
 

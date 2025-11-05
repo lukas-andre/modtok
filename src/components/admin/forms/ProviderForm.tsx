@@ -4,12 +4,17 @@ import { SelectField } from '@/components/ui/select';
 import { TextAreaField } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FormSection } from '@/components/admin/FormSection';
-import MediaGalleryManager from '@/components/admin/MediaGalleryManager';
+import MediaUploaderV2 from '@/components/admin/MediaUploaderV2';
+import ManufacturerProfileEditor from '@/components/admin/forms/ManufacturerProfileEditor';
+import TierSEOPanel from '@/components/admin/forms/TierSEOPanel';
+import PublishChecklist from '@/components/admin/PublishChecklist';
+import type { Tier } from '../../../lib/schemas/unified';
 
 interface ProviderFormProps {
   mode: 'create' | 'edit';
   initialData?: any;
   providerId?: string;
+  landingData?: any;
 }
 
 const CHILEAN_REGIONS = [
@@ -34,17 +39,25 @@ const CHILEAN_REGIONS = [
 export default function ProviderForm({
   mode,
   initialData,
-  providerId
+  providerId,
+  landingData
 }: ProviderFormProps) {
   const [formData, setFormData] = useState(initialData || {
-    status: 'pending_review',
+    status: 'draft',
     is_manufacturer: false,
     is_service_provider: false,
-    coverage_regions: [], // Array of region codes
-    hq_region_code: null // HQ region code (FK to regions_lkp)
+    coverage_regions: [],
+    hq_region_code: null
   });
+  const [landingFormData, setLandingFormData] = useState(landingData || {
+    tier: 'standard' as Tier,
+    meta_title: '',
+    meta_description: ''
+  });
+  const [activeTab, setActiveTab] = useState<'capabilities' | 'landing'>('capabilities');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [createdProviderId, setCreatedProviderId] = useState(providerId);
 
   // Auto-generate slug from company_name
   useEffect(() => {
@@ -69,7 +82,6 @@ export default function ProviderForm({
   const handleSubmit = async (e: React.FormEvent, saveAs?: string) => {
     e.preventDefault();
 
-    // Validation: at least one capability flag must be true
     if (!formData.is_manufacturer && !formData.is_service_provider) {
       setErrors({
         capabilities: 'Debe seleccionar al menos una capacidad: Fabricante o Proveedor de Servicios'
@@ -82,13 +94,13 @@ export default function ProviderForm({
 
     const submitData = {
       ...formData,
-      status: saveAs || formData.status
+      status: mode === 'create' ? 'draft' : (saveAs || formData.status)
     };
 
     try {
       const url = mode === 'create'
-        ? '/api/admin/providers'
-        : `/api/admin/providers/${providerId}`;
+        ? '/api/admin/providers/create'
+        : `/api/admin/providers/${createdProviderId}`;
 
       const response = await fetch(url, {
         method: mode === 'create' ? 'POST' : 'PUT',
@@ -98,7 +110,12 @@ export default function ProviderForm({
 
       if (response.ok) {
         const result = await response.json();
-        window.location.href = `/admin/providers`;
+        if (mode === 'create' && result.id) {
+          setCreatedProviderId(result.id);
+          alert('Provider creado como borrador. Ahora puedes agregar media y completar el perfil.');
+        } else {
+          alert('Provider actualizado exitosamente');
+        }
       } else {
         const error = await response.json();
         setErrors(error.errors || {});
@@ -351,70 +368,114 @@ export default function ProviderForm({
         </div>
       </FormSection>
 
-      {/* Imágenes y Multimedia */}
-      {providerId && (
+      {/* Imágenes Corporativas */}
+      {createdProviderId && (
         <FormSection
           title="Imágenes Corporativas"
-          description="Logo, imagen de portada y galería"
+          description="Logo, portada y galería de identidad"
         >
-          <div className="space-y-6">
-            {/* Logo */}
-            <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Logo</h4>
-              <p className="text-sm text-gray-500 mb-3">
-                Logo de la empresa (admite SVG, PNG, JPG).
-              </p>
-              <MediaGalleryManager
-                ownerType="provider"
-                ownerId={providerId}
-                allowedKinds={['image']}
-                maxFiles={1}
-                maxSizeMB={2}
-                disabled={loading}
-              />
-            </div>
-
-            {/* Cover Image */}
-            <div className="pt-4 border-t border-gray-200">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Imagen de Portada</h4>
-              <p className="text-sm text-gray-500 mb-3">
-                Imagen principal para el perfil del proveedor.
-              </p>
-              <MediaGalleryManager
-                ownerType="provider"
-                ownerId={providerId}
-                allowedKinds={['image']}
-                maxFiles={1}
-                maxSizeMB={5}
-                disabled={loading}
-              />
-            </div>
-
-            {/* Gallery */}
-            <div className="pt-4 border-t border-gray-200">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Galería</h4>
-              <p className="text-sm text-gray-500 mb-3">
-                Imágenes adicionales de instalaciones, proyectos, equipo, etc.
-              </p>
-              <MediaGalleryManager
-                ownerType="provider"
-                ownerId={providerId}
-                allowedKinds={['image']}
-                maxFiles={10}
-                maxSizeMB={5}
-                disabled={loading}
-              />
-            </div>
-          </div>
+          <MediaUploaderV2
+            ownerType="provider"
+            ownerId={createdProviderId}
+            ownerContext="identity"
+            requiredRoles={[]}
+            allowedRoles={['logo', 'cover', 'gallery']}
+            maxFiles={{ logo: 1, cover: 1, gallery: 10 }}
+          />
         </FormSection>
       )}
 
-      {!providerId && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">
+      {!createdProviderId && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <p className="text-sm text-amber-800">
             💡 <strong>Nota:</strong> Guarde el proveedor primero para poder agregar imágenes.
           </p>
         </div>
+      )}
+
+      {/* Manufacturer Tabs (only if is_manufacturer) */}
+      {formData.is_manufacturer && createdProviderId && (
+        <FormSection
+          title="Perfil de Fabricante"
+          description="Capacidades y configuración de landing"
+        >
+          <div className="space-y-6">
+            {/* Tab Navigation */}
+            <div className="border-b border-gray-200">
+              <nav className="flex space-x-8">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('capabilities')}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === 'capabilities'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  Capacidades
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('landing')}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                    activeTab === 'landing'
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  Landing & Tier
+                </button>
+              </nav>
+            </div>
+
+            {/* Tab Content */}
+            {activeTab === 'capabilities' && (
+              <ManufacturerProfileEditor
+                providerId={createdProviderId}
+                companyName={formData.company_name}
+              />
+            )}
+
+            {activeTab === 'landing' && (
+              <div className="space-y-6">
+                <TierSEOPanel
+                  tier={landingFormData.tier}
+                  onTierChange={(tier) => setLandingFormData(prev => ({ ...prev, tier }))}
+                  seoFields={{
+                    meta_title: landingFormData.meta_title,
+                    meta_description: landingFormData.meta_description
+                  }}
+                  onSeoChange={(fields) => setLandingFormData(prev => ({ ...prev, ...fields }))}
+                  entityType="provider"
+                />
+
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-gray-900 mb-4">Media de Landing</h4>
+                  <MediaUploaderV2
+                    ownerType="provider_landing"
+                    ownerId={createdProviderId}
+                    ownerContext="landing"
+                    requiredRoles={
+                      landingFormData.tier === 'premium'
+                        ? ['thumbnail', 'landing_hero', 'landing_secondary', 'landing_third']
+                        : landingFormData.tier === 'destacado'
+                        ? ['thumbnail']
+                        : []
+                    }
+                    allowedRoles={['thumbnail', 'landing_hero', 'landing_secondary', 'landing_third', 'gallery']}
+                    maxFiles={{ thumbnail: 1, landing_hero: 1, landing_secondary: 1, landing_third: 1, gallery: 10 }}
+                  />
+                </div>
+
+                <PublishChecklist
+                  entityType="provider"
+                  entityId={createdProviderId}
+                  tier={landingFormData.tier}
+                />
+              </div>
+            )}
+          </div>
+        </FormSection>
       )}
 
       {/* Estado y Moderación */}

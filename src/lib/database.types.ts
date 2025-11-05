@@ -395,6 +395,7 @@ export type Database = {
       }
       houses: {
         Row: {
+          area_built_m2: number | null
           area_m2: number | null
           assembly_time_days: number | null
           bathrooms: number | null
@@ -407,6 +408,7 @@ export type Database = {
           description: string | null
           description_long: string | null
           editor_approved_for_premium: boolean | null
+          energy_rating: string | null
           features: Json | null
           floor_plans: string[] | null
           floors: number | null
@@ -425,6 +427,7 @@ export type Database = {
           location_region: string | null
           longitude: number | null
           main_image_url: string | null
+          main_material: string | null
           meta_description: string | null
           meta_title: string | null
           metadata: Json | null
@@ -452,6 +455,7 @@ export type Database = {
           warranty_years: number | null
         }
         Insert: {
+          area_built_m2?: number | null
           area_m2?: number | null
           assembly_time_days?: number | null
           bathrooms?: number | null
@@ -464,6 +468,7 @@ export type Database = {
           description?: string | null
           description_long?: string | null
           editor_approved_for_premium?: boolean | null
+          energy_rating?: string | null
           features?: Json | null
           floor_plans?: string[] | null
           floors?: number | null
@@ -482,6 +487,7 @@ export type Database = {
           location_region?: string | null
           longitude?: number | null
           main_image_url?: string | null
+          main_material?: string | null
           meta_description?: string | null
           meta_title?: string | null
           metadata?: Json | null
@@ -509,6 +515,7 @@ export type Database = {
           warranty_years?: number | null
         }
         Update: {
+          area_built_m2?: number | null
           area_m2?: number | null
           assembly_time_days?: number | null
           bathrooms?: number | null
@@ -521,6 +528,7 @@ export type Database = {
           description?: string | null
           description_long?: string | null
           editor_approved_for_premium?: boolean | null
+          energy_rating?: string | null
           features?: Json | null
           floor_plans?: string[] | null
           floors?: number | null
@@ -539,6 +547,7 @@ export type Database = {
           location_region?: string | null
           longitude?: number | null
           main_image_url?: string | null
+          main_material?: string | null
           meta_description?: string | null
           meta_title?: string | null
           metadata?: Json | null
@@ -815,8 +824,11 @@ export type Database = {
           id: string
           kind: string
           meta: Json | null
+          owner_context: string | null
           owner_id: string
           owner_type: string
+          position: number
+          role: Database["public"]["Enums"]["media_role"] | null
           sort_order: number | null
           updated_at: string | null
           url: string
@@ -828,8 +840,11 @@ export type Database = {
           id?: string
           kind: string
           meta?: Json | null
+          owner_context?: string | null
           owner_id: string
           owner_type: string
+          position?: number
+          role?: Database["public"]["Enums"]["media_role"] | null
           sort_order?: number | null
           updated_at?: string | null
           url: string
@@ -841,8 +856,11 @@ export type Database = {
           id?: string
           kind?: string
           meta?: Json | null
+          owner_context?: string | null
           owner_id?: string
           owner_type?: string
+          position?: number
+          role?: Database["public"]["Enums"]["media_role"] | null
           sort_order?: number | null
           updated_at?: string | null
           url?: string
@@ -1056,52 +1074,6 @@ export type Database = {
           },
         ]
       }
-      provider_categories_deprecated_20251029: {
-        Row: {
-          category: Database["public"]["Enums"]["category_type"]
-          created_at: string | null
-          id: string
-          is_primary: boolean | null
-          provider_id: string
-        }
-        Insert: {
-          category: Database["public"]["Enums"]["category_type"]
-          created_at?: string | null
-          id?: string
-          is_primary?: boolean | null
-          provider_id: string
-        }
-        Update: {
-          category?: Database["public"]["Enums"]["category_type"]
-          created_at?: string | null
-          id?: string
-          is_primary?: boolean | null
-          provider_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "provider_categories_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "manufacturer_facets_effective"
-            referencedColumns: ["provider_id"]
-          },
-          {
-            foreignKeyName: "provider_categories_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "providers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "provider_categories_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "providers_with_categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       provider_coverage_regions: {
         Row: {
           created_at: string | null
@@ -1149,6 +1121,96 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "regions_lkp"
             referencedColumns: ["code"]
+          },
+        ]
+      }
+      provider_landings: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          editorial_status: string
+          enabled: boolean
+          meta_description: string | null
+          meta_title: string | null
+          og_image_url: string | null
+          provider_id: string
+          published_at: string | null
+          sections: Json | null
+          slug: string
+          template: string
+          tier: Database["public"]["Enums"]["listing_tier"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          editorial_status?: string
+          enabled?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image_url?: string | null
+          provider_id: string
+          published_at?: string | null
+          sections?: Json | null
+          slug: string
+          template?: string
+          tier?: Database["public"]["Enums"]["listing_tier"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          editorial_status?: string
+          enabled?: boolean
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image_url?: string | null
+          provider_id?: string
+          published_at?: string | null
+          sections?: Json | null
+          slug?: string
+          template?: string
+          tier?: Database["public"]["Enums"]["listing_tier"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_landings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_landings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "manufacturer_facets_effective"
+            referencedColumns: ["provider_id"]
+          },
+          {
+            foreignKeyName: "provider_landings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_landings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "providers_with_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_landings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1260,153 +1322,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      providers_backup_20251029: {
-        Row: {
-          address: string | null
-          admin_notes: string | null
-          approved_at: string | null
-          approved_by: string | null
-          city: string | null
-          clicks_count: number | null
-          company_name: string | null
-          cover_image_url: string | null
-          created_at: string | null
-          description: string | null
-          description_long: string | null
-          editor_approved_for_premium: boolean | null
-          email: string | null
-          featured_order: number | null
-          featured_until: string | null
-          features: Json | null
-          gallery_images: string[] | null
-          has_complete_info: boolean | null
-          has_landing_page: boolean | null
-          has_quality_images: boolean | null
-          hq_region_code: string | null
-          id: string | null
-          inquiries_count: number | null
-          internal_rating: number | null
-          is_manufacturer: boolean | null
-          is_service_provider: boolean | null
-          keywords: string[] | null
-          landing_slug: string | null
-          logo_url: string | null
-          meta_description: string | null
-          meta_title: string | null
-          metadata: Json | null
-          phone: string | null
-          premium_until: string | null
-          primary_category: Database["public"]["Enums"]["category_type"] | null
-          profile_id: string | null
-          region: string | null
-          rejection_reason: string | null
-          slug: string | null
-          status: Database["public"]["Enums"]["listing_status"] | null
-          tier: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at: string | null
-          videos: string[] | null
-          views_count: number | null
-          website: string | null
-          whatsapp: string | null
-        }
-        Insert: {
-          address?: string | null
-          admin_notes?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
-          city?: string | null
-          clicks_count?: number | null
-          company_name?: string | null
-          cover_image_url?: string | null
-          created_at?: string | null
-          description?: string | null
-          description_long?: string | null
-          editor_approved_for_premium?: boolean | null
-          email?: string | null
-          featured_order?: number | null
-          featured_until?: string | null
-          features?: Json | null
-          gallery_images?: string[] | null
-          has_complete_info?: boolean | null
-          has_landing_page?: boolean | null
-          has_quality_images?: boolean | null
-          hq_region_code?: string | null
-          id?: string | null
-          inquiries_count?: number | null
-          internal_rating?: number | null
-          is_manufacturer?: boolean | null
-          is_service_provider?: boolean | null
-          keywords?: string[] | null
-          landing_slug?: string | null
-          logo_url?: string | null
-          meta_description?: string | null
-          meta_title?: string | null
-          metadata?: Json | null
-          phone?: string | null
-          premium_until?: string | null
-          primary_category?: Database["public"]["Enums"]["category_type"] | null
-          profile_id?: string | null
-          region?: string | null
-          rejection_reason?: string | null
-          slug?: string | null
-          status?: Database["public"]["Enums"]["listing_status"] | null
-          tier?: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at?: string | null
-          videos?: string[] | null
-          views_count?: number | null
-          website?: string | null
-          whatsapp?: string | null
-        }
-        Update: {
-          address?: string | null
-          admin_notes?: string | null
-          approved_at?: string | null
-          approved_by?: string | null
-          city?: string | null
-          clicks_count?: number | null
-          company_name?: string | null
-          cover_image_url?: string | null
-          created_at?: string | null
-          description?: string | null
-          description_long?: string | null
-          editor_approved_for_premium?: boolean | null
-          email?: string | null
-          featured_order?: number | null
-          featured_until?: string | null
-          features?: Json | null
-          gallery_images?: string[] | null
-          has_complete_info?: boolean | null
-          has_landing_page?: boolean | null
-          has_quality_images?: boolean | null
-          hq_region_code?: string | null
-          id?: string | null
-          inquiries_count?: number | null
-          internal_rating?: number | null
-          is_manufacturer?: boolean | null
-          is_service_provider?: boolean | null
-          keywords?: string[] | null
-          landing_slug?: string | null
-          logo_url?: string | null
-          meta_description?: string | null
-          meta_title?: string | null
-          metadata?: Json | null
-          phone?: string | null
-          premium_until?: string | null
-          primary_category?: Database["public"]["Enums"]["category_type"] | null
-          profile_id?: string | null
-          region?: string | null
-          rejection_reason?: string | null
-          slug?: string | null
-          status?: Database["public"]["Enums"]["listing_status"] | null
-          tier?: Database["public"]["Enums"]["listing_tier"] | null
-          updated_at?: string | null
-          videos?: string[] | null
-          views_count?: number | null
-          website?: string | null
-          whatsapp?: string | null
-        }
-        Relationships: []
       }
       raw_provider_leads: {
         Row: {
@@ -1552,8 +1467,6 @@ export type Database = {
           price_unit: string | null
           provider_id: string
           sales_count: number | null
-          service_family: string | null
-          service_type: string | null
           sku: string | null
           slug: string
           status: Database["public"]["Enums"]["listing_status"] | null
@@ -1593,8 +1506,6 @@ export type Database = {
           price_unit?: string | null
           provider_id: string
           sales_count?: number | null
-          service_family?: string | null
-          service_type?: string | null
           sku?: string | null
           slug: string
           status?: Database["public"]["Enums"]["listing_status"] | null
@@ -1634,8 +1545,6 @@ export type Database = {
           price_unit?: string | null
           provider_id?: string
           sales_count?: number | null
-          service_family?: string | null
-          service_type?: string | null
           sku?: string | null
           slug?: string
           status?: Database["public"]["Enums"]["listing_status"] | null
@@ -1936,17 +1845,22 @@ export type Database = {
       }
       manufacturer_facets_effective: {
         Row: {
+          address: string | null
           ases_legal: boolean | null
           ases_tecnica: boolean | null
+          city: string | null
           company_name: string | null
           contr_terreno: boolean | null
           cover_image_url: string | null
           created_at: string | null
           declared_at: string | null
+          description: string | null
           dise_pers: boolean | null
           dise_std: boolean | null
+          email: string | null
           experiencia_years: number | null
           financiamiento: boolean | null
+          has_landing: boolean | null
           has_verified: boolean | null
           house_count: number | null
           house_destacado_count: number | null
@@ -1957,6 +1871,8 @@ export type Database = {
           is_manufacturer: boolean | null
           is_service_provider: boolean | null
           kit_autocons: boolean | null
+          landing_slug: string | null
+          landing_template: string | null
           llave_en_mano: boolean | null
           logist_transporte: boolean | null
           logo_url: string | null
@@ -1965,6 +1881,7 @@ export type Database = {
           modulares_madera: boolean | null
           modulares_sip: boolean | null
           oficinas_modulares: boolean | null
+          phone: string | null
           prefabricada_tradicional: boolean | null
           price_m2_max: number | null
           price_m2_min: number | null
@@ -1973,9 +1890,12 @@ export type Database = {
           regions: string[] | null
           slug: string | null
           status: Database["public"]["Enums"]["listing_status"] | null
+          tier: Database["public"]["Enums"]["listing_tier"] | null
           tiny_houses: boolean | null
           updated_at: string | null
           verified_by_admin: boolean | null
+          website: string | null
+          whatsapp: string | null
         }
         Relationships: [
           {
@@ -2184,6 +2104,16 @@ export type Database = {
         | "inactive"
         | "rejected"
       listing_tier: "premium" | "destacado" | "standard"
+      media_role:
+        | "thumbnail"
+        | "landing_hero"
+        | "landing_secondary"
+        | "landing_third"
+        | "gallery"
+        | "plan"
+        | "brochure_pdf"
+        | "cover"
+        | "logo"
       user_role: "super_admin" | "admin" | "provider" | "user"
       user_status: "active" | "inactive" | "suspended" | "pending_verification"
     }
@@ -2331,70 +2261,19 @@ export const Constants = {
         "rejected",
       ],
       listing_tier: ["premium", "destacado", "standard"],
+      media_role: [
+        "thumbnail",
+        "landing_hero",
+        "landing_secondary",
+        "landing_third",
+        "gallery",
+        "plan",
+        "brochure_pdf",
+        "cover",
+        "logo",
+      ],
       user_role: ["super_admin", "admin", "provider", "user"],
       user_status: ["active", "inactive", "suspended", "pending_verification"],
     },
   },
 } as const
-
-// ============================================================================
-// TYPE ALIASES - Provider Minimalista Model
-// ============================================================================
-
-// Core entities
-export type Provider = Tables<'providers'>
-export type House = Tables<'houses'>
-export type ServiceProduct = Tables<'service_products'>
-export type Profile = Tables<'profiles'>
-
-// Provider Minimalista - New tables
-export type ManufacturerProfile = Tables<'manufacturer_profiles'>
-export type Region = Tables<'regions_lkp'>
-export type ProviderCoverageRegion = Tables<'provider_coverage_regions'>
-export type MediaAsset = Tables<'media_assets'>
-export type ProviderAlias = Tables<'provider_aliases'>
-
-// Provider Minimalista - Views
-export type ManufacturerFacetsEffective = Tables<'manufacturer_facets_effective'>
-export type HouseFacetsByProvider = Tables<'house_facets_by_provider'>
-export type ProviderWithCategories = Tables<'providers_with_categories'>
-export type ServiceProductEffectiveRegions = Tables<'service_product_effective_regions'>
-
-// Slots System
-export type SlotPosition = Tables<'slot_positions'>
-export type SlotOrder = Tables<'slot_orders'>
-export type SlotRotationState = Tables<'slot_rotation_state'>
-
-// Ingestion System
-export type RawProviderLead = Tables<'raw_provider_leads'>
-
-// Insert types
-export type ProviderInsert = TablesInsert<'providers'>
-export type ManufacturerProfileInsert = TablesInsert<'manufacturer_profiles'>
-export type HouseInsert = TablesInsert<'houses'>
-export type ServiceProductInsert = TablesInsert<'service_products'>
-export type ProfileInsert = TablesInsert<'profiles'>
-export type MediaAssetInsert = TablesInsert<'media_assets'>
-export type ProviderCoverageRegionInsert = TablesInsert<'provider_coverage_regions'>
-export type ProviderAliasInsert = TablesInsert<'provider_aliases'>
-export type SlotOrderInsert = TablesInsert<'slot_orders'>
-export type RawProviderLeadInsert = TablesInsert<'raw_provider_leads'>
-
-// Update types
-export type ProviderUpdate = TablesUpdate<'providers'>
-export type ManufacturerProfileUpdate = TablesUpdate<'manufacturer_profiles'>
-export type HouseUpdate = TablesUpdate<'houses'>
-export type ServiceProductUpdate = TablesUpdate<'service_products'>
-export type ProfileUpdate = TablesUpdate<'profiles'>
-export type MediaAssetUpdate = TablesUpdate<'media_assets'>
-export type SlotOrderUpdate = TablesUpdate<'slot_orders'>
-
-// Enums
-export type UserRole = Database['public']['Enums']['user_role']
-export type UserStatus = Database['public']['Enums']['user_status']
-export type CategoryType = Database['public']['Enums']['category_type']
-export type ListingStatus = Database['public']['Enums']['listing_status']
-export type ListingTier = Database['public']['Enums']['listing_tier']
-export type ContentStatus = Database['public']['Enums']['content_status']
-export type FeatureDataType = Database['public']['Enums']['feature_data_type']
-export type FilterType = Database['public']['Enums']['filter_type']

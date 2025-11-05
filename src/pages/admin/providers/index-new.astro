@@ -20,8 +20,7 @@ const { data: providers, error } = await supabase
     *,
     profile:profiles!providers_profile_id_fkey(full_name, email, avatar_url),
     approved_by_profile:profiles!providers_approved_by_fkey(full_name, email),
-    created_by_profile:profiles!providers_created_by_fkey(full_name, email),
-    provider_categories(category_type)
+    created_by_profile:profiles!providers_created_by_fkey(full_name, email)
   `)
   .order('created_at', { ascending: false });
 

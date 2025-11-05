@@ -5,7 +5,10 @@ import { TextAreaField } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { FormSection } from '@/components/admin/FormSection';
 import FeatureFormBuilder from '@/components/admin/FeatureFormBuilder';
-import MediaGalleryManager from '@/components/admin/MediaGalleryManager';
+import MediaUploaderV2 from '@/components/admin/MediaUploaderV2';
+import TierSEOPanel from '@/components/admin/forms/TierSEOPanel';
+import PublishChecklist from '@/components/admin/PublishChecklist';
+import type { Tier } from '../../../lib/schemas/unified';
 
 interface Provider {
   id: string;
@@ -46,18 +49,21 @@ export default function ServiceForm({
 }: ServiceFormProps) {
   const [formData, setFormData] = useState(initialData || {
     status: 'draft',
-    tier: 'standard',
+    tier: 'standard' as Tier,
     price_unit: 'per_project',
     current_bookings: 0,
     is_available: true,
-    coverage_mode: 'inherit', // P0.5: inherit (use provider coverage) or override (define own)
-    coverage_deltas: [], // P0.5: [{region_code: 'RM', op: 'include'|'exclude'}]
-    features: {} // JSONB features from FeatureFormBuilder
+    coverage_mode: 'inherit',
+    coverage_deltas: [],
+    features: {},
+    meta_title: '',
+    meta_description: ''
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [providerRegions, setProviderRegions] = useState<string[]>([]);
   const [effectiveCoverage, setEffectiveCoverage] = useState<string[]>([]);
+  const [createdServiceId, setCreatedServiceId] = useState(serviceId);
 
   // Auto-generate slug from name
   useEffect(() => {
@@ -119,19 +125,39 @@ export default function ServiceForm({
     }
   }, [formData.coverage_mode, formData.coverage_deltas, providerRegions]);
 
+  // Load service data including coverage_deltas when in edit mode
+  useEffect(() => {
+    if (mode === 'edit' && serviceId && !initialData) {
+      setLoading(true);
+      fetch(`/api/admin/services/${serviceId}`)
+        .then(res => res.json())
+        .then(data => {
+          setFormData({
+            ...data,
+            coverage_deltas: data.coverage_deltas || []
+          });
+        })
+        .catch(err => {
+          console.error('Error loading service:', err);
+          alert('Error al cargar el servicio');
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [mode, serviceId]);
+
   const handleSubmit = async (e: React.FormEvent, saveAs?: string) => {
     e.preventDefault();
     setLoading(true);
 
     const submitData = {
       ...formData,
-      status: saveAs || formData.status
+      status: mode === 'create' ? 'draft' : (saveAs || formData.status)
     };
 
     try {
       const url = mode === 'create'
         ? '/api/admin/services'
-        : `/api/admin/services/${serviceId}`;
+        : `/api/admin/services/${createdServiceId}`;
 
       const response = await fetch(url, {
         method: mode === 'create' ? 'POST' : 'PUT',
@@ -141,7 +167,12 @@ export default function ServiceForm({
 
       if (response.ok) {
         const result = await response.json();
-        window.location.href = `/admin/catalog/services`;
+        if (mode === 'create' && result.id) {
+          setCreatedServiceId(result.id);
+          alert('Servicio creado como borrador. Ahora puedes agregar media.');
+        } else {
+          alert('Servicio actualizado exitosamente');
+        }
       } else {
         const error = await response.json();
         setErrors(error.errors || {});
@@ -478,32 +509,6 @@ export default function ServiceForm({
         />
       </FormSection>
 
-      {/* Imágenes y Multimedia */}
-      {serviceId && (
-        <FormSection
-          title="Imágenes y Multimedia"
-          description="Gestión de imágenes del servicio"
-        >
-          <div className="space-y-6">
-            {/* Galería de Imágenes */}
-            <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Galería de Imágenes</h4>
-              <p className="text-sm text-gray-500 mb-3">
-                Imágenes del servicio. La primera imagen será la imagen principal.
-              </p>
-              <MediaGalleryManager
-                ownerType="service_product"
-                ownerId={serviceId}
-                allowedKinds={['image']}
-                maxFiles={10}
-                maxSizeMB={5}
-                disabled={loading}
-              />
-            </div>
-          </div>
-        </FormSection>
-      )}
-
       {!serviceId && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-800">
@@ -512,10 +517,10 @@ export default function ServiceForm({
         </div>
       )}
 
-      {/* SEO y Estado */}
+      {/* Tier, Estado y Visibilidad */}
       <FormSection
-        title="SEO y Estado"
-        description="Optimización para buscadores y estado de publicación"
+        title="Tier, Estado y Visibilidad"
+        description="Tier premium desbloquea landing pages con SEO optimizado"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <SelectField
@@ -532,46 +537,53 @@ export default function ServiceForm({
             ]}
           />
 
-          <SelectField
-            label="Tier"
-            name="tier"
-            value={formData.tier || 'standard'}
-            onChange={(e) => handleChange('tier', e.target.value)}
-            options={[
-              { value: 'standard', label: 'Standard' },
-              { value: 'destacado', label: 'Destacado' },
-              { value: 'premium', label: 'Premium' }
-            ]}
-          />
         </div>
 
-        <InputField
-          label="Meta Title"
-          name="meta_title"
-          value={formData.meta_title || ''}
-          onChange={(e) => handleChange('meta_title', e.target.value)}
-          maxLength={60}
-          helperText="Máximo 60 caracteres"
-        />
-
-        <TextAreaField
-          label="Meta Description"
-          name="meta_description"
-          value={formData.meta_description || ''}
-          onChange={(e) => handleChange('meta_description', e.target.value)}
-          rows={2}
-          maxLength={160}
-          helperText="Máximo 160 caracteres"
-        />
-
-        <InputField
-          label="Keywords"
-          name="keywords"
-          value={formData.keywords || ''}
-          onChange={(e) => handleChange('keywords', e.target.value)}
-          placeholder="paneles solares, energía renovable, instalación (separadas por comas)"
+        <TierSEOPanel
+          tier={formData.tier}
+          onTierChange={(tier) => handleChange('tier', tier)}
+          seoFields={{
+            meta_title: formData.meta_title,
+            meta_description: formData.meta_description
+          }}
+          onSeoChange={(fields) => {
+            if (fields.meta_title !== undefined) handleChange('meta_title', fields.meta_title);
+            if (fields.meta_description !== undefined) handleChange('meta_description', fields.meta_description);
+          }}
+          entityType="service"
         />
       </FormSection>
+
+      {/* Media Section */}
+      {createdServiceId && (
+        <FormSection
+          title="Media"
+          description="Imágenes según tier"
+        >
+          <MediaUploaderV2
+            ownerType="service_product"
+            ownerId={createdServiceId}
+            ownerContext="product"
+            requiredRoles={
+              formData.tier === 'premium'
+                ? ['thumbnail', 'landing_hero', 'landing_secondary', 'landing_third']
+                : formData.tier === 'destacado'
+                ? ['thumbnail']
+                : []
+            }
+            allowedRoles={['thumbnail', 'landing_hero', 'landing_secondary', 'landing_third', 'gallery']}
+            maxFiles={{ thumbnail: 1, landing_hero: 1, landing_secondary: 1, landing_third: 1, gallery: 10 }}
+          />
+        </FormSection>
+      )}
+
+      {createdServiceId && (
+        <PublishChecklist
+          entityType="service"
+          entityId={createdServiceId}
+          tier={formData.tier}
+        />
+      )}
 
       {/* Form Actions */}
       <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">

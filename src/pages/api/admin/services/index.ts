@@ -17,7 +17,6 @@ export const GET: APIRoute = async ({ request, cookies }) => {
   const url = new URL(request.url);
   const provider_id = url.searchParams.get('provider_id');
   const category_id = url.searchParams.get('category_id');
-  const service_type = url.searchParams.get('service_type');
   const status = url.searchParams.get('status') as 'draft' | 'pending_review' | 'active' | 'inactive' | 'rejected' | null;
   const tier = url.searchParams.get('tier') as 'premium' | 'destacado' | 'standard' | null;
   const is_available = url.searchParams.get('is_available');
@@ -65,14 +64,13 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     // Apply filters
     if (provider_id) query = query.eq('provider_id', provider_id);
     if (category_id) query = query.eq('category_id', category_id);
-    if (service_type) query = query.eq('service_type', service_type);
     if (status) query = query.eq('status', status);
     if (tier) query = query.eq('tier', tier);
     if (is_available !== null) query = query.eq('is_available', is_available === 'true');
     if (serviceIdsInRegion !== null) query = query.in('id', serviceIdsInRegion);
 
     if (search) {
-      query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%,service_type.ilike.%${search}%,description.ilike.%${search}%`);
+      query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%,description.ilike.%${search}%`);
     }
 
     // Apply pagination
@@ -137,68 +135,101 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
   try {
     const body = await request.json();
-    
+
     // Validate required fields
-    if (!body.name || !body.provider_id || !body.service_type) {
-      return new Response(JSON.stringify({ 
-        error: 'Missing required fields: name, provider_id, and service_type are required' 
+    if (!body.name || !body.provider_id) {
+      return new Response(JSON.stringify({
+        error: 'Missing required fields: name and provider_id are required'
       }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    // Generate slug if not provided
-    if (!body.slug) {
-      body.slug = body.name
-        .toLowerCase()
-        .replace(/[áàäâã]/g, 'a')
-        .replace(/[éèëê]/g, 'e')
-        .replace(/[íìïî]/g, 'i')
-        .replace(/[óòöôõ]/g, 'o')
-        .replace(/[úùüû]/g, 'u')
-        .replace(/[ñ]/g, 'n')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      
-      // Check if slug exists and make it unique
-      const { data: existing } = await supabase
+    // Extract coverage_deltas before inserting (it's not a column, it's a separate table)
+    const { coverage_deltas, ...serviceData } = body;
+
+    // Generate base slug from name if not provided
+    let baseSlug = serviceData.slug || serviceData.name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    // Ensure slug is unique by appending number if needed
+    let slug = baseSlug;
+    let counter = 1;
+    let isUnique = false;
+
+    while (!isUnique) {
+      const { data: existing, error: slugCheckError } = await supabase
         .from('service_products')
-        .select('slug')
-        .eq('slug', body.slug)
-        .single();
-      
-      if (existing) {
-        body.slug = `${body.slug}-${Date.now()}`;
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle();
+
+      if (slugCheckError) {
+        throw new Error(`Error checking slug uniqueness: ${slugCheckError.message}`);
+      }
+
+      if (!existing) {
+        isUnique = true;
+      } else {
+        slug = `${baseSlug}-${counter}`;
+        counter++;
       }
     }
 
+    serviceData.slug = slug;
+
     // Convert numeric fields
     const numericFields = ['price_from', 'price_to', 'max_bookings', 'current_bookings'];
-    
+
     numericFields.forEach(field => {
-      if (body[field] !== undefined && body[field] !== '') {
-        body[field] = parseFloat(body[field]) || null;
+      if (serviceData[field] !== undefined && serviceData[field] !== '') {
+        serviceData[field] = parseFloat(serviceData[field]) || null;
       }
     });
 
     // Convert array fields from string if needed
-    const arrayFields = ['coverage_areas', 'gallery_images', 'keywords'];
-    
+    const arrayFields = ['gallery_images', 'keywords'];
+
     arrayFields.forEach(field => {
-      if (typeof body[field] === 'string') {
-        body[field] = body[field].split(',').map(s => s.trim()).filter(Boolean);
+      if (typeof serviceData[field] === 'string') {
+        serviceData[field] = serviceData[field].split(',').map(s => s.trim()).filter(Boolean);
       }
     });
 
+    // Insert service
     const { data, error } = await supabase
       .from('service_products')
-      .insert([body])
+      .insert([serviceData])
       .select()
       .single();
 
     if (error) {
       throw error;
+    }
+
+    // Insert coverage_deltas in separate table (if provided)
+    if (coverage_deltas && Array.isArray(coverage_deltas) && coverage_deltas.length > 0) {
+      const deltas = coverage_deltas.map(delta => ({
+        service_product_id: data.id,
+        region_code: delta.region_code,
+        op: delta.op // 'include' or 'exclude'
+      }));
+
+      const { error: deltasError } = await supabase
+        .from('service_product_coverage_deltas')
+        .insert(deltas);
+
+      if (deltasError) {
+        console.error('Error inserting coverage deltas:', deltasError);
+        // Continue anyway - service was created successfully
+      }
     }
 
     // Log admin action
@@ -208,7 +239,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         action_type: 'create',
         target_type: 'service',
         target_id: data.id,
-        changes: { created: body }
+        changes: { created: serviceData }
       });
     }
 

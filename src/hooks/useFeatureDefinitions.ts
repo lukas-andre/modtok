@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createBrowserSupabaseClient } from '@/lib/supabase-browser';
-import type { Database } from '@/lib/database.types';
+import type { Database } from "@/lib/database.helpers";
 
 type CategoryType = Database['public']['Enums']['category_type'];
 type FeatureDataType = Database['public']['Enums']['feature_data_type'];

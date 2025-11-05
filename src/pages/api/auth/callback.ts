@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createServerClient } from '@supabase/ssr';
-import type { Database, ProfileInsert } from '@/lib/database.types';
+import type { Database, ProfileInsert } from "@/lib/database.helpers";
 import { getSupabaseEnv } from '@/lib/env';
 
 export const POST: APIRoute = async ({ request, cookies }) => {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { Provider, House, ServiceProduct } from '@/lib/database.types';
+import type { Provider, House, ServiceProduct } from "@/lib/database.helpers";
 
 interface VerificationItem {
   id: string;

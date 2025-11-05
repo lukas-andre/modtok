@@ -9,6 +9,9 @@ interface ManufacturerProfileEditorProps {
 }
 
 interface ManufacturerProfile {
+  // Tier (NUEVO)
+  tier?: 'premium' | 'destacado' | 'standard';
+
   // Servicios disponibles
   dise_std?: boolean;
   dise_pers?: boolean;
@@ -178,6 +181,75 @@ export default function ManufacturerProfileEditor({
           <p className="text-sm text-green-700">✓ Perfil guardado exitosamente</p>
         </div>
       )}
+
+      {/* Tier y Visibilidad */}
+      <FormSection
+        title="Tier y Visibilidad"
+        description="Solo tier Premium puede tener landing pages dedicadas con SEO"
+      >
+        <div className="space-y-3">
+          <div className="flex items-center space-x-4">
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name="tier"
+                value="standard"
+                checked={profile.tier === 'standard' || !profile.tier}
+                onChange={(e) => setProfile(prev => ({ ...prev, tier: 'standard' }))}
+                className="h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300"
+              />
+              <span className="ml-2 text-sm font-medium text-gray-900">Standard</span>
+              <span className="ml-2 text-xs text-gray-500">(Listado básico)</span>
+            </label>
+
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name="tier"
+                value="destacado"
+                checked={profile.tier === 'destacado'}
+                onChange={(e) => setProfile(prev => ({ ...prev, tier: 'destacado' }))}
+                className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
+              />
+              <span className="ml-2 text-sm font-medium text-orange-900">Destacado</span>
+              <span className="ml-2 text-xs text-gray-500">(Mayor visibilidad)</span>
+            </label>
+
+            <label className="flex items-center cursor-pointer">
+              <input
+                type="radio"
+                name="tier"
+                value="premium"
+                checked={profile.tier === 'premium'}
+                onChange={(e) => setProfile(prev => ({ ...prev, tier: 'premium' }))}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              />
+              <span className="ml-2 text-sm font-medium text-blue-900">Premium</span>
+              <span className="ml-2 text-xs text-gray-500">(Landing + SEO + máxima visibilidad)</span>
+            </label>
+          </div>
+
+          {profile.tier === 'premium' && (
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800 font-medium mb-2">
+                Premium: Este fabricante puede tener landing page dedicada en /fabricantes/[slug]
+              </p>
+              <p className="text-sm text-blue-700">
+                Configura el SEO y contenido de la landing en la sección <strong>"Landing Page Configuration"</strong> más abajo.
+              </p>
+            </div>
+          )}
+
+          {profile.tier !== 'premium' && (
+            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <p className="text-sm text-gray-600">
+                Los fabricantes Premium tienen landing pages dedicadas con SEO optimizado.
+                Cambia el tier a Premium para habilitar esta funcionalidad.
+              </p>
+            </div>
+          )}
+        </div>
+      </FormSection>
 
       {/* Servicios Disponibles */}
       <FormSection

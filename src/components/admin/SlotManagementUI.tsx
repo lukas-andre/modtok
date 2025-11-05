@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { HomepageSlot, Provider, House, ServiceProduct } from '@/lib/database.types';
+import type { HomepageSlot, Provider, House, ServiceProduct } from "@/lib/database.helpers";
 
 interface SlotWithContent extends HomepageSlot {
   content?: {

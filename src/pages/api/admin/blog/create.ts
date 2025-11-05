@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseClient } from '@/lib/supabase';
 import { getAdminAuth } from '@/lib/auth';
-import type { BlogPostInsert } from '@/lib/database.types';
+import type { BlogPostInsert } from "@/lib/database.helpers";
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {

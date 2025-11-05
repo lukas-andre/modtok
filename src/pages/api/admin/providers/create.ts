@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseClient } from '@/lib/supabase';
 import { getAdminAuth } from '@/lib/auth';
-import type { ProviderInsert } from '@/lib/database.types';
+import type { ProviderInsert } from "@/lib/database.helpers";
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
@@ -24,55 +24,32 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       email,
       phone,
       description,
-      description_long,
 
       // Contact & location
       whatsapp,
       website,
       address,
       city,
-      region,
+      hq_region_code,
 
       // SERVICES (NEW MODEL - Múltiples Servicios)
       is_manufacturer,
       is_service_provider,
 
-      // Coverage regions (Schema v3)
-      coverage_regions, // NEW Schema v3: array of region codes
+      // Coverage regions (NEW: array of region codes for service providers)
+      coverage_regions,
 
-      // Features (JSONB)
-      features,
-
-      // Tier and status
-      tier = 'standard' as const,
-      status = 'pending_review' as const,
-
-      // Premium/featured settings
-      featured_until,
-      premium_until,
-      featured_order,
-      internal_rating,
-
-      // EDITORIAL FLAGS (NEW)
-      has_quality_images,
-      has_complete_info,
-      editor_approved_for_premium,
-      has_landing_page,
-      landing_slug,
-
-      // SEO
-      meta_title,
-      meta_description,
-      keywords,
+      // Status
+      status = 'draft' as const,
 
       // Admin fields
       admin_notes
     } = formData;
 
     // Validation
-    if (!company_name || !email || !phone) {
+    if (!company_name || !email) {
       return new Response(
-        JSON.stringify({ error: 'Company name, email, and phone are required' }),
+        JSON.stringify({ error: 'Company name and email are required' }),
         {
           status: 400,
           headers: { 'Content-Type': 'application/json' }
@@ -91,9 +68,21 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    if (!['premium', 'destacado', 'standard'].includes(tier)) {
+    // Validate HQ region if provided
+    if (!hq_region_code) {
       return new Response(
-        JSON.stringify({ error: 'Invalid tier' }),
+        JSON.stringify({ error: 'HQ region is required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    // Validate coverage regions for service providers
+    if (is_service_provider && (!coverage_regions || coverage_regions.length === 0)) {
+      return new Response(
+        JSON.stringify({ error: 'Service providers must have at least one coverage region' }),
         {
           status: 400,
           headers: { 'Content-Type': 'application/json' }
@@ -113,74 +102,49 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       .replace(/-+/g, '-')
       .trim();
 
-    // Check if slug already exists and append number if needed
+    // Ensure slug is unique by appending number if needed
     let slug = baseSlug;
     let counter = 1;
-    let slugExists = true;
+    let isUnique = false;
 
-    while (slugExists) {
-      const { data: existingProvider } = await supabase
+    while (!isUnique) {
+      const { data: existingProvider, error: slugCheckError } = await supabase
         .from('providers')
         .select('id')
         .eq('slug', slug)
-        .single();
+        .maybeSingle();
+
+      if (slugCheckError) {
+        throw new Error(`Error checking slug uniqueness: ${slugCheckError.message}`);
+      }
 
       if (!existingProvider) {
-        slugExists = false;
+        isUnique = true;
       } else {
         slug = `${baseSlug}-${counter}`;
         counter++;
       }
     }
 
-    // Determine primary_category for backward compatibility
-    // If is_manufacturer, use 'fabrica', else use 'habilitacion_servicios'
-    const primary_category = is_manufacturer ? 'fabrica' : 'habilitacion_servicios';
-
-    // Prepare provider data
+    // Prepare provider data (Provider Minimalista: identity only)
     const providerData: ProviderInsert = {
       company_name,
       slug,
       email,
-      phone,
+      phone: phone || null,
+      whatsapp: whatsapp || null,
+      website: website || null,
+      address: address || null,
+      city: city || null,
+      hq_region_code,
 
-      // NEW FIELDS: Multiple services support
+      // Service roles
       is_manufacturer: Boolean(is_manufacturer),
       is_service_provider: Boolean(is_service_provider),
 
-      // Keep primary_category for backward compatibility
-      primary_category: primary_category as 'fabrica' | 'habilitacion_servicios' | 'casas',
-
-      description,
-      description_long,
-      whatsapp,
-      website,
-      address,
-      city,
-      region,
-
-      // Features stored as JSONB
-      features: features || {},
-
-      tier: tier as 'premium' | 'destacado' | 'standard',
+      description: description || null,
       status: status as 'draft' | 'pending_review' | 'active' | 'inactive' | 'rejected',
-      featured_until: featured_until ? new Date(featured_until).toISOString() : null,
-      premium_until: premium_until ? new Date(premium_until).toISOString() : null,
-      featured_order: featured_order ? parseInt(featured_order) : null,
-      internal_rating: internal_rating ? parseInt(internal_rating) : null,
-
-      // Editorial flags
-      has_quality_images: Boolean(has_quality_images),
-      has_complete_info: Boolean(has_complete_info),
-      editor_approved_for_premium: Boolean(editor_approved_for_premium),
-      has_landing_page: Boolean(has_landing_page),
-      landing_slug: landing_slug || null,
-
-      // SEO
-      meta_title,
-      meta_description,
-      keywords: keywords || [],
-      admin_notes
+      admin_notes: admin_notes || null
     };
 
     // Set approval if status is active
@@ -235,15 +199,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           target_type: 'provider',
           target_id: provider.id,
           changes: {
-            created: {
-              ...providerData,
-              is_manufacturer,
-              is_service_provider,
-              has_quality_images,
-              has_complete_info,
-              editor_approved_for_premium,
-              has_landing_page
-            }
+            created: providerData,
+            coverage_regions: coverage_regions || []
           }
         });
     }
@@ -257,10 +214,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
           company_name: provider.company_name,
           slug: provider.slug,
           email: provider.email,
-          tier: provider.tier,
           status: provider.status,
           is_manufacturer: provider.is_manufacturer,
-          is_service_provider: provider.is_service_provider
+          is_service_provider: provider.is_service_provider,
+          hq_region_code: provider.hq_region_code
         }
       }),
       {

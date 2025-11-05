@@ -1,0 +1,149 @@
+---
+import AdminLayout from '../../../../../layouts/AdminLayout.astro';
+import { getAdminAuth, requireAdmin } from '../../../../../lib/auth';
+import { createSupabaseClient } from '../../../../../lib/supabase';
+import ServiceForm from '../../../../../components/admin/forms/ServiceForm';
+
+const auth = await getAdminAuth(Astro);
+const user = requireAdmin(auth);
+
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/admin/catalog/services');
+}
+
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect('/admin/catalog/services');
+}
+
+// Fetch service data with provider info
+const supabase = createSupabaseClient(Astro);
+const { data: service, error } = await supabase
+  .from('service_products')
+  .select(`
+    *,
+    provider:providers(id, company_name, slug)
+  `)
+  .eq('id', id)
+  .single();
+
+// Fetch providers for the form
+const { data: providers } = await supabase
+  .from('providers')
+  .select('id, company_name')
+  .eq('status', 'active')
+  .eq('is_service_provider', true)
+  .order('company_name');
+
+if (error || !service) {
+  return Astro.redirect('/admin/catalog/services?error=Servicio no encontrado');
+}
+
+// Fetch coverage_deltas from separate table
+const { data: deltas } = await supabase
+  .from('service_product_coverage_deltas')
+  .select('region_code, op')
+  .eq('service_product_id', id);
+
+// Prepare initial data
+const initialData = {
+  name: service.name,
+  slug: service.slug,
+  sku: service.sku || '',
+  description: service.description || '',
+  description_long: service.description_long || '',
+  provider_id: service.provider_id || '',
+  price_from: service.price_from || 0,
+  price_to: service.price_to || 0,
+  price_unit: service.price_unit || 'per_project',
+  currency: service.currency || 'CLP',
+  max_bookings: service.max_bookings || null,
+  current_bookings: service.current_bookings || 0,
+  is_available: service.is_available ?? true,
+  coverage_mode: service.coverage_mode || 'inherit',
+  coverage_deltas: deltas || [],
+  features: service.features || {},
+  tier: service.tier || 'standard',
+  status: service.status || 'draft',
+  has_quality_images: service.has_quality_images || false,
+  has_complete_info: service.has_complete_info || false,
+  editor_approved_for_premium: service.editor_approved_for_premium || false,
+  has_landing_page: service.has_landing_page || false,
+  landing_slug: service.landing_slug || '',
+  meta_title: service.meta_title || '',
+  meta_description: service.meta_description || '',
+  keywords: service.keywords || [],
+};
+---
+
+<AdminLayout title={`Editar ${service.name}`} user={user} currentPage="/admin/catalog/services">
+  <div class="p-6">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-4">
+        <a
+          href="/admin/catalog/services"
+          class="text-gray-600 hover:text-gray-900 flex items-center"
+        >
+          <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          Volver a Servicios
+        </a>
+
+        <!-- Status Badge -->
+        <span class={`px-3 py-1 text-sm font-medium rounded-full ${
+          service.status === 'active' ? 'bg-green-100 text-green-800' :
+          service.status === 'pending_review' ? 'bg-yellow-100 text-yellow-800' :
+          service.status === 'draft' ? 'bg-gray-100 text-gray-800' :
+          service.status === 'inactive' ? 'bg-gray-100 text-gray-600' :
+          'bg-red-100 text-red-800'
+        }`}>
+          {service.status === 'active' ? '✓ Activo' :
+           service.status === 'pending_review' ? '⏳ Pendiente' :
+           service.status === 'draft' ? '📝 Borrador' :
+           service.status === 'inactive' ? '⏸ Inactivo' :
+           '✗ Rechazado'}
+        </span>
+      </div>
+
+      <h2 class="text-2xl font-bold text-gray-900">Editar Servicio</h2>
+      <p class="text-gray-600 mt-1">{service.name}</p>
+
+      <!-- Info Badges -->
+      <div class="flex items-center space-x-2 mt-3">
+        <span class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+          service.tier === 'premium' ? 'bg-purple-100 text-purple-800' :
+          service.tier === 'destacado' ? 'bg-yellow-100 text-yellow-800' :
+          'bg-gray-100 text-gray-800'
+        }`}>
+          {service.tier === 'premium' ? '👑 Premium' :
+           service.tier === 'destacado' ? '⭐ Destacado' :
+           '📦 Standard'}
+        </span>
+
+        {service.has_landing_page && (
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            🌐 Landing Page
+          </span>
+        )}
+
+        {service.editor_approved_for_premium && (
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            ✓ Aprobado Premium
+          </span>
+        )}
+      </div>
+    </div>
+
+    <!-- Form Component -->
+    <ServiceForm
+      client:load
+      mode="edit"
+      serviceId={id}
+      initialData={initialData}
+      providers={providers || []}
+    />
+  </div>
+</AdminLayout>

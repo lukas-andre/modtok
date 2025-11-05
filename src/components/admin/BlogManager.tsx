@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import BlogPostForm from './BlogPostForm';
-import type { BlogPost, BlogPostInsert, BlogPostUpdate } from '@/lib/database.types';
+import type { BlogPost, BlogPostInsert, BlogPostUpdate } from "@/lib/database.helpers";
 
 interface BlogManagerProps {
   user: any;

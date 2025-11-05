@@ -98,33 +98,44 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       });
     }
 
-    // Generate slug if not provided
-    if (!body.slug) {
-      body.slug = body.name
-        .toLowerCase()
-        .replace(/[áàäâã]/g, 'a')
-        .replace(/[éèëê]/g, 'e')
-        .replace(/[íìïî]/g, 'i')
-        .replace(/[óòöôõ]/g, 'o')
-        .replace(/[úùüû]/g, 'u')
-        .replace(/[ñ]/g, 'n')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      
-      // Check if slug exists and make it unique
-      const { data: existing } = await supabase
+    // Generate base slug from name if not provided
+    let baseSlug = body.slug || body.name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    // Ensure slug is unique by appending number if needed
+    let slug = baseSlug;
+    let counter = 1;
+    let isUnique = false;
+
+    while (!isUnique) {
+      const { data: existing, error: slugCheckError } = await supabase
         .from('houses')
-        .select('slug')
-        .eq('slug', body.slug)
-        .single();
-      
-      if (existing) {
-        body.slug = `${body.slug}-${Date.now()}`;
+        .select('id')
+        .eq('slug', slug)
+        .maybeSingle();
+
+      if (slugCheckError) {
+        throw new Error(`Error checking slug uniqueness: ${slugCheckError.message}`);
+      }
+
+      if (!existing) {
+        isUnique = true;
+      } else {
+        slug = `${baseSlug}-${counter}`;
+        counter++;
       }
     }
 
+    body.slug = slug;
+
     // Convert numeric fields
-    const numericFields = ['bedrooms', 'bathrooms', 'area_m2', 'area_built_m2', 'floors', 
+    const numericFields = ['bedrooms', 'bathrooms', 'area_m2', 'area_built_m2', 'floors',
                           'price', 'price_opportunity', 'price_per_m2', 'stock_quantity',
                           'delivery_time_days', 'assembly_time_days', 'warranty_years'];
     
@@ -135,8 +146,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     });
 
     // Convert array fields from string if needed
-    const arrayFields = ['technology_materials', 'windows_type', 'services_included', 
-                        'gallery_images', 'floor_plans', 'videos', 'keywords'];
+    const arrayFields = ['gallery_images', 'floor_plans', 'videos', 'keywords'];
     
     arrayFields.forEach(field => {
       if (typeof body[field] === 'string') {

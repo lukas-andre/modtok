@@ -17,15 +17,24 @@
 
 ## 🎯 PRIORIDAD ALTA - Lógica de Negocio
 
-### 1. Landing Pages solo para PRO
+### ✅ 1. Landing Pages solo para Premium (COMPLETADO)
 **Problema:** Al parecer todos están teniendo página/landing, solo los PRO deberían poder tener.
 
-**Acciones:**
-- [ ] Verificar lógica en `/fabricantes/[slug].astro` y `/casas/[slug].astro`
-- [ ] Implementar verificación de `tier` o `has_landing_page`
-- [ ] Redirect a listado o página genérica si no es PRO
+**Implementación:**
+- ✅ Creada tabla `provider_landings` para control editorial de fabricantes
+- ✅ Actualizada vista `manufacturer_facets_effective` con campo `has_landing` derivado
+- ✅ Lógica: `tier='premium'` + `provider_landings.enabled` + `editorial_status='published'`
+- ✅ Verificación en `/fabricantes/[slug].astro` con redirect a `/fabricantes`
+- ✅ Verificación en `/casas/[slug].astro` con redirect a `/` (tier + has_landing_page)
+- ✅ Triggers DB que validan solo premium puede tener landing
+- ✅ UI Admin para gestionar landing pages de fabricantes
+- ✅ API pública GET `/api/manufacturers` con campo `has_landing`
 
-**Estimación:** 1 hora
+**Arquitectura:**
+- Fabricantes: `manufacturer_profiles.tier` + tabla editorial `provider_landings`
+- Casas: `houses.tier` + `houses.has_landing_page` (enfoque producto)
+
+**Tiempo real:** 1.5 horas
 
 ---
 
@@ -128,11 +137,11 @@
 | Categoría | Tareas | Tiempo Total |
 |-----------|--------|--------------|
 | **Urgente** | 0 | 0h (completado) |
-| **Prioridad Alta** | 2 | ~3h |
+| **Prioridad Alta** | 1 → 2 completadas | ~1.5h → ~1.5h pendiente |
 | **Diseño & UX** | 2 | ~5h |
 | **Mejoras Técnicas** | 4 | ~2.5h |
 | **SEO & Docs** | 2 | ~4h |
-| **TOTAL** | 10 | **~14.5 horas** |
+| **TOTAL** | 9 pendientes | **~13 horas** |
 
 ---
 
@@ -154,3 +163,51 @@
 - **Detalle de bugs resueltos:** `.context/logs/MODTOK_PENDING_FIXES.md`
 - **Feedback técnico completo:** `.context/logs/MODTOK_UNIFIED_TASKS_FEEDBACK.md`
 - **Tareas unificadas:** `.context/logs/MODTOK_UNIFIED_TASKS.md`
+
+---
+
+## 🚀 MEJORAS FUTURAS - Landing Pages (Fabricantes, Casas y Servicios)
+
+### Landing Pages Avanzadas (Aplicable a todos los tipos)
+
+**Features Editoriales:**
+- [ ] Editor visual de secciones: JSON editor para `sections` field con bloques drag-and-drop
+- [ ] Templates personalizados: Múltiples plantillas visuales (default, premium, showcase, modern, etc.)
+- [ ] Preview en tiempo real: Vista previa sin publicar (staging URL)
+- [ ] Scheduled publishing: Programar fecha/hora de publicación automática
+- [ ] Version history: Historial de cambios con rollback
+
+**SEO & Marketing:**
+- [ ] SEO score automático: Análisis de meta tags, keywords, structure
+- [ ] Image optimizer: CDN integrado para optimizar og_image_url y gallery
+- [ ] Rich snippets: Schema.org automático por tipo (Organization, Product, Service)
+- [ ] Redirects manager: Gestión de redirects 301 para cambios de slug
+- [ ] Sitemap automático: Generación dinámica de sitemap.xml con landings activas
+
+**Analytics & Testing:**
+- [ ] Analytics dashboard: Tracking de visitas, conversiones, bounce rate por landing
+- [ ] A/B Testing: Múltiples versiones de landing para comparar performance
+- [ ] Heatmaps: Mapas de calor de interacciones de usuario
+- [ ] Conversion tracking: Goals y funnels por landing page
+
+**Operaciones Bulk:**
+- [ ] Bulk enable/disable: Habilitar/deshabilitar múltiples landings a la vez
+- [ ] Bulk SEO update: Actualizar meta tags en batch
+- [ ] Import/Export: Importar configuraciones de landing desde CSV/JSON
+- [ ] Duplicate landing: Clonar configuración para crear nuevas landings rápido
+
+**Integraciones:**
+- [ ] WhatsApp Business API: Botón de contacto directo con tracking
+- [ ] Email marketing: Forms integrados con Mailchimp/SendGrid
+- [ ] CRM integration: Leads automáticos a HubSpot/Salesforce
+- [ ] Social proof: Integración con reviews de Google/Facebook
+
+**Performance:**
+- [ ] Static generation: Pre-renderizar landings para mejor performance
+- [ ] CDN caching: Cache estratégico por tier y región
+- [ ] Lazy loading: Carga progresiva de imágenes y secciones
+- [ ] Progressive Web App: PWA para landings mobile-first
+
+**Estimación total:** 40-60 horas (priorizar según ROI)
+
+En notado que no piden ninguna caracterista, debería almenos agregar 1 feature para crear casas/providers/h&s

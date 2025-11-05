@@ -9,6 +9,7 @@ interface House {
   model_code: string | null;
   main_image_url: string | null;
   area_m2: number | null;
+  area_built_m2: number | null;
   bedrooms: number | null;
   bathrooms: number | null;
   price: number | null;
@@ -74,11 +75,11 @@ export default function HousesTable({ houses, topologyMap, userRole }: HousesTab
                 Modelo: {row.model_code}
               </div>
             )}
-            {row.area_m2 && (
-              <div className="text-xs text-accent-blue mt-0.5 font-medium">
-                {row.area_m2}m²
-              </div>
-            )}
+            <div className="text-xs text-accent-blue mt-0.5 font-medium">
+              {row.area_m2 && `${row.area_m2}m² total`}
+              {row.area_m2 && row.area_built_m2 && ' • '}
+              {row.area_built_m2 && `${row.area_built_m2}m² const.`}
+            </div>
           </div>
         </div>
       ),

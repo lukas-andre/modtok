@@ -33,8 +33,8 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       );
     }
 
-    // Get providers that have this category
-    const { data: providers, error } = await supabase
+    // Filter providers by their role flags
+    let query = supabase
       .from('providers')
       .select(`
         id,
@@ -43,12 +43,23 @@ export const GET: APIRoute = async ({ request, cookies }) => {
         email,
         phone,
         status,
-        tier,
-        provider_categories!inner(category_type, is_primary)
+        is_manufacturer,
+        is_service_provider
       `)
-      .eq('provider_categories.category_type', category as 'fabrica' | 'casas' | 'habilitacion_servicios')
       .eq('status', 'active')
       .order('company_name');
+
+    // Apply category filter based on role
+    if (category === 'fabrica') {
+      query = query.eq('is_manufacturer', true);
+    } else if (category === 'habilitacion_servicios') {
+      query = query.eq('is_service_provider', true);
+    } else if (category === 'casas') {
+      // For 'casas', get manufacturers (they sell houses)
+      query = query.eq('is_manufacturer', true);
+    }
+
+    const { data: providers, error } = await query;
 
     if (error) {
       console.error('Error fetching providers by category:', error);
@@ -66,8 +77,8 @@ export const GET: APIRoute = async ({ request, cookies }) => {
       email: p.email,
       phone: p.phone,
       status: p.status,
-      tier: p.tier,
-      categories: p.provider_categories?.map((pc: any) => pc.category_type) || []
+      is_manufacturer: p.is_manufacturer,
+      is_service_provider: p.is_service_provider
     }));
 
     // Add "Select a provider" option if requested
@@ -79,8 +90,8 @@ export const GET: APIRoute = async ({ request, cookies }) => {
         email: '',
         phone: '',
         status: 'active',
-        tier: 'standard',
-        categories: []
+        is_manufacturer: false,
+        is_service_provider: false
       });
     }
 

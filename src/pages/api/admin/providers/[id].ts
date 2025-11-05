@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createSupabaseClient } from '@/lib/supabase';
 import { getAdminAuth } from '@/lib/auth';
-import type { ProviderUpdate } from '@/lib/database.types';
+import type { ProviderUpdate } from "@/lib/database.helpers";
 
 // GET - Fetch single provider
 export const GET: APIRoute = async ({ params, request, cookies }) => {
